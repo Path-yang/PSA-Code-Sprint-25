@@ -11,11 +11,14 @@ try {
   const source = join(process.cwd(), 'my_solution/frontend/dist');
   const target = join(process.cwd(), 'dist');
 
+  console.log(`[build] copying ${source} -> ${target}`);
+
   if (existsSync(target)) {
     rmSync(target, { recursive: true, force: true });
   }
 
   cpSync(source, target, { recursive: true });
+  console.log('[build] copy completed');
 } catch (err) {
   process.exitCode = err.status ?? 1;
 }
