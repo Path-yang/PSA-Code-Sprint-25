@@ -180,7 +180,7 @@ Return JSON:
 
 IMPORTANT: Do NOT include step numbers, prefixes like "Step 1:", or any special characters like ")" at the beginning of steps. Write each step as a direct action statement.
 
-Return ONLY valid JSON.
+Return ONLY valid JSON."""
 
         response = self._call_gpt(system_prompt, user_prompt, temperature=0.2)
         try:
