@@ -155,20 +155,22 @@ KNOWLEDGE BASE (relevant articles):
 PAST CASE SOLUTIONS:
 {case_solutions if case_solutions else "No past solutions found"}
 
-Provide detailed resolution steps:
+Provide detailed resolution steps. Each step should be a clear action statement WITHOUT step numbers or prefixes (numbers will be added automatically).
 
 Return JSON:
 {{
     "resolution_steps": [
-        "Step 1: Specific action with commands/SQL if applicable",
-        "Step 2: ...",
-        "Step 3: ..."
+        "Identify the container records in the database for container CMAU0000020 by executing the SQL query: SELECT * FROM container WHERE cntr_no = 'CMAU0000020' ORDER BY created_at DESC",
+        "Review the returned records to confirm multiple entries exist with different created_at timestamps",
+        "Keep the most recent record (the one with the highest created_at timestamp). Prepare to delete older duplicate entries"
     ],
     "verification_steps": [
-        "How to verify the fix worked"
+        "Verify that only one container record exists for CMAU0000020 with the latest created_at timestamp",
+        "Check the container display in the customer-facing PORTNET system to ensure no duplicate entries are visible"
     ],
     "sql_queries": [
-        "Any SQL queries needed (if applicable)"
+        "SELECT * FROM container WHERE cntr_no = 'CMAU0000020' ORDER BY created_at DESC;",
+        "DELETE c FROM container c JOIN (SELECT cntr_no, vessel_id, eta_ts, MAX(created_at) AS max_created_at FROM container WHERE cntr_no = 'CMAU0000020' GROUP BY cntr_no, vessel_id, eta_ts) keep ON keep.cntr_no = c.cntr_no AND keep.vessel_id = c.vessel_id AND keep.eta_ts = c.eta_ts WHERE c.created_at < keep.max_created_at;"
     ],
     "estimated_time": "estimated time to resolve (e.g., '15 minutes')",
     "escalate": true/false,
@@ -176,7 +178,9 @@ Return JSON:
     "escalate_reason": "why escalation is or isn't needed"
 }}
 
-Return ONLY valid JSON."""
+IMPORTANT: Do NOT include step numbers, prefixes like "Step 1:", or any special characters like ")" at the beginning of steps. Write each step as a direct action statement.
+
+Return ONLY valid JSON.
 
         response = self._call_gpt(system_prompt, user_prompt, temperature=0.2)
         try:
@@ -232,6 +236,13 @@ Create a well-formatted markdown report with:
 4. Resolution Steps (numbered and actionable)
 5. Verification Checklist
 6. Escalation Guidance (if needed)
+
+IMPORTANT FORMATTING RULES:
+- When listing numbered steps, do NOT add extra numbering or prefixes before items
+- Each step should be a clear, direct action statement
+- Do NOT include "Step 1:", "Step 2:", etc. prefixes (markdown numbering handles this)
+- Do NOT add special characters like ")" or extra symbols
+- Keep SQL queries and commands in separate code blocks
 
 Use clear formatting with headers, bullet points, and code blocks where appropriate.
 Make it professional and ready to present to stakeholders."""
