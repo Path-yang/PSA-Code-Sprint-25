@@ -1,33 +1,17 @@
 {
   "version": 2,
   "buildCommand": "cd my_solution && npm run build",
-  "outputDirectory": "my_solution/dist",
   "installCommand": "cd my_solution && npm install",
-  "builds": [
-    {
-      "src": "my_solution/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "my_solution/dist"
-      }
-    },
-    {
-      "src": "my_solution/api/**/*.py",
-      "use": "@vercel/python"
+  "outputDirectory": "my_solution/dist",
+  "functions": {
+    "my_solution/api/**/*.py": {
+      "runtime": "python3.11"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/my_solution/api/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/my_solution/dist/index.html"
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
-

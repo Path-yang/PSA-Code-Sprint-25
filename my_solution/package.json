@@ -1,6 +1,7 @@
 {
   "name": "psa-code-sprint-25",
   "private": true,
+  "type": "module",
   "workspaces": [
     "frontend"
   ],
