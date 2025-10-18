@@ -5,6 +5,7 @@ my_solution/venv/
 __pycache__/
 *.pyc
 node_modules/
+dist/
 
 # macOS
 .DS_Store

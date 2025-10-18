@@ -1,7 +1,10 @@
-const DEFAULT_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const explicitBase = import.meta.env.VITE_API_BASE_URL;
+const DEFAULT_BASE_URL = explicitBase && explicitBase.length > 0 ? explicitBase.replace(/\/+$/, '') : '';
 
 export async function diagnoseAlert(alertText) {
-  const response = await fetch(`${DEFAULT_BASE_URL}/api/diagnose`, {
+  const endpoint = DEFAULT_BASE_URL ? `${DEFAULT_BASE_URL}/api/diagnose` : '/api/diagnose';
+
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
