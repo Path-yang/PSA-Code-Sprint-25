@@ -1,11 +1,10 @@
 # Virtual environment
-my_solution/venv/
 venv/
 .venv/
 
 # Node modules (will be installed during build)
 node_modules/
-my_solution/frontend/node_modules/
+frontend/node_modules/
 
 # Python cache
 __pycache__/
@@ -31,7 +30,7 @@ __pycache__/
 Thumbs.db
 
 # Test files
-my_solution/backend/test_*.py
+backend/test_*.py
 tests/
 
 # Documentation (not needed for runtime)
@@ -43,7 +42,7 @@ tests/
 .gitignore
 
 # Build artifacts (will be regenerated)
-my_solution/frontend/dist/
+frontend/dist/
 
 # Logs
 *.log
@@ -53,4 +52,3 @@ my_solution/frontend/dist/
 *.docx
 ~$*.xlsx
 ~$*.docx
-

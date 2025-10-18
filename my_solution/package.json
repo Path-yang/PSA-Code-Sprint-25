@@ -2,11 +2,11 @@
   "name": "psa-code-sprint-25",
   "private": true,
   "workspaces": [
-    "my_solution/frontend"
+    "frontend"
   ],
   "scripts": {
     "build": "node build.js",
-    "dev": "npm run dev --workspace my_solution/frontend"
+    "dev": "npm run dev --workspace frontend"
   },
   "devDependencies": {
     "cross-env": "^10.1.0"

@@ -1,82 +1,461 @@
 # PSA Code Sprint 2025 – Problem Statement 3
 
-> AI co-pilot for Level 2 Product Operations at PORTNET®  
-> Automates triage, diagnostics, and report generation using logs, case history, and runbooks.
+> **AI Co-Pilot for Level 2 Product Operations at PORTNET®**  
+> Automates triage, diagnostics, and resolution planning using application logs, historical cases, and knowledge base articles.
 
-## Repository Layout
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://psa-code-sprint-25-frontend.vercel.app)
 
-- `Problem Statement 3 - Redefining Level 2 Product Ops copy/` – official hackathon assets  
-- `my_solution/backend/` – Python toolkit (diagnostic engine, Flask API, docs)  
-- `my_solution/frontend/` – React UI powered by Vite  
-- `Code Sprint 2025 Problem Statements copy.pdf` – overall challenge brief
+---
 
-## Backend Quick Start (Flask API)
+## 📁 Repository Structure
+
+```
+/
+├── Code Sprint 2025 Problem Statements copy.pdf  # Competition brief
+├── Problem Statement 3.../                       # Provided hackathon data
+│   ├── Application Logs/                        # 6 microservice log files
+│   ├── Case Log.xlsx                            # Historical incident cases
+│   ├── Knowledge Base.txt                       # SOPs and procedures
+│   ├── Database/                                # SQL schema and sample data
+│   └── Test Cases.pdf                           # Evaluation scenarios
+│
+├── my_solution/                                  # ← Complete solution
+│   ├── api/                                     # Vercel serverless functions
+│   │   ├── diagnose/index.py                   # Main diagnostic endpoint
+│   │   ├── test.py                             # Health check endpoint
+│   │   └── hello.py                            # Simple test endpoint
+│   │
+│   ├── backend/                                 # Core Python diagnostic engine
+│   │   ├── app/
+│   │   │   ├── diagnostic_system.py            # Main orchestrator
+│   │   │   ├── gpt_analyzer.py                 # Azure OpenAI integration
+│   │   │   ├── log_searcher.py                 # Application log parser
+│   │   │   ├── kb_searcher.py                  # Knowledge base search
+│   │   │   ├── case_log_searcher.py            # Historical case matcher
+│   │   │   └── config.py                       # Configuration & paths
+│   │   ├── webapp.py                           # Flask API for local dev
+│   │   ├── test_all_cases.py                   # Automated test suite
+│   │   └── requirements.txt                    # Python dependencies
+│   │
+│   ├── frontend/                                # React + Vite UI
+│   │   ├── src/
+│   │   │   ├── App.jsx                         # Main application component
+│   │   │   ├── api.js                          # API client
+│   │   │   └── styles.css                      # Styling
+│   │   └── package.json                        # Frontend dependencies
+│   │
+│   ├── vercel.json                             # Vercel deployment config
+│   ├── package.json                            # Root package config
+│   ├── build.js                                # Build orchestration script
+│   ├── requirements.txt                        # Root Python dependencies
+│   │
+│   ├── start_backend.sh                        # Quick start: Flask API
+│   ├── start_frontend.sh                       # Quick start: Vite dev server
+│   └── test_setup.sh                           # Environment verification
+│
+└── README.md                                     # This file
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Python 3.11+** with `venv`
+- **Node.js 18+** with `npm`
+- **Azure OpenAI API Key** from PSA Code Sprint portal
+
+---
+
+### Option 1: Production (Vercel Deployment)
+
+**Live Demo**: [https://psa-code-sprint-25-frontend.vercel.app](https://psa-code-sprint-25-frontend.vercel.app)
+
+The application is deployed on Vercel with:
+- Frontend served as static site
+- API functions as serverless Python endpoints
+- Environment variables configured in Vercel dashboard
+
+---
+
+### Option 2: Local Development
+
+#### Step 1: Setup Backend
 
 ```bash
+cd my_solution
+
+# Create and activate virtual environment
 python3 -m venv venv
-source venv/bin/activate
-pip install -r my_solution/backend/requirements.txt
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# optional: scaffold env file with hackathon creds
-cp my_solution/backend/.env.example my_solution/backend/.env
+# Install Python dependencies
+pip install -r backend/requirements.txt
+
+# Configure environment variables
+cd backend
+cp env_template.txt .env
+nano .env  # Add your Azure OpenAI API key
 ```
 
-Fill `my_solution/backend/.env` (or export variables manually) using the values from the PSA API portal:
+Your `.env` should contain:
+```bash
+AZURE_OPENAI_API_KEY=your-api-key-here
+AZURE_OPENAI_ENDPOINT=https://psacodesprint2025.azure-api.net/
+AZURE_OPENAI_API_VERSION=2025-01-01-preview
+AZURE_OPENAI_DEPLOYMENT=gpt-4.1-nano
+```
+
+#### Step 2: Start Backend Server
 
 ```bash
-export AZURE_OPENAI_API_KEY="..."
-export AZURE_OPENAI_ENDPOINT="https://psacodesprint2025.azure-api.net/"
-export AZURE_OPENAI_API_VERSION="2025-01-01-preview"
-export AZURE_OPENAI_DEPLOYMENT="gpt-4.1-nano"  # or chosen deployment
+# From my_solution/backend/
+source ../venv/bin/activate
+python webapp.py --port 5001
 ```
 
-### Run Automated Tests
+The Flask API will run at `http://localhost:5001`
+
+**Test it:**
+```bash
+curl http://localhost:5001/health
+# Should return: {"status": "ok"}
+```
+
+#### Step 3: Start Frontend
+
+```bash
+# Open a new terminal
+cd my_solution/frontend
+npm install
+npm run dev
+```
+
+The React app will open at `http://localhost:5173`
+
+---
+
+### Option 3: Quick Start Scripts
+
+We provide convenience scripts:
+
+```bash
+cd my_solution
+
+# Terminal 1: Backend
+./start_backend.sh
+
+# Terminal 2: Frontend
+./start_frontend.sh
+
+# Test your setup
+./test_setup.sh
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                 User (Browser)                          │
+└────────────────────┬────────────────────────────────────┘
+                     │
+         ┌───────────▼──────────┐
+         │  React Frontend      │
+         │  (Vite + React)      │
+         │  localhost:5173      │
+         └───────────┬──────────┘
+                     │ POST /api/diagnose
+         ┌───────────▼──────────┐
+         │  API Layer           │
+         │  Flask (local) or    │
+         │  Vercel Functions    │
+         └───────────┬──────────┘
+                     │
+    ┌────────────────▼────────────────────┐
+    │     L2 Diagnostic System            │
+    │  (diagnostic_system.py)             │
+    │                                     │
+    │  ┌────────────────────────────┐    │
+    │  │ 1. Parse Alert (GPT)       │    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 2. Search Application Logs │    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 3. Find Similar Cases      │    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 4. Search Knowledge Base   │    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 5. Analyze Root Cause(GPT) │    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 6. Generate Resolution(GPT)│    │
+    │  └────────────────────────────┘    │
+    │  ┌────────────────────────────┐    │
+    │  │ 7. Create Report (GPT)     │    │
+    │  └────────────────────────────┘    │
+    └─────────────────┬───────────────────┘
+                      │
+          ┌───────────▼──────────┐
+          │  Azure OpenAI API    │
+          │  gpt-4.1-nano        │
+          └──────────────────────┘
+```
+
+---
+
+## 🧪 Testing
+
+### Run Automated Test Suite
 
 ```bash
 cd my_solution/backend
 source ../venv/bin/activate
-export $(grep -v '^#' .env | xargs) 2>/dev/null || true
+export $(grep -v '^#' .env | xargs) 2>/dev/null
 python test_all_cases.py
 ```
 
-Follow the prompts (press Enter between scenarios). Reports are written to the working directory (ignored by git).
+This will test all scenarios from `Test Cases.pdf` and generate diagnostic reports.
 
-### Launch the API
+### Test Individual Endpoints
 
+```bash
+# Health check
+curl http://localhost:5001/health
+
+# Diagnose endpoint
+curl -X POST http://localhost:5001/api/diagnose \
+  -H "Content-Type: application/json" \
+  -d '{
+    "alertText": "RE: Email ALR-861600 | CMAU0000020 - Duplicate Container information received"
+  }'
+```
+
+---
+
+## 🎯 Key Features
+
+### 1. Intelligent Alert Parsing
+- Extracts ticket ID, module, entity ID, priority from unstructured text
+- Identifies symptoms and error codes using GPT-4
+
+### 2. Multi-Source Evidence Gathering
+- **Application Logs**: Searches 6 microservice logs for relevant entries
+- **Historical Cases**: Finds similar past incidents from Case Log
+- **Knowledge Base**: Retrieves relevant SOPs and procedures
+
+### 3. Root Cause Analysis
+- Synthesizes evidence from multiple sources
+- Provides confidence score and technical details
+- Lists supporting evidence
+
+### 4. Resolution Planning
+- Step-by-step resolution instructions
+- Estimated time to resolve
+- SQL queries and verification steps
+- Escalation recommendations
+
+### 5. Professional Reporting
+- Markdown-formatted diagnostic reports
+- Clear sections for all findings
+- Ready to share with team
+
+---
+
+## 📊 Technology Stack
+
+**Backend:**
+- Python 3.13
+- Azure OpenAI API (GPT-4.1-nano)
+- Flask (local dev)
+- Vercel Serverless Functions (production)
+
+**Frontend:**
+- React 18
+- Vite 5
+- Vanilla CSS
+
+**Deployment:**
+- Vercel (static site + serverless functions)
+- Git-based CI/CD
+
+**Data Processing:**
+- XML parsing (Case Log without openpyxl)
+- Regex-based log searching
+- Text similarity matching
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `AZURE_OPENAI_API_KEY` | Your Azure OpenAI API key | ✅ Yes |
+| `AZURE_OPENAI_ENDPOINT` | API endpoint URL | ✅ Yes |
+| `AZURE_OPENAI_API_VERSION` | API version | ✅ Yes |
+| `AZURE_OPENAI_DEPLOYMENT` | Model deployment name | ✅ Yes |
+
+**For local development**: Set in `my_solution/backend/.env`  
+**For Vercel**: Set in Vercel Dashboard → Settings → Environment Variables
+
+---
+
+## 📝 API Documentation
+
+### POST `/api/diagnose`
+
+Analyzes an alert and returns comprehensive diagnostic information.
+
+**Request:**
+```json
+{
+  "alertText": "RE: Email ALR-861600 | CMAU0000020 - Duplicate Container..."
+}
+```
+
+**Response:**
+```json
+{
+  "parsed": {
+    "ticket_id": "ALR-861600",
+    "module": "Container",
+    "entity_id": "CMAU0000020",
+    "priority": "Medium",
+    "channel": "Email",
+    "symptoms": ["duplicate", "container", "information"]
+  },
+  "rootCause": {
+    "root_cause": "...",
+    "technical_details": "...",
+    "confidence": 85,
+    "evidence_summary": [...]
+  },
+  "resolution": {
+    "resolution_steps": [...],
+    "estimated_time": "30 minutes",
+    "escalate": false,
+    "verification_steps": [...],
+    "sql_queries": [...]
+  },
+  "report": "# Diagnostic Report\n\n...",
+  "logEvidence": [...],
+  "knowledgeBase": [...],
+  "similarCases": [...]
+}
+```
+
+### GET `/health`
+
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Port Conflicts (macOS)
+
+If port 5000 is occupied by macOS Control Center:
+```bash
+python webapp.py --port 5001
+```
+
+Then update `frontend/vite.config.js`:
+```js
+proxy: {
+  '/api': {
+    target: 'http://localhost:5001',  // Changed from 5000
+    changeOrigin: true,
+  },
+}
+```
+
+### Missing Dependencies
+
+```bash
+# Backend
+cd my_solution
+source venv/bin/activate
+pip install -r backend/requirements.txt
+
+# Frontend
+cd frontend
+npm install
+```
+
+### API Key Issues
+
+Verify your `.env` file:
 ```bash
 cd my_solution/backend
-source ../venv/bin/activate
-export $(grep -v '^#' .env | xargs) 2>/dev/null || true
-python webapp.py --port 5000 --debug
+cat .env
 ```
 
-`POST http://127.0.0.1:5000/api/diagnose` with `{ "alertText": "..." }` to receive the structured GPT analysis. A simple `GET /health` returns service status.
+Ensure no extra spaces or quotes around the API key.
 
-## Frontend Quick Start (React)
+### Vercel Deployment Issues
 
-```bash
-cd my_solution/frontend
-npm install
-npm run dev   # defaults to http://127.0.0.1:5173
-```
+1. Check Root Directory setting: Should be `my_solution`
+2. Check environment variables in Vercel Dashboard
+3. View function logs: Vercel Dashboard → Functions → Logs
 
-Set `VITE_API_BASE_URL` in a `.env` file inside `my_solution/frontend/` if your backend runs on a different host/port (defaults to `http://localhost:5000`). The dev server proxies `/api/*` to the Flask backend when both run locally.
+---
 
-The React UI lets you paste an alert, calls the Flask API, and renders ticket metadata, root cause, resolution steps, and the generated report.
+## 📚 Additional Documentation
 
-## Backend Modules
+- **`my_solution/STARTUP_GUIDE.md`** - Comprehensive setup guide
+- **`my_solution/VERCEL_DEPLOYMENT.md`** - Vercel deployment details
+- **`my_solution/VERCEL_QUICK_FIX.md`** - Common deployment fixes
+- **`my_solution/FIXES_APPLIED.md`** - Technical fixes log
+- **`my_solution/backend/docs/`** - Backend implementation docs
 
-- `app/diagnostic_system.py` – orchestrates alert parsing, evidence retrieval, GPT analysis  
-- `app/log_searcher.py` – scans the six sample application logs  
-- `app/case_log_searcher.py` – parses `Case Log.xlsx` without external Excel libs  
-- `app/kb_searcher.py` – extracts procedures from `Knowledge Base.txt`  
-- `app/gpt_analyzer.py` – wraps Azure OpenAI calls for parsing, reasoning, and reporting  
-- `webapp.py` – Flask API exposing `/api/diagnose`
+---
 
-## Notes
+## 🎓 Design Decisions
 
-- Secrets never live in source control; use `.env` locally and deployment-specific environment variables in production.  
-- The diagnostic workflow relies on the seeded SQL/log/KB assets shipped with the problem statement. No live database is required.  
-- If a port is already in use locally, choose another via `--port` or stop the conflicting process (on macOS, AirPlay/Control Center frequently occupies 5000).
+### Why No External Excel Libraries?
+We parse `Case Log.xlsx` using Python's built-in `zipfile` and `xml.etree.ElementTree` to avoid heavy dependencies like `openpyxl` or `pandas`. This keeps the deployment lightweight for serverless environments.
 
-Happy debugging and good luck with PSA Code Sprint 2025! 🚢🚀
+### Why Separate `/api` from `/backend`?
+- `/api` contains Vercel serverless functions (HTTP handlers)
+- `/backend` contains core diagnostic logic (importable modules)
+- This separation allows the same logic to be used by both Vercel functions and local Flask API
+
+### Why GPT-4.1-nano?
+Balances performance and cost for rapid diagnostics while maintaining high accuracy for production-critical operations.
+
+---
+
+## 👥 Team & Competition
+
+**PSA Code Sprint 2025**  
+**Problem Statement 3**: Redefining Level 2 Product Ops
+
+Built for Singapore's Port Operations with ❤️
+
+---
+
+## 📄 License
+
+This project is submitted as part of PSA Code Sprint 2025.
+
+---
+
+## 🚀 Live Demo
+
+**Try it now**: [https://psa-code-sprint-25-frontend.vercel.app](https://psa-code-sprint-25-frontend.vercel.app)
+
+Paste an alert and watch the AI co-pilot diagnose it in seconds! 🎯
