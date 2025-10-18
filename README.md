@@ -6,8 +6,8 @@
 ## Repository Layout
 
 - `Problem Statement 3 - Redefining Level 2 Product Ops copy/` – official hackathon assets  
-- `backend/` – Python toolkit (diagnostic engine, Flask API, docs)  
-- `frontend/` – React UI powered by Vite  
+- `my_solution/backend/` – Python toolkit (diagnostic engine, Flask API, docs)  
+- `my_solution/frontend/` – React UI powered by Vite  
 - `Code Sprint 2025 Problem Statements copy.pdf` – overall challenge brief
 
 ## Backend Quick Start (Flask API)
@@ -15,13 +15,13 @@
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r backend/requirements.txt
+pip install -r my_solution/backend/requirements.txt
 
 # optional: scaffold env file with hackathon creds
-cp backend/.env.example backend/.env
+cp my_solution/backend/.env.example my_solution/backend/.env
 ```
 
-Fill `backend/.env` (or export variables manually) using the values from the PSA API portal:
+Fill `my_solution/backend/.env` (or export variables manually) using the values from the PSA API portal:
 
 ```bash
 export AZURE_OPENAI_API_KEY="..."
@@ -33,7 +33,7 @@ export AZURE_OPENAI_DEPLOYMENT="gpt-4.1-nano"  # or chosen deployment
 ### Run Automated Tests
 
 ```bash
-cd backend
+cd my_solution/backend
 source ../venv/bin/activate
 export $(grep -v '^#' .env | xargs) 2>/dev/null || true
 python test_all_cases.py
@@ -44,7 +44,7 @@ Follow the prompts (press Enter between scenarios). Reports are written to the w
 ### Launch the API
 
 ```bash
-cd backend
+cd my_solution/backend
 source ../venv/bin/activate
 export $(grep -v '^#' .env | xargs) 2>/dev/null || true
 python webapp.py --port 5000 --debug
@@ -55,12 +55,12 @@ python webapp.py --port 5000 --debug
 ## Frontend Quick Start (React)
 
 ```bash
-cd frontend
+cd my_solution/frontend
 npm install
 npm run dev   # defaults to http://127.0.0.1:5173
 ```
 
-Set `VITE_API_BASE_URL` in a `.env` file inside `frontend/` if your backend runs on a different host/port (defaults to `http://localhost:5000`). The dev server proxies `/api/*` to the Flask backend when both run locally.
+Set `VITE_API_BASE_URL` in a `.env` file inside `my_solution/frontend/` if your backend runs on a different host/port (defaults to `http://localhost:5000`). The dev server proxies `/api/*` to the Flask backend when both run locally.
 
 The React UI lets you paste an alert, calls the Flask API, and renders ticket metadata, root cause, resolution steps, and the generated report.
 

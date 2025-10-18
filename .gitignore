@@ -1,6 +1,6 @@
 # Python venvs and bytecode
 venv/
-backend/venv/
+my_solution/backend/venv/
 my_solution/venv/
 __pycache__/
 *.pyc
@@ -15,9 +15,9 @@ Problem Statement 3 - Redefining Level 2 Product Ops copy/.DS_Store
 .DS_Store
 
 # Generated reports / cache
-backend/test_case_*_report.md
+my_solution/backend/test_case_*_report.md
 .env
-backend/.env
-frontend/.env
-frontend/node_modules/
-frontend/dist/
+my_solution/backend/.env
+my_solution/frontend/.env
+my_solution/frontend/node_modules/
+my_solution/frontend/dist/
