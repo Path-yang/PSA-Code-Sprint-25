@@ -3,11 +3,6 @@
   "buildCommand": "cd my_solution && npm run build",
   "installCommand": "cd my_solution && npm install",
   "outputDirectory": "my_solution/dist",
-  "functions": {
-    "my_solution/api/**/*.py": {
-      "runtime": "python3.11"
-    }
-  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",

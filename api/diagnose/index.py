@@ -6,22 +6,22 @@ import os
 import sys
 import traceback
 
-# Ensure my_solution root is on sys.path for module imports
-def _ensure_solution_root():
+# Ensure project root is on sys.path for module imports
+def _ensure_project_root():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Go from api/diagnose/ up to my_solution/
-    solution_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
-    if solution_root not in sys.path:
-        sys.path.insert(0, solution_root)
+    # Go from api/diagnose/ up to repo root
+    project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
 
-_ensure_solution_root()
+_ensure_project_root()
 
 # Try to import and initialize the system
 _system = None
 _init_error = None
 
 try:
-    from backend.app.diagnostic_system import L2DiagnosticSystem
+    from my_solution.backend.app.diagnostic_system import L2DiagnosticSystem
     # Don't initialize yet - do it on first request
 except Exception as e:
     _init_error = str(e)

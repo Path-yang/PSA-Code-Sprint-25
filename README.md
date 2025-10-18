@@ -19,12 +19,12 @@
 │   ├── Database/                                # SQL schema and sample data
 │   └── Test Cases.pdf                           # Evaluation scenarios
 │
-├── my_solution/                                  # ← Complete solution
-│   ├── api/                                     # Vercel serverless functions
-│   │   ├── diagnose/index.py                   # Main diagnostic endpoint
-│   │   ├── test.py                             # Health check endpoint
-│   │   └── hello.py                            # Simple test endpoint
-│   │
+├── api/                                         # Vercel serverless functions (root level for Vercel)
+│   ├── diagnose/index.py                       # Main diagnostic endpoint
+│   ├── test.py                                 # Health check endpoint
+│   └── hello.py                                # Simple test endpoint
+│
+├── my_solution/                                  # ← Solution source code
 │   ├── backend/                                 # Core Python diagnostic engine
 │   │   ├── app/
 │   │   │   ├── diagnostic_system.py            # Main orchestrator
@@ -429,10 +429,11 @@ Ensure no extra spaces or quotes around the API key.
 ### Why No External Excel Libraries?
 We parse `Case Log.xlsx` using Python's built-in `zipfile` and `xml.etree.ElementTree` to avoid heavy dependencies like `openpyxl` or `pandas`. This keeps the deployment lightweight for serverless environments.
 
-### Why Separate `/api` from `/backend`?
-- `/api` contains Vercel serverless functions (HTTP handlers)
-- `/backend` contains core diagnostic logic (importable modules)
-- This separation allows the same logic to be used by both Vercel functions and local Flask API
+### Why `/api` at Root Level?
+- Vercel requires serverless functions to be in `/api` directory at repository root
+- This is a Vercel platform requirement for automatic function detection
+- `/api` imports from `/my_solution/backend` for the actual diagnostic logic
+- This separation keeps most code organized in `/my_solution` while meeting Vercel's requirements
 
 ### Why GPT-4.1-nano?
 Balances performance and cost for rapid diagnostics while maintaining high accuracy for production-critical operations.
