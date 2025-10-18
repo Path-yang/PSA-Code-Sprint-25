@@ -1,0 +1,56 @@
+# Virtual environment
+my_solution/venv/
+venv/
+.venv/
+
+# Node modules (will be installed during build)
+node_modules/
+my_solution/frontend/node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment files (use Vercel environment variables instead)
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+my_solution/backend/test_*.py
+tests/
+
+# Documentation (not needed for runtime)
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts (will be regenerated)
+my_solution/frontend/dist/
+
+# Logs
+*.log
+
+# PDFs and large documents (if not needed at runtime)
+*.pdf
+*.docx
+~$*.xlsx
+~$*.docx
+

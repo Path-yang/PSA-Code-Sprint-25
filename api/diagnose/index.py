@@ -1,9 +1,9 @@
 """Vercel serverless function exposing the L2 diagnostic system."""
 
+from http.server import BaseHTTPRequestHandler
 import json
 import os
 import sys
-from typing import Any, Dict
 
 # Ensure project root is on sys.path for module imports
 def _ensure_project_root():
@@ -19,41 +19,43 @@ from my_solution.backend.app.diagnostic_system import L2DiagnosticSystem
 _system: L2DiagnosticSystem | None = None
 
 
-def _json_response(status: int, payload: Dict[str, Any]) -> Dict[str, Any]:
-    return {
-        "statusCode": status,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(payload),
-    }
-
-
-def handler(request: Any) -> Dict[str, Any]:
-    """Entry point for the Vercel Python runtime."""
-    global _system
-
-    if _system is None:
-        _system = L2DiagnosticSystem()
-
-    if request.method != "POST":
-        return _json_response(405, {"error": "Method Not Allowed"})
-
-    try:
-        data = request.json()
-    except Exception:
+class handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        """Handle preflight CORS requests"""
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+    
+    def do_POST(self):
+        """Handle POST requests for diagnostic analysis"""
+        global _system
+        
         try:
-            data = json.loads(request.body or "{}")
-        except Exception:
-            data = {}
-
-    alert_text = (data.get("alertText") or "").strip()
-    if not alert_text:
-        return _json_response(400, {"error": "alertText is required"})
-
-    try:
-        result = _system.diagnose(alert_text, verbose=False)
-        return _json_response(
-            200,
-            {
+            # Initialize system if needed
+            if _system is None:
+                _system = L2DiagnosticSystem()
+            
+            # Read and parse request body
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+            
+            try:
+                data = json.loads(body)
+            except:
+                data = {}
+            
+            alert_text = (data.get("alertText") or "").strip()
+            if not alert_text:
+                self._send_json(400, {"error": "alertText is required"})
+                return
+            
+            # Run diagnostics
+            result = _system.diagnose(alert_text, verbose=False)
+            
+            # Send success response
+            self._send_json(200, {
                 "parsed": result["parsed"],
                 "rootCause": result["root_cause"],
                 "resolution": result["resolution"],
@@ -61,7 +63,15 @@ def handler(request: Any) -> Dict[str, Any]:
                 "logEvidence": result["log_evidence"],
                 "knowledgeBase": result["kb_articles"],
                 "similarCases": result["similar_cases"],
-            },
-        )
-    except Exception as exc:  # pragma: no cover - defensive
-        return _json_response(500, {"error": str(exc)})
+            })
+            
+        except Exception as exc:
+            self._send_json(500, {"error": str(exc)})
+    
+    def _send_json(self, status_code: int, data: dict):
+        """Helper to send JSON responses"""
+        self.send_response(status_code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
