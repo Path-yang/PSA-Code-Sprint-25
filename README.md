@@ -19,12 +19,12 @@
 │   ├── Database/                                # SQL schema and sample data
 │   └── Test Cases.pdf                           # Evaluation scenarios
 │
-├── api/                                         # Vercel serverless functions (root level for Vercel)
+├── api/                                         # Vercel serverless functions (required at root)
 │   ├── diagnose/index.py                       # Main diagnostic endpoint
 │   ├── test.py                                 # Health check endpoint
 │   └── hello.py                                # Simple test endpoint
 │
-├── my_solution/                                  # ← Solution source code
+├── my_solution/                                  # ← Complete solution
 │   ├── backend/                                 # Core Python diagnostic engine
 │   │   ├── app/
 │   │   │   ├── diagnostic_system.py            # Main orchestrator
@@ -35,25 +35,27 @@
 │   │   │   └── config.py                       # Configuration & paths
 │   │   ├── webapp.py                           # Flask API for local dev
 │   │   ├── test_all_cases.py                   # Automated test suite
-│   │   └── requirements.txt                    # Python dependencies
+│   │   └── requirements.txt                    # Python dependencies (local dev)
 │   │
 │   ├── frontend/                                # React + Vite UI
 │   │   ├── src/
 │   │   │   ├── App.jsx                         # Main application component
 │   │   │   ├── api.js                          # API client
 │   │   │   └── styles.css                      # Styling
-│   │   └── package.json                        # Frontend dependencies
+│   │   ├── package.json                        # Frontend dependencies
+│   │   └── vite.config.js                      # Vite configuration
 │   │
-│   ├── vercel.json                             # Vercel deployment config
-│   ├── package.json                            # Root package config
+│   ├── package.json                            # Workspace & build config
 │   ├── build.js                                # Build orchestration script
-│   ├── requirements.txt                        # Root Python dependencies
-│   │
 │   ├── start_backend.sh                        # Quick start: Flask API
 │   ├── start_frontend.sh                       # Quick start: Vite dev server
 │   └── test_setup.sh                           # Environment verification
 │
-└── README.md                                     # This file
+├── requirements.txt                             # Python dependencies (Vercel)
+├── vercel.json                                  # Vercel deployment config
+├── README.md                                    # This file
+├── DEPLOY_TO_VERCEL.md                         # Deployment guide
+└── FINAL_STRUCTURE.md                          # Structure explanation
 ```
 
 ---
@@ -305,6 +307,20 @@ curl -X POST http://localhost:5001/api/diagnose \
 **For local development**: Set in `my_solution/backend/.env`  
 **For Vercel**: Set in Vercel Dashboard → Settings → Environment Variables
 
+### Python Dependencies
+
+The project has **two** `requirements.txt` files for different purposes:
+
+| File | Purpose | Used By |
+|------|---------|---------|
+| `/requirements.txt` (root) | Vercel serverless functions | Vercel deployment (`/api` functions) |
+| `/my_solution/backend/requirements.txt` | Local Flask development | Local development (`python webapp.py`) |
+
+**Why two files?**
+- Vercel looks for `requirements.txt` at repository root for `/api` functions
+- Local development uses the backend's `requirements.txt` with virtual environment
+- Both files can have identical content (currently: `openai` and `python-dotenv`)
+
 ---
 
 ## 📝 API Documentation
@@ -429,11 +445,18 @@ Ensure no extra spaces or quotes around the API key.
 ### Why No External Excel Libraries?
 We parse `Case Log.xlsx` using Python's built-in `zipfile` and `xml.etree.ElementTree` to avoid heavy dependencies like `openpyxl` or `pandas`. This keeps the deployment lightweight for serverless environments.
 
-### Why `/api` at Root Level?
-- Vercel requires serverless functions to be in `/api` directory at repository root
-- This is a Vercel platform requirement for automatic function detection
-- `/api` imports from `/my_solution/backend` for the actual diagnostic logic
-- This separation keeps most code organized in `/my_solution` while meeting Vercel's requirements
+### Why `/api` at Root and `/requirements.txt` at Root?
+**Vercel Platform Requirements:**
+- Vercel automatically detects serverless functions in `/api` at repository root
+- Vercel looks for `requirements.txt` at repository root to install Python dependencies
+- These are **hard platform requirements** and cannot be configured differently
+
+**Our Structure:**
+- `/api` contains thin HTTP handlers for Vercel
+- `/api` imports core logic from `/my_solution/backend`
+- `/requirements.txt` (root) provides dependencies for `/api` functions
+- `/my_solution/backend/requirements.txt` is for local Flask development
+- This keeps 99% of code organized in `/my_solution` while meeting Vercel's requirements
 
 ### Why GPT-4.1-nano?
 Balances performance and cost for rapid diagnostics while maintaining high accuracy for production-critical operations.
