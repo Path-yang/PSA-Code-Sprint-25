@@ -1,0 +1,16 @@
+# Python venvs and bytecode
+venv/
+my_solution/venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+Problem Statement 3 - Redefining Level 2 Product Ops copy/.DS_Store
+
+# Temporary editor artifacts
+*.swp
+*.swo
+
+# Generated reports / cache
+my_solution/test_case_*_report.md
