@@ -5,7 +5,10 @@
     "my_solution/frontend"
   ],
   "scripts": {
-    "build": "npm run build --workspace my_solution/frontend",
+    "build": "node build.js",
     "dev": "npm run dev --workspace my_solution/frontend"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
