@@ -1,20 +1,20 @@
 # 🚀 Deploy to Vercel - CRITICAL SETUP
 
-## ⚠️ IMPORTANT: Root Directory Must Be Set!
+## ⚠️ IMPORTANT: Root Directory Must Be BLANK!
 
-After pushing the reorganized code, you **MUST** update Vercel's Root Directory setting.
+After pushing the reorganized code, you **MUST** make sure Vercel's Root Directory is **BLANK (EMPTY)**.
 
 ---
 
 ## 🔧 Required Steps
 
-### Step 1: Update Root Directory in Vercel
+### Step 1: CLEAR Root Directory in Vercel
 
 1. Go to: **Vercel Dashboard** → **Your Project** → **Settings** → **General**
 
 2. Find: **Root Directory**
 
-3. **Change from blank to**: `my_solution`
+3. **Make it BLANK (completely empty)** - Delete any text in there
 
 4. Click **Save**
 
@@ -27,15 +27,51 @@ After pushing the reorganized code, you **MUST** update Vercel's Root Directory 
 
 ---
 
-## ✅ What This Does
+## ✅ Why Root Directory Must Be Blank
 
-With `Root Directory` set to `my_solution`, Vercel will:
+The data files (`Problem Statement 3.../`) are at the **repo root**, not inside `my_solution/`.
 
-1. ✅ Find `package.json` at `my_solution/package.json`
-2. ✅ Find `vercel.json` at `my_solution/vercel.json`
-3. ✅ Find API functions at `my_solution/api/**/*.py`
-4. ✅ Build frontend from `my_solution/frontend/`
-5. ✅ Deploy everything correctly
+```
+/                                    ← Vercel needs to see THIS level
+├── Problem Statement 3.../          ← Data files are here
+└── my_solution/                     ← Your code is here
+    ├── api/
+    ├── backend/
+    └── frontend/
+```
+
+If Root Directory = `my_solution`:
+- ❌ Vercel can't see data files
+- ❌ API functions fail (can't find logs, KB, etc.)
+- ❌ Deployment fails
+
+If Root Directory = **BLANK**:
+- ✅ Vercel sees entire repo
+- ✅ Can access data files
+- ✅ `vercel.json` at root tells Vercel where everything is
+- ✅ Everything works!
+
+---
+
+## 📊 How It Works
+
+With Root Directory blank, the root `vercel.json` tells Vercel:
+
+```json
+{
+  "buildCommand": "cd my_solution && npm run build",
+  "outputDirectory": "my_solution/dist",
+  "builds": [
+    { "src": "my_solution/api/**/*.py" }  ← Find API here
+  ]
+}
+```
+
+Vercel then:
+1. ✅ Builds frontend from `my_solution/`
+2. ✅ Deploys API from `my_solution/api/`
+3. ✅ API can access data files at repo root
+4. ✅ Everything works!
 
 ---
 
@@ -55,37 +91,31 @@ Then try submitting an alert in the UI!
 
 ---
 
-## 📊 New Structure
+## 🚨 If Deployment Still Fails
 
-```
-Vercel sees (with Root Directory = my_solution):
-/my_solution/              ← This is now the "root" for Vercel
-├── api/                   ← Vercel finds API functions here
-├── backend/               ← Imported by API functions
-├── frontend/              ← Source for build
-├── vercel.json           ← Vercel config
-├── package.json          ← Build config
-└── requirements.txt      ← Python deps
-```
+### Check Build Logs
 
----
+Look for errors like:
+- `Cannot find module` → Check import paths
+- `File not found` → Check if Root Directory is blank
+- `Build failed` → Check if `vercel.json` is at repo root
 
-## 🚨 If You Forget This Step
+### Verify Settings
 
-Without setting Root Directory to `my_solution`:
-- ❌ Vercel won't find `vercel.json`
-- ❌ API functions won't deploy
-- ❌ You'll get 404 errors again
-
-**Don't forget: Root Directory = `my_solution`**
+1. **Root Directory**: Must be **BLANK** (not `my_solution`, not `.`, just empty)
+2. **Framework Preset**: Should be "Other" or "Vite"
+3. **Build Command**: Should auto-detect or use what's in `vercel.json`
+4. **Output Directory**: Should be `my_solution/dist`
 
 ---
 
-## ✨ That's It!
+## ✨ Summary
 
-Once you:
-1. Set Root Directory to `my_solution`
-2. Redeploy
+1. **Root Directory = BLANK (empty, nothing, nada)** ⚠️ CRITICAL!
+2. Root `vercel.json` handles all the path configuration
+3. Redeploy
+4. Test and enjoy! 🎉
 
-Everything should work perfectly! 🎉
+---
 
+**The key: Root Directory must be COMPLETELY EMPTY so Vercel can see the data files!**
