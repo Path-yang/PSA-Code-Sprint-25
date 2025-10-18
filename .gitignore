@@ -11,6 +11,9 @@ Problem Statement 3 - Redefining Level 2 Product Ops copy/.DS_Store
 # Temporary editor artifacts
 *.swp
 *.swo
+.DS_Store
 
 # Generated reports / cache
 my_solution/test_case_*_report.md
+.env
+my_solution/.env

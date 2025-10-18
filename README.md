@@ -16,9 +16,12 @@
 python3 -m venv venv
 source venv/bin/activate
 pip install -r my_solution/requirements.txt
+
+# optional: scaffold env file
+cp my_solution/.env.example my_solution/.env
 ```
 
-Export Azure OpenAI credentials (values from the hackathon API portal):
+Update `my_solution/.env` with the Azure OpenAI credentials from the hackathon API portal (or export them manually):
 
 ```bash
 export AZURE_OPENAI_API_KEY="..."
@@ -32,6 +35,7 @@ export AZURE_OPENAI_DEPLOYMENT="gpt-4.1-nano"   # or chosen deployment
 ```bash
 cd my_solution
 source ../venv/bin/activate        # or the venv you created above
+export $(grep -v '^#' .env | xargs) 2>/dev/null || true
 python test_all_cases.py
 ```
 
@@ -42,6 +46,7 @@ Follow the prompts (press Enter between scenarios). Markdown reports are written
 ```bash
 cd my_solution
 source ../venv/bin/activate
+export $(grep -v '^#' .env | xargs) 2>/dev/null || true
 python webapp.py --port 7001 --debug   # adjust port if needed
 ```
 

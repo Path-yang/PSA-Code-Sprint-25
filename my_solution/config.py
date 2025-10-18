@@ -8,6 +8,14 @@ but can be overridden per environment.
 
 import os
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env files if present.
+# Priority: my_solution/.env then repo-root/.env
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(CURRENT_DIR, ".env"))
+load_dotenv(os.path.join(CURRENT_DIR, "..", ".env"))
+
 # Azure OpenAI configuration (read from environment for safety)
 AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_ENDPOINT = os.environ.get(
