@@ -1,0 +1,11 @@
+{
+  "name": "psa-code-sprint-25",
+  "private": true,
+  "workspaces": [
+    "my_solution/frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace my_solution/frontend",
+    "dev": "npm run dev --workspace my_solution/frontend"
+  }
+}
