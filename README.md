@@ -6,69 +6,77 @@
 ## Repository Layout
 
 - `Problem Statement 3 - Redefining Level 2 Product Ops copy/` – official hackathon assets  
-- `my_solution/` – diagnostic toolkit (Python modules, CLI harness, Flask web console)  
-- `Code Sprint 2025 Problem Statements copy.pdf` – overall challenge brief  
-- `.gitignore` – excludes local venvs, caches, macOS artifacts, generated reports
+- `backend/` – Python toolkit (diagnostic engine, Flask API, docs)  
+- `frontend/` – React UI powered by Vite  
+- `Code Sprint 2025 Problem Statements copy.pdf` – overall challenge brief
 
-## Quick Start
+## Backend Quick Start (Flask API)
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r my_solution/requirements.txt
+pip install -r backend/requirements.txt
 
-# optional: scaffold env file
-cp my_solution/.env.example my_solution/.env
+# optional: scaffold env file with hackathon creds
+cp backend/.env.example backend/.env
 ```
 
-Update `my_solution/.env` with the Azure OpenAI credentials from the hackathon API portal (or export them manually):
+Fill `backend/.env` (or export variables manually) using the values from the PSA API portal:
 
 ```bash
 export AZURE_OPENAI_API_KEY="..."
 export AZURE_OPENAI_ENDPOINT="https://psacodesprint2025.azure-api.net/"
 export AZURE_OPENAI_API_VERSION="2025-01-01-preview"
-export AZURE_OPENAI_DEPLOYMENT="gpt-4.1-nano"   # or chosen deployment
+export AZURE_OPENAI_DEPLOYMENT="gpt-4.1-nano"  # or chosen deployment
 ```
 
-## Run Automated Tests
+### Run Automated Tests
 
 ```bash
-cd my_solution
-source ../venv/bin/activate        # or the venv you created above
+cd backend
+source ../venv/bin/activate
 export $(grep -v '^#' .env | xargs) 2>/dev/null || true
 python test_all_cases.py
 ```
 
-Follow the prompts (press Enter between scenarios). Markdown reports are written to the working directory unless `.gitignore` removes them.
+Follow the prompts (press Enter between scenarios). Reports are written to the working directory (ignored by git).
 
-## Launch the Web Console
+### Launch the API
 
 ```bash
-cd my_solution
+cd backend
 source ../venv/bin/activate
 export $(grep -v '^#' .env | xargs) 2>/dev/null || true
-python webapp.py --port 7001 --debug   # adjust port if needed
+python webapp.py --port 5000 --debug
 ```
 
-Open `http://127.0.0.1:7001/`, paste any alert (email/SMS/call transcript), and the tool will display:
-- Parsed ticket metadata  
-- Root-cause reasoning  
-- Resolution & verification steps  
-- Generated incident report
+`POST http://127.0.0.1:5000/api/diagnose` with `{ "alertText": "..." }` to receive the structured GPT analysis. A simple `GET /health` returns service status.
 
-## Core Modules
+## Frontend Quick Start (React)
 
-- `diagnostic_system.py` – orchestrates alert parsing, evidence retrieval, GPT analysis  
-- `log_searcher.py` – scans the six sample application logs  
-- `case_log_searcher.py` – parses `Case Log.xlsx` without external Excel libs  
-- `kb_searcher.py` – extracts procedures from `Knowledge Base.txt`  
-- `gpt_analyzer.py` – wraps Azure OpenAI calls for parsing, reasoning, and reporting  
-- `webapp.py` – Flask UI for interactive diagnostics
+```bash
+cd frontend
+npm install
+npm run dev   # defaults to http://127.0.0.1:5173
+```
+
+Set `VITE_API_BASE_URL` in a `.env` file inside `frontend/` if your backend runs on a different host/port (defaults to `http://localhost:5000`). The dev server proxies `/api/*` to the Flask backend when both run locally.
+
+The React UI lets you paste an alert, calls the Flask API, and renders ticket metadata, root cause, resolution steps, and the generated report.
+
+## Backend Modules
+
+- `app/diagnostic_system.py` – orchestrates alert parsing, evidence retrieval, GPT analysis  
+- `app/log_searcher.py` – scans the six sample application logs  
+- `app/case_log_searcher.py` – parses `Case Log.xlsx` without external Excel libs  
+- `app/kb_searcher.py` – extracts procedures from `Knowledge Base.txt`  
+- `app/gpt_analyzer.py` – wraps Azure OpenAI calls for parsing, reasoning, and reporting  
+- `webapp.py` – Flask API exposing `/api/diagnose`
 
 ## Notes
 
-- Secrets (API keys) are read from environment variables only. Rotate keys if you previously committed any.  
-- The solution relies on the seeded data/logs in the provided assets; no database server is required.  
-- Use `kill <pid>` on macOS if a chosen port is already in use (e.g., by AirPlay/Control Center).
+- Secrets never live in source control; use `.env` locally and deployment-specific environment variables in production.  
+- The diagnostic workflow relies on the seeded SQL/log/KB assets shipped with the problem statement. No live database is required.  
+- If a port is already in use locally, choose another via `--port` or stop the conflicting process (on macOS, AirPlay/Control Center frequently occupies 5000).
 
 Happy debugging and good luck with PSA Code Sprint 2025! 🚢🚀
