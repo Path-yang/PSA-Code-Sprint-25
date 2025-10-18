@@ -155,22 +155,22 @@ KNOWLEDGE BASE (relevant articles):
 PAST CASE SOLUTIONS:
 {case_solutions if case_solutions else "No past solutions found"}
 
-Provide detailed resolution steps. Each step should be a clear action statement WITHOUT step numbers or prefixes (numbers will be added automatically).
+Provide detailed resolution steps. Each step should be a clear action statement WITHOUT numbering prefixes like "Step 1:", "Step 2:", etc. (numbers will be added automatically in the UI).
 
 Return JSON:
 {{
     "resolution_steps": [
-        "Identify the container records in the database for container CMAU0000020 by executing the SQL query: SELECT * FROM container WHERE cntr_no = 'CMAU0000020' ORDER BY created_at DESC",
-        "Review the returned records to confirm multiple entries exist with different created_at timestamps",
-        "Keep the most recent record (the one with the highest created_at timestamp). Prepare to delete older duplicate entries"
+        "First action to take with specific details",
+        "Second action with commands/SQL if applicable",
+        "Third action...",
+        "Continue with as many steps as needed for complete resolution"
     ],
     "verification_steps": [
-        "Verify that only one container record exists for CMAU0000020 with the latest created_at timestamp",
-        "Check the container display in the customer-facing PORTNET system to ensure no duplicate entries are visible"
+        "How to verify the fix worked",
+        "Additional verification checks"
     ],
     "sql_queries": [
-        "SELECT * FROM container WHERE cntr_no = 'CMAU0000020' ORDER BY created_at DESC;",
-        "DELETE c FROM container c JOIN (SELECT cntr_no, vessel_id, eta_ts, MAX(created_at) AS max_created_at FROM container WHERE cntr_no = 'CMAU0000020' GROUP BY cntr_no, vessel_id, eta_ts) keep ON keep.cntr_no = c.cntr_no AND keep.vessel_id = c.vessel_id AND keep.eta_ts = c.eta_ts WHERE c.created_at < keep.max_created_at;"
+        "Any SQL queries needed (if applicable)"
     ],
     "estimated_time": "estimated time to resolve (e.g., '15 minutes')",
     "escalate": true/false,
@@ -178,7 +178,7 @@ Return JSON:
     "escalate_reason": "why escalation is or isn't needed"
 }}
 
-IMPORTANT: Do NOT include step numbers, prefixes like "Step 1:", or any special characters like ")" at the beginning of steps. Write each step as a direct action statement.
+IMPORTANT: Write clear action statements WITHOUT "Step N:" prefixes or special characters like ")". Be thorough and include ALL necessary steps.
 
 Return ONLY valid JSON."""
 
