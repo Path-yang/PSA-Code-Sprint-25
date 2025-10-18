@@ -155,19 +155,17 @@ KNOWLEDGE BASE (relevant articles):
 PAST CASE SOLUTIONS:
 {case_solutions if case_solutions else "No past solutions found"}
 
-Provide detailed resolution steps. Each step should be a clear action statement WITHOUT numbering prefixes like "Step 1:", "Step 2:", etc. (numbers will be added automatically in the UI).
+Provide detailed resolution steps:
 
 Return JSON:
 {{
     "resolution_steps": [
-        "First action to take with specific details",
-        "Second action with commands/SQL if applicable",
-        "Third action...",
-        "Continue with as many steps as needed for complete resolution"
+        "Specific action with commands/SQL if applicable",
+        "Next action...",
+        "Continue..."
     ],
     "verification_steps": [
-        "How to verify the fix worked",
-        "Additional verification checks"
+        "How to verify the fix worked"
     ],
     "sql_queries": [
         "Any SQL queries needed (if applicable)"
@@ -178,7 +176,7 @@ Return JSON:
     "escalate_reason": "why escalation is or isn't needed"
 }}
 
-IMPORTANT: Write clear action statements WITHOUT "Step N:" prefixes or special characters like ")". Be thorough and include ALL necessary steps.
+NOTE: Write each resolution step as a direct action statement without "Step 1:", "Step 2:" prefixes or special characters like ")".
 
 Return ONLY valid JSON."""
 
@@ -236,13 +234,6 @@ Create a well-formatted markdown report with:
 4. Resolution Steps (numbered and actionable)
 5. Verification Checklist
 6. Escalation Guidance (if needed)
-
-IMPORTANT FORMATTING RULES:
-- When listing numbered steps, do NOT add extra numbering or prefixes before items
-- Each step should be a clear, direct action statement
-- Do NOT include "Step 1:", "Step 2:", etc. prefixes (markdown numbering handles this)
-- Do NOT add special characters like ")" or extra symbols
-- Keep SQL queries and commands in separate code blocks
 
 Use clear formatting with headers, bullet points, and code blocks where appropriate.
 Make it professional and ready to present to stakeholders."""
