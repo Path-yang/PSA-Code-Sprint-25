@@ -81,9 +81,10 @@ function renderTicketCard(ticket, index, onSelectTicket) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ delay: index * 0.05 }}
+      className="h-full"
     >
       <Card
-        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
+        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50 h-full flex flex-col"
         onClick={() => onSelectTicket(ticket.id)}
       >
         <CardHeader className="pb-3">
@@ -104,14 +105,14 @@ function renderTicketCard(ticket, index, onSelectTicket) {
               {ticket.status}
             </Badge>
           </div>
-          <CardTitle className="text-sm font-medium line-clamp-2">
+          <CardTitle className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
             {parsedData.alert_type || 'Unknown Alert'}
           </CardTitle>
-          <CardDescription className="text-xs">
+          <CardDescription className="text-xs line-clamp-2 min-h-[2rem]">
             {alertSummary}...
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 flex-1">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               {getChannelIcon(parsedData.channel)}
@@ -210,7 +211,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('card');
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('ticketViewMode') || 'card');
   const [statusFilter, setStatusFilter] = useState('all');
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -218,6 +219,10 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   useEffect(() => {
     loadAllTickets();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('ticketViewMode', viewMode);
+  }, [viewMode]);
 
   const loadAllTickets = async () => {
     setLoading(true);
@@ -290,7 +295,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" className="gap-2">
               <Filter className="w-4 h-4" />
               Filter
             </Button>
