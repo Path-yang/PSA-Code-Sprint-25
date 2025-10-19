@@ -14,6 +14,7 @@ import {
     ArrowLeft,
     Calendar,
     Clock,
+    Download,
     Loader2
 } from 'lucide-react';
 import LandingPage from './LandingPage';
@@ -338,42 +339,127 @@ export default function Dashboard() {
     );
 }
 
+// Custom Tooltip Component for Charts
+const CustomChartTooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    return (
+        <div className="bg-card border border-border rounded-lg shadow-lg p-3">
+            <p className="text-sm font-semibold text-foreground mb-2">{label}</p>
+            {payload.map((entry, index) => (
+                <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-muted-foreground">{entry.name}:</span>
+                    <span className="font-medium text-foreground">{entry.value}</span>
+                    {entry.name === 'Avg Time' && <span className="text-muted-foreground text-xs">hours</span>}
+                </div>
+            ))}
+        </div>
+    );
+};
+
 // Real analytics component with actual data
 function AnalyticsView() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [timePeriod, setTimePeriod] = useState('7'); // 7, 30, or 90 days
     const [metrics, setMetrics] = useState({
         total: 0,
         active: 0,
         closed: 0,
         resolutionRate: 0,
         avgResolutionTime: 0,
-        weekChange: { total: 0, resolutionTime: 0 }
+        periodChange: { total: 0, resolutionTime: 0 }
     });
     const [chartData, setChartData] = useState([]);
+    const [channelData, setChannelData] = useState([]);
+
+    // Export data to CSV
+    const exportToCSV = () => {
+        if (chartData.length === 0) {
+            toast.error('No data to export');
+            return;
+        }
+
+        const csvHeaders = ['Date', 'Active Tickets', 'Closed Tickets', 'Avg Resolution Time (hours)'];
+        const csvRows = chartData.map(row => [
+            row.date,
+            row.active,
+            row.closed,
+            row.avgTime
+        ]);
+
+        const csvContent = [
+            csvHeaders.join(','),
+            ...csvRows.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `analytics_${timePeriod}days_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Analytics data exported successfully!');
+    };
 
     useEffect(() => {
         loadAnalytics();
-    }, []);
+    }, [timePeriod]);
 
     const loadAnalytics = async () => {
         setLoading(true);
         setError('');
         try {
+<<<<<<< Updated upstream
             const fetchedTickets = await listTickets();
             // Exclude deleted tickets from analytics
             const allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
             setTickets(allTickets);
 
+=======
+<<<<<<< HEAD
+            const allTickets = await listTickets();
+
+            // Filter tickets based on selected time period
+            const now = new Date();
+            const periodDays = parseInt(timePeriod);
+            const periodStart = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000);
+
+            const filteredTickets = allTickets.filter(t => {
+                const createdAt = new Date(t.created_at);
+                return createdAt >= periodStart;
+            });
+
+            setTickets(filteredTickets);
+
+            // Calculate metrics
+            const total = filteredTickets.length;
+            const active = filteredTickets.filter(t => t.status === 'active').length;
+            const closed = filteredTickets.filter(t => t.status === 'closed').length;
+=======
+            const fetchedTickets = await listTickets();
+            // Exclude deleted tickets from analytics
+            const allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
+            setTickets(allTickets);
+
+>>>>>>> Stashed changes
             // Calculate metrics (excluding deleted tickets)
             const total = allTickets.length;
             const active = allTickets.filter(t => t.status === 'active').length;
             const closed = allTickets.filter(t => t.status === 'closed').length;
+>>>>>>> 38d664b8e1db4b1a43e3579cf26e063878857072
             const resolutionRate = total > 0 ? (closed / total * 100) : 0;
 
             // Calculate average resolution time for closed tickets
-            const closedTickets = allTickets.filter(t => t.status === 'closed' && t.closed_at);
+            const closedTickets = filteredTickets.filter(t => t.status === 'closed' && t.closed_at);
             const avgResolutionTime = closedTickets.length > 0
                 ? closedTickets.reduce((sum, ticket) => {
                     const created = new Date(ticket.created_at);
@@ -382,34 +468,32 @@ function AnalyticsView() {
                 }, 0) / closedTickets.length
                 : 0;
 
-            // Calculate week-over-week changes
-            const now = new Date();
-            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+            // Calculate period-over-period changes (compare current period to previous period)
+            const previousPeriodStart = new Date(periodStart.getTime() - periodDays * 24 * 60 * 60 * 1000);
 
-            const currentWeekTickets = allTickets.filter(t => new Date(t.created_at) >= oneWeekAgo);
-            const previousWeekTickets = allTickets.filter(t => {
+            const currentPeriodTickets = filteredTickets;
+            const previousPeriodTickets = allTickets.filter(t => {
                 const created = new Date(t.created_at);
-                return created >= twoWeeksAgo && created < oneWeekAgo;
+                return created >= previousPeriodStart && created < periodStart;
             });
 
-            const currentWeekClosed = currentWeekTickets.filter(t => t.status === 'closed' && t.closed_at);
-            const previousWeekClosed = previousWeekTickets.filter(t => t.status === 'closed' && t.closed_at);
+            const currentPeriodClosed = currentPeriodTickets.filter(t => t.status === 'closed' && t.closed_at);
+            const previousPeriodClosed = previousPeriodTickets.filter(t => t.status === 'closed' && t.closed_at);
 
-            const currentWeekAvgTime = currentWeekClosed.length > 0
-                ? currentWeekClosed.reduce((sum, ticket) => {
+            const currentPeriodAvgTime = currentPeriodClosed.length > 0
+                ? currentPeriodClosed.reduce((sum, ticket) => {
                     const created = new Date(ticket.created_at);
                     const closed = new Date(ticket.closed_at);
                     return sum + (closed - created) / (1000 * 60 * 60);
-                }, 0) / currentWeekClosed.length
+                }, 0) / currentPeriodClosed.length
                 : 0;
 
-            const previousWeekAvgTime = previousWeekClosed.length > 0
-                ? previousWeekClosed.reduce((sum, ticket) => {
+            const previousPeriodAvgTime = previousPeriodClosed.length > 0
+                ? previousPeriodClosed.reduce((sum, ticket) => {
                     const created = new Date(ticket.created_at);
                     const closed = new Date(ticket.closed_at);
                     return sum + (closed - created) / (1000 * 60 * 60);
-                }, 0) / previousWeekClosed.length
+                }, 0) / previousPeriodClosed.length
                 : 0;
 
             setMetrics({
@@ -418,20 +502,23 @@ function AnalyticsView() {
                 closed,
                 resolutionRate,
                 avgResolutionTime,
-                weekChange: {
-                    total: currentWeekTickets.length - previousWeekTickets.length,
-                    resolutionTime: currentWeekAvgTime - previousWeekAvgTime
+                periodChange: {
+                    total: currentPeriodTickets.length - previousPeriodTickets.length,
+                    resolutionTime: currentPeriodAvgTime - previousPeriodAvgTime
                 }
             });
 
-            // Prepare chart data for last 7 days
+            // Prepare chart data for selected period
             const chartData = [];
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-                const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+            const dataPoints = Math.min(periodDays, 30); // Max 30 data points for readability
+            const interval = Math.ceil(periodDays / dataPoints);
 
-                const dayTickets = allTickets.filter(t => {
+            for (let i = dataPoints - 1; i >= 0; i--) {
+                const date = new Date(now.getTime() - i * interval * 24 * 60 * 60 * 1000);
+                const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const dayEnd = new Date(dayStart.getTime() + interval * 24 * 60 * 60 * 1000);
+
+                const dayTickets = filteredTickets.filter(t => {
                     const created = new Date(t.created_at);
                     return created >= dayStart && created < dayEnd;
                 });
@@ -445,8 +532,12 @@ function AnalyticsView() {
                     }, 0) / dayClosed.length
                     : 0;
 
+                const dateLabel = interval === 1
+                    ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
                 chartData.push({
-                    date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    date: dateLabel,
                     active: dayTickets.filter(t => t.status === 'active').length,
                     closed: dayTickets.filter(t => t.status === 'closed').length,
                     avgTime: Math.round(dayAvgTime * 10) / 10
@@ -454,6 +545,21 @@ function AnalyticsView() {
             }
 
             setChartData(chartData);
+
+            // Calculate channel distribution
+            const channelCounts = {};
+            filteredTickets.forEach(ticket => {
+                const channel = ticket.diagnosis_data?.parsed?.channel || 'Unknown';
+                channelCounts[channel] = (channelCounts[channel] || 0) + 1;
+            });
+
+            const channelData = Object.entries(channelCounts).map(([name, value]) => ({
+                name,
+                value,
+                percentage: total > 0 ? ((value / total) * 100).toFixed(1) : 0
+            }));
+
+            setChannelData(channelData);
         } catch (err) {
             setError(err.message || 'Failed to load analytics');
         } finally {
@@ -463,6 +569,7 @@ function AnalyticsView() {
 
     if (loading) {
         return (
+<<<<<<< Updated upstream
             <div className="p-6 flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
                     <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
@@ -471,39 +578,355 @@ function AnalyticsView() {
                 </div>
             </div>
         );
-    }
+=======
+<<<<<<< HEAD
+            <div className="p-6 space-y-6">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-2">
+                        <div className="h-6 w-48 bg-muted animate-pulse rounded"></div>
+                        <div className="h-4 w-64 bg-muted animate-pulse rounded"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-10 w-32 bg-muted animate-pulse rounded"></div>
+                        <div className="h-10 w-28 bg-muted animate-pulse rounded"></div>
+                        <div className="h-10 w-24 bg-muted animate-pulse rounded"></div>
+                    </div>
+                </div>
 
-    if (error) {
-        return (
-            <div className="p-6">
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="text-center text-muted-foreground">
-                            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-                            <p>Failed to load analytics: {error}</p>
+                {/* Metrics Cards Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i} className="glass-metric">
+                            <CardHeader className="pb-2">
+                                <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-10 bg-muted animate-pulse rounded mb-3 w-1/2"></div>
+                                <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                            </CardContent>
+                        </Card>
+                    ))}
+=======
+            <div className="p-6 flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold mb-2">Loading Analytics</h3>
+                            <p className="text-sm text-muted-foreground">Please wait while we gather your diagnostic insights...</p>
+>>>>>>> 38d664b8e1db4b1a43e3579cf26e063878857072
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
-        );
+
+                        {/* Charts Skeleton */}
+                        <div className="space-y-6">
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <div className="h-6 bg-muted animate-pulse rounded w-1/3"></div>
+                                    <div className="h-4 bg-muted animate-pulse rounded w-1/2 mt-2"></div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-80 bg-muted animate-pulse rounded"></div>
+                                </CardContent>
+                            </Card>
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <div className="h-6 bg-muted animate-pulse rounded w-1/3"></div>
+                                    <div className="h-4 bg-muted animate-pulse rounded w-1/2 mt-2"></div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-64 bg-muted animate-pulse rounded"></div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                    );
+>>>>>>> Stashed changes
     }
 
-    return (
-        <div className="p-6 space-y-6">
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="glass-metric">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{metrics.total}</div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            {metrics.weekChange.total >= 0 ? (
-                                <TrendingUp className="w-3 h-3 text-green-500" />
-                            ) : (
-                                <TrendingDown className="w-3 h-3 text-red-500" />
+                    if (error) {
+        return (
+                    <div className="p-6">
+                        <Card className="border-destructive/50">
+                            <CardContent className="pt-6">
+                                <div className="text-center">
+                                    <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                                        <AlertTriangle className="w-6 h-6 text-destructive" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold mb-2">Failed to Load Analytics</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                                    <Button variant="outline" onClick={loadAnalytics} className="gap-2">
+                                        <Activity className="w-4 h-4" />
+                                        Try Again
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    );
+    }
+
+                    return (
+                    <div className="p-6 space-y-6">
+                        {/* Header with Time Period Selector */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h3 className="text-lg font-semibold">Analytics Dashboard</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Showing data for the last {timePeriod} days ({metrics.total} tickets)
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Tabs value={timePeriod} onValueChange={setTimePeriod}>
+                                    <TabsList>
+                                        <TabsTrigger value="7">7D</TabsTrigger>
+                                        <TabsTrigger value="30">30D</TabsTrigger>
+                                        <TabsTrigger value="90">90D</TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+                                <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2">
+                                    <Download className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Export CSV</span>
+                                    <span className="sm:hidden">Export</span>
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={loadAnalytics} className="gap-2">
+                                    <Activity className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Refresh</span>
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Metrics Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Card className="glass-metric border-l-4 border-l-primary hover:shadow-md transition-shadow">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Tickets</CardTitle>
+                                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Ticket className="w-4 h-4 text-primary" />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-3xl font-bold text-foreground">{metrics.total}</div>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {metrics.periodChange.total !== 0 && (
+                                            <>
+                                                {metrics.periodChange.total >= 0 ? (
+                                                    <TrendingUp className="w-4 h-4 text-amber-500" />
+                                                ) : (
+                                                    <TrendingDown className="w-4 h-4 text-amber-500" />
+                                                )}
+                                                <span className="text-sm font-medium text-amber-600 dark:text-amber-500">
+                                                    {metrics.periodChange.total >= 0 ? '+' : ''}{metrics.periodChange.total}
+                                                </span>
+                                            </>
+                                        )}
+                                        <span className="text-xs text-muted-foreground">vs previous period</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="glass-metric border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-sm font-medium text-muted-foreground">Resolved Tickets</CardTitle>
+                                        <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-3xl font-bold text-foreground">{metrics.closed}</div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        <span className="font-medium text-emerald-600 dark:text-emerald-500">
+                                            {metrics.resolutionRate.toFixed(1)}%
+                                        </span> resolution rate
+                                    </p>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="glass-metric border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Resolution Time</CardTitle>
+                                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                            <Clock className="w-4 h-4 text-blue-600 dark:text-blue-500" />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-3xl font-bold text-foreground">
+                                        {metrics.avgResolutionTime.toFixed(1)}<span className="text-lg text-muted-foreground">h</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {metrics.periodChange.resolutionTime !== 0 && (
+                                            <>
+                                                {metrics.periodChange.resolutionTime <= 0 ? (
+                                                    <TrendingDown className="w-4 h-4 text-emerald-500" />
+                                                ) : (
+                                                    <TrendingUp className="w-4 h-4 text-red-500" />
+                                                )}
+                                                <span className={`text-sm font-medium ${metrics.periodChange.resolutionTime <= 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-red-600 dark:text-red-500'}`}>
+                                                    {metrics.periodChange.resolutionTime <= 0 ? '' : '+'}{Math.abs(metrics.periodChange.resolutionTime).toFixed(1)}h
+                                                </span>
+                                            </>
+                                        )}
+                                        <span className="text-xs text-muted-foreground">vs previous period</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Charts */}
+                        <div className="space-y-6">
+                            {/* Ticket Trends Chart - Full Width */}
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle className="text-lg font-semibold">Ticket Trends Over Time</CardTitle>
+                                    <CardDescription>Active and resolved tickets for the selected period</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <ResponsiveContainer width="100%" height={350}>
+                                        <AreaChart data={chartData}>
+                                            <defs>
+                                                <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                                </linearGradient>
+                                                <linearGradient id="colorClosed" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="rgb(16, 185, 129)" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="rgb(16, 185, 129)" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                            <XAxis
+                                                dataKey="date"
+                                                stroke="hsl(var(--muted-foreground))"
+                                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                                tickLine={{ stroke: 'hsl(var(--border))' }}
+                                            />
+                                            <YAxis
+                                                stroke="hsl(var(--muted-foreground))"
+                                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                                tickLine={{ stroke: 'hsl(var(--border))' }}
+                                                label={{ value: 'Tickets', angle: -90, position: 'insideLeft', style: { fill: 'hsl(var(--muted-foreground))' } }}
+                                            />
+                                            <Tooltip content={<CustomChartTooltip />} />
+                                            <Legend
+                                                wrapperStyle={{ paddingTop: '20px' }}
+                                                iconType="circle"
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="active"
+                                                stroke="hsl(var(--primary))"
+                                                fill="url(#colorActive)"
+                                                strokeWidth={2}
+                                                name="Active"
+                                                dot={false}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="closed"
+                                                stroke="rgb(16, 185, 129)"
+                                                fill="url(#colorClosed)"
+                                                strokeWidth={2}
+                                                name="Closed"
+                                                dot={false}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </CardContent>
+                            </Card>
+
+                            {/* Resolution Times Chart */}
+                            <Card className="glass-card">
+                                <CardHeader>
+                                    <CardTitle className="text-lg font-semibold">Resolution Time Distribution</CardTitle>
+                                    <CardDescription>Average time to resolve tickets over the selected period</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <BarChart data={chartData}>
+                                            <defs>
+                                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="rgb(59, 130, 246)" stopOpacity={0.9} />
+                                                    <stop offset="95%" stopColor="rgb(59, 130, 246)" stopOpacity={0.6} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                            <XAxis
+                                                dataKey="date"
+                                                stroke="hsl(var(--muted-foreground))"
+                                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                                tickLine={{ stroke: 'hsl(var(--border))' }}
+                                            />
+                                            <YAxis
+                                                stroke="hsl(var(--muted-foreground))"
+                                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                                tickLine={{ stroke: 'hsl(var(--border))' }}
+                                                label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { fill: 'hsl(var(--muted-foreground))' } }}
+                                            />
+                                            <Tooltip content={<CustomChartTooltip />} />
+                                            <Bar
+                                                dataKey="avgTime"
+                                                fill="url(#barGradient)"
+                                                name="Avg Time"
+                                                radius={[4, 4, 0, 0]}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </CardContent>
+                            </Card>
+
+                            {/* Tickets by Channel */}
+                            {channelData.length > 0 && (
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg font-semibold">Tickets by Channel</CardTitle>
+                                        <CardDescription>Distribution of tickets across communication channels</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-4">
+                                            {channelData.map((channel, index) => {
+                                                const colors = [
+                                                    { bg: 'bg-blue-500/10', bar: 'bg-blue-500', text: 'text-blue-600 dark:text-blue-500' },
+                                                    { bg: 'bg-emerald-500/10', bar: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-500' },
+                                                    { bg: 'bg-amber-500/10', bar: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-500' },
+                                                    { bg: 'bg-purple-500/10', bar: 'bg-purple-500', text: 'text-purple-600 dark:text-purple-500' }
+                                                ];
+                                                const color = colors[index % colors.length];
+
+                                                return (
+                                                    <div key={channel.name} className="space-y-2">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-3 h-3 rounded-full ${color.bar}`}></div>
+                                                                <span className="font-medium text-foreground">{channel.name}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="text-muted-foreground">{channel.value} tickets</span>
+                                                                <span className={`font-semibold ${color.text}`}>{channel.percentage}%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                                                            <div
+                                                                className={`h-full ${color.bar} transition-all duration-500`}
+                                                                style={{ width: `${channel.percentage}%` }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        {channelData.length === 0 && (
+                                            <p className="text-sm text-muted-foreground text-center py-4">
+                                                No channel data available for this period
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             )}
+<<<<<<< Updated upstream
                             <span className={metrics.weekChange.total >= 0 ? 'text-green-500' : 'text-red-500'}>
                                 {metrics.weekChange.total >= 0 ? '+' : ''}{metrics.weekChange.total} from last week
                             </span>
@@ -630,4 +1053,34 @@ function SettingsView() {
             </Card>
         </div>
     );
+=======
+                        </div>
+                    </div>
+                    );
+}
+
+                    function SettingsView() {
+    return (
+                    <div className="p-6 space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Settings className="w-5 h-5" />
+                                    Settings
+                                </CardTitle>
+                                <CardDescription>Configure your diagnostic assistant</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {/* Settings Placeholder */}
+                                <div>
+                                    <h3 className="text-sm font-medium mb-2">Application Settings</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Configuration options will be available soon.
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    );
+>>>>>>> Stashed changes
 }
