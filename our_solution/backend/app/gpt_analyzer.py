@@ -145,20 +145,32 @@ class GPTAnalyzer:
         if similar_cases and len(similar_cases) > 0:
             # Use the best match's relevance score
             best_relevance = similar_cases[0].get('relevance_score', 0)
-            case_percentage = int(best_relevance * 100)  # Convert 0.0-1.0 to 0-100%
+            if best_relevance > 0:
+                case_percentage = int(best_relevance * 100)  # Convert 0.0-1.0 to 0-100%
+            else:
+                # Fallback case: has cases but no relevance score (module-based search)
+                # GPT is still using these, so give moderate confidence
+                case_percentage = 40
         
         # Factor 3: Knowledge Base (0-100%)
         if kb_articles and len(kb_articles) > 0:
+            # Check if this is a keyword match (has relevance_score) or module fallback (no relevance_score)
+            best_kb_relevance = kb_articles[0].get('relevance_score', 0)
+            
             # Check if KB has resolution procedures
             has_resolution = any('Resolution' in article.get('content', '') or 'Verification' in article.get('content', '') 
                                for article in kb_articles[:3])
-            if has_resolution:
-                # Use best match relevance
-                best_kb_relevance = kb_articles[0].get('relevance_score', 0)
+            
+            if best_kb_relevance > 0:
+                # Keyword match - use actual relevance score
                 kb_percentage = int(best_kb_relevance * 100)
-            else:
-                # Has KB but no resolution procedures
+            elif has_resolution:
+                # Module fallback with resolution procedures - moderate confidence
+                # GPT IS using this content, so it should be reflected
                 kb_percentage = 50
+            else:
+                # Module fallback without specific resolution - lower confidence
+                kb_percentage = 30
         
         # Factor 4: Specific Identifiers (0-100%)
         identifiers_found = 0
@@ -256,6 +268,8 @@ class GPTAnalyzer:
             else:
                 return "Good evidence supports the diagnosis."
         elif confidence_level == "MODERATE":
+            if case_percentage >= 30 and case_percentage < 50:
+                return "Related past cases found through module search. Evidence suggests similar patterns but not exact match."
             return "Some evidence supports diagnosis, but gaps exist. Verify findings during resolution."
         else:
             return "Limited diagnostic evidence. Root cause identification requires further investigation."
@@ -272,6 +286,10 @@ class GPTAnalyzer:
             else:
                 return "Good resolution guidance available."
         elif confidence_level == "MODERATE":
+            if kb_percentage >= 30 and kb_percentage <= 50:
+                return "General module documentation available. Resolution adapted from related procedures and past cases."
+            elif case_percentage >= 30 and case_percentage < 50:
+                return "Related solutions found in past cases. Resolution approach adapted from similar scenarios."
             return "Some resolution guidance available, but may need adaptation. Proceed carefully and verify results."
         else:
             return "Limited resolution guidance. Consider escalation or consult with senior engineers."
