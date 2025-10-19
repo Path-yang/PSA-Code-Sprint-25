@@ -419,20 +419,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={onBack} className="gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to List
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              Ticket {ticketDisplayId}
-              <Badge variant={ticket.status === 'active' ? 'default' : ticket.status === 'closed' ? 'secondary' : 'destructive'}>
-                {ticket.status}
-              </Badge>
-            </h1>
-          </div>
-        </div>
+        <Button variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back to List
+        </Button>
       </div>
 
       {error && (
