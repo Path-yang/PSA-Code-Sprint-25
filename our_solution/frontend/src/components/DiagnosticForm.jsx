@@ -114,7 +114,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
     return (
         <div className={`min-h-screen p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-center justify-center'}`}>
-            <div className={`w-full max-w-4xl space-y-6 relative transition-all duration-500 ${showResults ? 'pt-6' : ''}`}>
+            <div className={`w-full max-w-4xl mx-auto space-y-6 relative transition-all duration-500 ${showResults ? 'pt-6' : ''}`}>
 
             {/* Greeting */}
             <AnimatePresence>
