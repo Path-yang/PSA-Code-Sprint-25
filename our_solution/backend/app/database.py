@@ -15,8 +15,13 @@ import pytz
 # Singapore timezone for accurate timestamps
 SGT = pytz.timezone('Asia/Singapore')
 
-# Detect database backend
-NEON_URL = os.environ.get('NEONSTORAGE_URL') or os.environ.get('DATABASE_URL')
+# Detect database backend - check multiple possible env var names
+NEON_URL = (
+    os.environ.get('DATABASE_URL') or 
+    os.environ.get('NEONSTORAGE_URL') or 
+    os.environ.get('NEONSTORAGE_POSTGRES_URL') or
+    os.environ.get('NEONSTORAGE_DATABASE_URL')
+)
 USE_POSTGRES = bool(NEON_URL and 'postgres' in NEON_URL)
 
 if USE_POSTGRES:
