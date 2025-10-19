@@ -176,9 +176,18 @@ def main() -> None:
         action="store_true",
         help="Enable Flask debug mode",
     )
+    parser.add_argument(
+        "--threaded",
+        action="store_true",
+        default=True,
+        help="Enable threaded mode for concurrent requests (default: True)",
+    )
     args = parser.parse_args()
 
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    print(f"🚀 Starting Flask server on {args.host}:{args.port}")
+    print(f"   Threading: {'Enabled' if args.threaded else 'Disabled'} (supports concurrent requests)")
+    
+    app.run(host=args.host, port=args.port, debug=args.debug, threaded=args.threaded)
 
 
 if __name__ == "__main__":  # pragma: no cover
