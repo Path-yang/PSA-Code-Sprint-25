@@ -24,7 +24,6 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Navbar, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavMenu, MobileNavToggle } from './ui/resizable-navbar';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -90,8 +89,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [newFieldKey, setNewFieldKey] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
-  const [hoveredTab, setHoveredTab] = useState(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (propTicket) {
@@ -338,108 +335,53 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const rootCause = displayData.rootCause || {};
   const resolution = displayData.resolution || {};
 
-  const tabItems = [
-    { name: 'Overview', id: 'overview' },
-    { name: 'Diagnosis', id: 'diagnosis' },
-    { name: 'Resolution Plan', id: 'resolution' },
-    { name: 'Confidence', id: 'confidence' },
-    { name: 'Notes', id: 'notes' }
-  ];
-
-  const handleTabClick = (tabId) => {
-    setActiveTab(tabId);
-    setIsMobileMenuOpen(false);
-  };
-
   return (
-    <>
-      {/* Resizable Navbar - Outside Container */}
-      <Navbar>
-        <NavBody>
-          <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2">
-            {tabItems.map((item, idx) => (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
-                className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors flex items-center gap-2"
-                onMouseEnter={() => setHoveredTab(idx)}
-                onMouseLeave={() => setHoveredTab(null)}
-              >
-                {hoveredTab === idx && (
-                  <motion.div
-                    layoutId="hovered-tab"
-                    className="absolute inset-0 h-full w-full rounded-full bg-black/10 dark:bg-white/10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  />
-                )}
-                {activeTab === item.id && (
-                  <motion.div
-                    layoutId="active-tab"
-                    className="absolute inset-0 h-full w-full rounded-full bg-primary"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  />
-                )}
-                <span className={`relative z-10 flex items-center gap-2 ${activeTab === item.id ? 'text-primary-foreground' :
-                    'text-neutral-600 dark:text-neutral-300'
-                  }`}>
-                  {item.name}
-                </span>
-              </button>
-            ))}
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onBack} className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to List
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              Ticket #{ticket.ticket_number}
+              <Badge variant={ticket.status === 'active' ? 'default' : ticket.status === 'closed' ? 'secondary' : 'destructive'}>
+                {ticket.status}
+              </Badge>
+            </h1>
+            <p className="text-sm text-muted-foreground">View and edit ticket details</p>
           </div>
-        </NavBody>
-        <MobileNav>
-          <MobileNavHeader>
-            <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-              {tabItems.find(item => item.id === activeTab)?.name}
-            </div>
-            <MobileNavToggle
-              isOpen={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
-          </MobileNavHeader>
-          <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
-            {tabItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
-                className={`w-full text-left px-4 py-2 rounded-md transition-colors ${activeTab === item.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  }`}
-              >
-                {item.name}
-              </button>
-            ))}
-          </MobileNavMenu>
-        </MobileNav>
-      </Navbar>
+        </div>
+      </div>
 
-      {/* Main Content Container */}
-      <div className="p-6 space-y-6">
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+        >
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="w-4 h-4" />
+            {error}
+          </div>
+        </motion.div>
+      )}
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
-          >
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-4 h-4" />
-              {error}
-            </div>
-          </motion.div>
-        )}
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="diagnosis">Diagnosis</TabsTrigger>
+          <TabsTrigger value="resolution">Resolution Plan</TabsTrigger>
+          <TabsTrigger value="confidence">Confidence</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
 
-        {/* Content Area */}
-        <div className="w-full">
-          {activeTab === 'overview' && (
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          {/* Overview Content */}
+          <div className="space-y-6">
             <div className="space-y-6 mt-6">
 
               {/* Parsed Information */}
@@ -518,10 +460,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 </CardContent>
               </Card>
             </div>
-          )}
+          </div>
+        </TabsContent>
 
-          {activeTab === 'diagnosis' && (
-            <div className="space-y-6 mt-6">
+        <TabsContent value="diagnosis" className="space-y-6 mt-6">
               {/* Root Cause Analysis */}
               <Card>
                 <CardHeader>
@@ -568,11 +510,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   )}
                 </CardContent>
               </Card>
-            </div>
-          )}
+        </TabsContent>
 
-          {activeTab === 'resolution' && (
-            <div className="space-y-6 mt-6">
+        <TabsContent value="resolution" className="space-y-6 mt-6">
               {/* Resolution Plan */}
               <Card>
                 <CardHeader>
@@ -683,10 +623,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 </CardContent>
               </Card>
             </div>
-          )}
+        </TabsContent>
 
-          {activeTab === 'confidence' && (
-            <div className="space-y-6 mt-6">
+        <TabsContent value="confidence" className="space-y-6 mt-6">
               {/* Confidence Assessment */}
               <Card>
                 <CardHeader>
@@ -877,11 +816,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   )}
                 </CardContent>
               </Card>
-            </div>
-          )}
+        </TabsContent>
 
-          {activeTab === 'notes' && (
-            <div className="space-y-6 mt-6">
+        <TabsContent value="notes" className="space-y-6 mt-6">
               {/* Notes */}
               <Card>
                 <CardHeader>
@@ -951,11 +888,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          )}
-        </div>
+        </TabsContent>
+      </Tabs>
 
-        {/* Actions */}
+      {/* Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1137,7 +1073,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-    </>
+    </div>
   );
 }
