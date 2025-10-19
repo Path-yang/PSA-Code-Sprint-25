@@ -24,9 +24,9 @@ export function FeaturesSectionDemo() {
       className: "border-b col-span-1 lg:col-span-2 dark:border-neutral-800",
     },
     {
-      title: "Comprehensive Knowledge Base",
+      title: "Demo Video",
       description:
-        "Access our extensive library of solutions, best practices, and diagnostic procedures to resolve issues faster.",
+        "Watch our demo video to see how PSA Diagnostic Assistant streamlines your L2 support operations and accelerates issue resolution.",
       skeleton: <SkeletonThree />,
       className:
         "col-span-1 lg:col-span-3 lg:border-r dark:border-neutral-800",

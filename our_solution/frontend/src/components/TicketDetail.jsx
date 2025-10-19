@@ -19,7 +19,8 @@ import {
   Settings,
   Plus,
   Minus,
-  BarChart3
+  BarChart3,
+  Loader2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -348,13 +349,12 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   if (loading || (saving && !ticket)) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-8 w-64" />
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Loading Ticket Details</h3>
+          <p className="text-sm text-muted-foreground">Please wait while we fetch the ticket information...</p>
         </div>
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
