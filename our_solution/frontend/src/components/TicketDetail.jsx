@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Separator } from './ui/separator';
 import { Progress } from './ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -74,6 +75,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPermanentDeleteDialog, setShowPermanentDeleteDialog] = useState(false);
   const [deletionReason, setDeletionReason] = useState('');
+  const [deletionReasonType, setDeletionReasonType] = useState('');
+  const [customDeletionReason, setCustomDeletionReason] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
 
   // Editable fields
@@ -169,8 +172,18 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   };
 
   const handleDelete = async () => {
-    if (!deletionReason.trim()) {
+    // Determine the final reason
+    const finalReason = deletionReasonType === 'Others' 
+      ? customDeletionReason.trim() 
+      : deletionReasonType;
+    
+    if (!finalReason) {
       setError('Please provide a reason for deletion');
+      return;
+    }
+    
+    if (deletionReasonType === 'Others' && !customDeletionReason.trim()) {
+      setError('Please specify the reason');
       return;
     }
     
@@ -178,10 +191,12 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     setSaving(true);
     setError('');
     try {
-      const updatedTicket = await deleteTicket(ticketId, deletionReason);
+      const updatedTicket = await deleteTicket(ticketId, finalReason);
       console.log('Ticket moved to deleted:', updatedTicket);
       setTicket(updatedTicket);
       setDeletionReason('');
+      setDeletionReasonType('');
+      setCustomDeletionReason('');
       onTicketUpdated?.();
       setSaving(false);
     } catch (err) {
@@ -994,19 +1009,44 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
               This will move the ticket to deleted tickets. Please provide a reason for deletion.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-4">
-            <Label htmlFor="deletion-reason">Reason for deletion *</Label>
-            <Textarea
-              id="deletion-reason"
-              value={deletionReason}
-              onChange={(e) => setDeletionReason(e.target.value)}
-              placeholder="e.g., Duplicate ticket, Created by mistake, Issue not reproducible..."
-              className="mt-2"
-              rows={3}
-            />
+          <div className="py-4 space-y-4">
+            <div>
+              <Label htmlFor="deletion-reason-type">Reason for deletion *</Label>
+              <Select value={deletionReasonType} onValueChange={setDeletionReasonType}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Duplicate ticket">Duplicate ticket</SelectItem>
+                  <SelectItem value="Created by mistake">Created by mistake</SelectItem>
+                  <SelectItem value="Issue not reproducible">Issue not reproducible</SelectItem>
+                  <SelectItem value="Resolved through other means">Resolved through other means</SelectItem>
+                  <SelectItem value="Invalid alert">Invalid alert</SelectItem>
+                  <SelectItem value="Spam or test ticket">Spam or test ticket</SelectItem>
+                  <SelectItem value="Others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {deletionReasonType === 'Others' && (
+              <div>
+                <Label htmlFor="custom-reason">Please specify *</Label>
+                <Textarea
+                  id="custom-reason"
+                  value={customDeletionReason}
+                  onChange={(e) => setCustomDeletionReason(e.target.value)}
+                  placeholder="Enter your reason for deletion..."
+                  className="mt-2"
+                  rows={3}
+                />
+              </div>
+            )}
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeletionReason('')}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => {
+              setDeletionReasonType('');
+              setCustomDeletionReason('');
+            }}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Move to Deleted
             </AlertDialogAction>
