@@ -178,50 +178,9 @@ class L2DiagnosticSystem:
             print("   ✓ Root cause identified")
             print(f"   ✓ Confidence: {root_cause.get('confidence', 0)}%")
 
-        # Step 6: Get resolution steps using GPT
+        # Step 6: Generate confidence assessment
         if verbose:
-            print("\n💡 Step 6: Determining resolution steps...")
-
-        case_solutions = ""
-        if similar_cases:
-            case_solutions = "\n\n".join(
-                [f"Past solution: {case.get('solution', '')}" for case in similar_cases[:3]]
-            )
-
-        resolution = self.gpt_analyzer.get_resolution_steps(
-            parsed=parsed,
-            root_cause=root_cause,
-            kb_context=kb_context,
-            case_solutions=case_solutions,
-        )
-
-        if verbose:
-            print("   ✓ Resolution determined")
-            print(f"   ✓ Estimated time: {resolution.get('estimated_time', 'Unknown')}")
-            if resolution.get("escalate"):
-                print(f"   ⚠️  Escalation needed: {resolution.get('escalate_to')}")
-
-        # Step 7: Generate polished report using GPT
-        if verbose:
-            print("\n📄 Step 7: Generating diagnostic report...")
-
-        similar_cases_text = self.case_log_searcher.format_cases(similar_cases)
-
-        report = self.gpt_analyzer.generate_report(
-            alert=alert_text,
-            parsed=parsed,
-            log_evidence=log_evidence_text,
-            similar_cases=similar_cases_text,
-            root_cause=root_cause,
-            resolution=resolution,
-        )
-
-        if verbose:
-            print("   ✓ Report generated\n")
-
-        # Step 8: Generate comprehensive confidence assessment
-        if verbose:
-            print("📊 Step 8: Generating confidence assessment...")
+            print("\n📊 Step 6: Generating confidence assessment...")
 
         if verbose:
             print(f"   DEBUG: Passing to confidence assessment:")
@@ -243,7 +202,63 @@ class L2DiagnosticSystem:
 
         if verbose:
             print(f"   ✓ Overall confidence: {confidence_assessment['overall_score']}%")
-            print(f"   ✓ Recommendation: {confidence_assessment['interpretation']['recommendation']}\n")
+            print(f"   ✓ Recommendation: {confidence_assessment['interpretation']['recommendation']}")
+
+        # Step 7: Enhanced escalation decision using multi-factor analysis
+        if verbose:
+            print("\n💡 Step 7: Enhanced escalation decision...")
+
+        case_solutions = ""
+        if similar_cases:
+            case_solutions = "\n\n".join(
+                [f"Past solution: {case.get('solution', '')}" for case in similar_cases[:3]]
+            )
+
+        enhanced_escalation = self.gpt_analyzer.get_enhanced_escalation_decision(
+            parsed=parsed,
+            confidence_assessment=confidence_assessment,
+            log_evidence=log_evidence,
+            similar_cases=similar_cases,
+            kb_articles=kb_articles,
+            root_cause=root_cause,
+            kb_context=kb_context,
+            case_solutions=case_solutions,
+        )
+
+        if verbose:
+            escalation_decision = enhanced_escalation["escalation_decision"]
+            print(f"   ✓ Enhanced escalation decision made")
+            print(f"   ✓ Escalate: {escalation_decision.get('escalate', False)}")
+            print(f"   ✓ Escalate to: {escalation_decision.get('escalate_to', 'None')}")
+            print(f"   ✓ Estimated time: {escalation_decision.get('estimated_time', 'Unknown')}")
+            if escalation_decision.get('needs_review', False):
+                print(f"   ⚠️  Gray zone - review required")
+            if escalation_decision.get("escalate"):
+                print(f"   ⚠️  Escalation needed: {escalation_decision.get('escalate_to')}")
+
+        # Step 7: Generate polished report using GPT
+        if verbose:
+            print("\n📄 Step 7: Generating diagnostic report...")
+
+        similar_cases_text = self.case_log_searcher.format_cases(similar_cases)
+
+        report = self.gpt_analyzer.generate_report(
+            alert=alert_text,
+            parsed=parsed,
+            log_evidence=log_evidence_text,
+            similar_cases=similar_cases_text,
+            root_cause=root_cause,
+            resolution=enhanced_escalation["escalation_decision"],
+        )
+
+        if verbose:
+            print("   ✓ Report generated\n")
+
+        # Step 8: Generate polished report using GPT
+        if verbose:
+            print("\n📄 Step 8: Generating diagnostic report...")
+
+        if verbose:
             print("=" * 80)
             print("✅ DIAGNOSIS COMPLETE")
             print("=" * 80)
@@ -254,9 +269,14 @@ class L2DiagnosticSystem:
             "log_evidence": log_evidence,
             "kb_articles": kb_articles[:3],
             "root_cause": root_cause,
-            "resolution": resolution,
+            "resolution": enhanced_escalation["escalation_decision"],
             "report": report,
             "confidence_assessment": confidence_assessment,
+            "impact_assessment": enhanced_escalation["impact_assessment"],
+            "severity_classification": enhanced_escalation["severity_classification"],
+            "justification": enhanced_escalation["justification"],
+            "structured_metadata": enhanced_escalation["structured_metadata"],
+            "learning_feedback_id": enhanced_escalation["learning_feedback_id"],
         }
 
 def print_report(self, result: Dict):

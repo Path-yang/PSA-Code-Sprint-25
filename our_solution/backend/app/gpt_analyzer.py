@@ -1,11 +1,16 @@
 """
 GPT-powered analysis using Azure OpenAI.
+Enhanced with structured metadata and improved escalation logic.
 """
 
 import json
 from typing import Dict, List
 
 from openai import AzureOpenAI
+from .impact_assessor import ImpactAssessor
+from .severity_classifier import SeverityClassifier
+from .justification_engine import JustificationEngine
+from .learning_feedback import LearningFeedback
 
 
 class GPTAnalyzer:
@@ -18,6 +23,12 @@ class GPTAnalyzer:
             azure_endpoint=endpoint,
         )
         self.deployment = deployment
+        
+        # Initialize enhanced escalation components
+        self.impact_assessor = ImpactAssessor()
+        self.severity_classifier = SeverityClassifier()
+        self.justification_engine = JustificationEngine()
+        self.learning_feedback = LearningFeedback()
 
     def _call_gpt(self, system_prompt: str, user_prompt: str, temperature: float = 0.3) -> str:
         """Call Azure OpenAI."""
@@ -221,20 +232,24 @@ class GPTAnalyzer:
             else:
                 evidence_percentage = 25
         
-        # Calculate overall score (weighted average)
-        # Weights optimized for test cases with documented KB articles:
+        # Calculate base confidence score (enhanced approach)
+        # Original weights optimized for KB-heavy scenarios
         # KB=40% (most important - documented procedures)
         # Identifiers=20% (error codes are critical for diagnosis)
         # Evidence=20% (GPT's analysis quality)
         # Cases=15% (helpful but not essential for documented issues)
         # Logs=5% (nice to have but not required if KB is clear)
-        total_score = int(
+        base_confidence = int(
             (log_percentage * 0.05) +
             (case_percentage * 0.15) +
             (kb_percentage * 0.40) +
             (identifier_percentage * 0.20) +
             (evidence_percentage * 0.20)
         )
+        
+        # For now, use base confidence as total score
+        # Impact and risk will be calculated separately in enhanced escalation logic
+        total_score = base_confidence
         
         # Generate interpretations
         # Diagnosis confidence: based on identifiers, KB, logs, and evidence
@@ -436,6 +451,88 @@ Return ONLY valid JSON."""
                 "affected_systems": [],
             }
 
+    def get_enhanced_escalation_decision(
+        self,
+        parsed: Dict,
+        confidence_assessment: Dict,
+        log_evidence: List[Dict],
+        similar_cases: List[Dict],
+        kb_articles: List[Dict],
+        root_cause: Dict,
+        kb_context: str,
+        case_solutions: str,
+    ) -> Dict:
+        """
+        Enhanced escalation decision using multi-factor analysis.
+        
+        Returns:
+            Dict with escalation decision, impact assessment, severity, and justification
+        """
+        
+        # Step 1: Calculate Impact Assessment
+        impact_assessment = self.impact_assessor.calculate_impact_score(
+            parsed_alert=parsed,
+            log_evidence=log_evidence,
+            similar_cases=similar_cases,
+            kb_articles=kb_articles
+        )
+        
+        # Step 2: Classify Severity
+        severity_classification = self.severity_classifier.classify_severity(
+            parsed_alert=parsed,
+            impact_assessment=impact_assessment,
+            gpt_analyzer=self
+        )
+        
+        # Step 3: Generate Structured Metadata for GPT
+        structured_metadata = self._generate_structured_metadata(
+            parsed, confidence_assessment, impact_assessment, 
+            severity_classification, log_evidence, similar_cases, kb_articles
+        )
+        
+        # Step 4: Get GPT Resolution Decision with Enhanced Context
+        resolution_decision = self._get_gpt_resolution_with_metadata(
+            parsed, root_cause, kb_context, case_solutions, structured_metadata
+        )
+        
+        # Step 5: Apply Enhanced Escalation Logic
+        final_escalation_decision = self._apply_enhanced_escalation_logic(
+            confidence_assessment, impact_assessment, severity_classification, resolution_decision
+        )
+        
+        # Step 6: Generate Justification
+        justification = self.justification_engine.generate_justification(
+            escalation_decision=final_escalation_decision,
+            confidence_assessment=confidence_assessment,
+            impact_assessment=impact_assessment,
+            severity_classification=severity_classification,
+            parsed_alert=parsed,
+            log_evidence=log_evidence,
+            similar_cases=similar_cases,
+            kb_articles=kb_articles
+        )
+        
+        # Step 7: Record Decision for Learning
+        incident_id = parsed.get("ticket_id", f"inc_{int(__import__('time').time())}")
+        self.learning_feedback.record_escalation_decision(
+            incident_id=incident_id,
+            parsed_alert=parsed,
+            confidence_assessment=confidence_assessment,
+            impact_assessment=impact_assessment,
+            severity_classification=severity_classification,
+            escalation_decision=final_escalation_decision,
+            justification=justification
+        )
+        
+        return {
+            "escalation_decision": final_escalation_decision,
+            "impact_assessment": impact_assessment,
+            "severity_classification": severity_classification,
+            "justification": justification,
+            "structured_metadata": structured_metadata,
+            "learning_feedback_id": incident_id
+        }
+    
     def get_resolution_steps(
         self,
         parsed: Dict,
@@ -514,6 +611,204 @@ Return ONLY valid JSON."""
                 "escalate_to": "Product Team",
                 "escalate_reason": "Unable to determine resolution automatically",
             }
+
+    def _generate_structured_metadata(
+        self,
+        parsed: Dict,
+        confidence_assessment: Dict,
+        impact_assessment: Dict,
+        severity_classification: Dict,
+        log_evidence: List[Dict],
+        similar_cases: List[Dict],
+        kb_articles: List[Dict]
+    ) -> Dict:
+        """Generate structured metadata for GPT context."""
+        
+        # Calculate similarity scores
+        past_case_similarity = similar_cases[0].get("relevance_score", 0) if similar_cases else 0
+        kb_match_score = kb_articles[0].get("relevance_score", 0) if kb_articles else 0
+        
+        # Calculate recurrence rate (simplified)
+        recurrence_rate = len(similar_cases) if similar_cases else 0
+        
+        # Determine customer reported
+        alert_text = parsed.get("alert_text", "").lower()
+        customer_reported = any(keyword in alert_text for keyword in [
+            "customer reported", "customer service", "urgent", "critical"
+        ])
+        
+        return {
+            "incident_id": parsed.get("ticket_id", "unknown"),
+            "error_code": parsed.get("error_code", ""),
+            "module": parsed.get("module", ""),
+            "error_message": parsed.get("alert_text", "")[:100],
+            "log_evidence_score": len(log_evidence),
+            "past_case_similarity": past_case_similarity,
+            "kb_match_score": kb_match_score,
+            "impact_score": impact_assessment.get("impact_score", 0),
+            "confidence_score": confidence_assessment.get("overall_score", 0),
+            "risk_level": severity_classification.get("severity", "Unknown"),
+            "severity": severity_classification.get("severity", "Unknown"),
+            "recurrence_rate": f"{recurrence_rate}/hour",
+            "customer_reported": customer_reported,
+            "previous_escalation_rate": 0.15  # Placeholder - would be calculated from historical data
+        }
+    
+    def _get_gpt_resolution_with_metadata(
+        self,
+        parsed: Dict,
+        root_cause: Dict,
+        kb_context: str,
+        case_solutions: str,
+        structured_metadata: Dict
+    ) -> Dict:
+        """Get GPT resolution decision with enhanced structured context."""
+        
+        system_prompt = """You are an AI duty officer deciding whether to escalate an incident.
+        Use the structured metadata and historical patterns to make consistent, auditable decisions."""
+        
+        user_prompt = f"""Based on the metadata and historical patterns, decide:
+        1. Should this be escalated? (Yes/No)
+        2. If yes, to which team?
+        3. Why?
+
+        Metadata:
+        {json.dumps(structured_metadata, indent=2)}
+
+        Problem Details:
+        {json.dumps(parsed, indent=2)}
+
+        Root Cause:
+        {json.dumps(root_cause, indent=2)}
+
+        Knowledge Base Context:
+        {kb_context[:2000] if kb_context else "No KB context"}
+
+        Past Case Solutions:
+        {case_solutions if case_solutions else "No past solutions found"}
+
+        Provide your reasoning explicitly and return JSON:
+        {{
+            "escalate": true/false,
+            "escalate_to": "Module owner (Container/Vessel/EDI-API) or null",
+            "escalate_reason": "why escalation is or isn't needed",
+            "estimated_time": "estimated time to resolve",
+            "resolution_steps": ["step1", "step2", "step3"],
+            "verification_steps": ["verify1", "verify2"],
+            "sql_queries": ["query1", "query2"],
+            "risk_assessment": "Low/Medium/High",
+            "confidence_in_decision": "High/Medium/Low"
+        }}
+
+        Return ONLY valid JSON."""
+        
+        response = self._call_gpt(system_prompt, user_prompt, temperature=0.2)
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            return {
+                "escalate": True,
+                "escalate_to": "Product Team",
+                "escalate_reason": "Unable to determine resolution automatically",
+                "estimated_time": "Unknown",
+                "resolution_steps": ["Manual investigation required"],
+                "verification_steps": [],
+                "sql_queries": [],
+                "risk_assessment": "High",
+                "confidence_in_decision": "Low"
+            }
+    
+    def _apply_enhanced_escalation_logic(
+        self,
+        confidence_assessment: Dict,
+        impact_assessment: Dict,
+        severity_classification: Dict,
+        gpt_decision: Dict
+    ) -> Dict:
+        """Apply enhanced escalation logic combining confidence, impact, and severity."""
+        
+        confidence_score = confidence_assessment.get("overall_score", 0)
+        impact_score = impact_assessment.get("impact_score", 0)
+        severity = severity_classification.get("severity", "Unknown")
+        
+        # Extract GPT decision
+        gpt_escalate = gpt_decision.get("escalate", False)
+        gpt_escalate_to = gpt_decision.get("escalate_to", "")
+        gpt_reason = gpt_decision.get("escalate_reason", "")
+        
+        # Enhanced escalation logic
+        final_escalate = False
+        final_escalate_to = ""
+        final_reason = ""
+        
+        # Rule 1: Critical/High severity with any confidence -> Escalate
+        if severity in ["Critical", "High"]:
+            final_escalate = True
+            final_escalate_to = gpt_escalate_to or "Product Team"
+            final_reason = f"{severity} severity requires immediate escalation"
+        
+        # Rule 2: High impact (≥70) with low confidence (<50) -> Escalate
+        elif impact_score >= 70 and confidence_score < 50:
+            final_escalate = True
+            final_escalate_to = gpt_escalate_to or "Product Team"
+            final_reason = f"High impact ({impact_score}) with low confidence ({confidence_score}%) requires escalation"
+        
+        # Rule 3: Gray zone (30-50% confidence) -> Review required
+        elif 30 <= confidence_score < 50:
+            final_escalate = False
+            final_escalate_to = ""
+            final_reason = f"Gray zone confidence ({confidence_score}%) - review required"
+            # Add review flag
+            gpt_decision["needs_review"] = True
+        
+        # Rule 4: Very low confidence (<30%) -> Escalate
+        elif confidence_score < 30:
+            final_escalate = True
+            final_escalate_to = gpt_escalate_to or "Product Team"
+            final_reason = f"Very low confidence ({confidence_score}%) requires escalation"
+        
+        # Rule 5: GPT recommendation with high confidence
+        elif gpt_escalate and confidence_score >= 50:
+            final_escalate = True
+            final_escalate_to = gpt_escalate_to
+            final_reason = f"GPT recommends escalation: {gpt_reason}"
+        
+        # Rule 6: Default to GPT decision
+        else:
+            final_escalate = gpt_escalate
+            final_escalate_to = gpt_escalate_to
+            final_reason = gpt_reason or f"Standard processing based on {confidence_score}% confidence"
+        
+        # Build final decision
+        final_decision = {
+            "escalate": final_escalate,
+            "escalate_to": final_escalate_to,
+            "escalate_reason": final_reason,
+            "estimated_time": gpt_decision.get("estimated_time", "Unknown"),
+            "resolution_steps": gpt_decision.get("resolution_steps", []),
+            "verification_steps": gpt_decision.get("verification_steps", []),
+            "sql_queries": gpt_decision.get("sql_queries", []),
+            "risk_assessment": gpt_decision.get("risk_assessment", "Medium"),
+            "confidence_in_decision": gpt_decision.get("confidence_in_decision", "Medium"),
+            "needs_review": gpt_decision.get("needs_review", False),
+            
+            # Enhanced metadata
+            "escalation_logic": {
+                "confidence_score": confidence_score,
+                "impact_score": impact_score,
+                "severity": severity,
+                "gpt_recommendation": gpt_escalate,
+                "final_decision": final_escalate,
+                "decision_factors": [
+                    f"Confidence: {confidence_score}%",
+                    f"Impact: {impact_score}",
+                    f"Severity: {severity}",
+                    f"GPT: {'Escalate' if gpt_escalate else 'No escalation'}"
+                ]
+            }
+        }
+        
+        return final_decision
 
     def generate_report(
         self,
