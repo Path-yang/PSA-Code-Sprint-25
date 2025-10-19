@@ -16,7 +16,8 @@ import {
   Search,
   Grid3X3,
   List,
-  Trash2
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -442,24 +443,12 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
           )}
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+              </div>
             </div>
           ) : filteredTickets.length === 0 ? (
             <div className="text-center py-12">
@@ -491,24 +480,12 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
         <TabsContent value="closed" className="mt-6">
           {/* Same content structure for closed tickets */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+              </div>
             </div>
           ) : filteredTickets.length === 0 ? (
             <div className="text-center py-12">
@@ -533,24 +510,12 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
 
         <TabsContent value="deleted" className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+              </div>
             </div>
           ) : filteredTickets.length === 0 ? (
             <div className="text-center py-12">

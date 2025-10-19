@@ -463,19 +463,11 @@ function AnalyticsView() {
 
     if (loading) {
         return (
-            <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
-                        <Card key={i}>
-                            <CardHeader className="pb-2">
-                                <div className="h-4 bg-muted animate-pulse rounded"></div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="h-8 bg-muted animate-pulse rounded mb-2"></div>
-                                <div className="h-3 bg-muted animate-pulse rounded w-2/3"></div>
-                            </CardContent>
-                        </Card>
-                    ))}
+            <div className="p-6 flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Loading Analytics</h3>
+                    <p className="text-sm text-muted-foreground">Please wait while we gather your diagnostic insights...</p>
                 </div>
             </div>
         );
