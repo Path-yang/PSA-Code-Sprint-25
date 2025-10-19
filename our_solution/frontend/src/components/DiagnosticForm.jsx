@@ -24,6 +24,7 @@ import remarkGfm from 'remark-gfm';
 import { Button as MovingBorderButton } from './ui/moving-border';
 import { Button as StatefulButton } from './ui/stateful-button';
 import { diagnoseAlert } from '../api.js';
+import EscalationDetails from './EscalationDetails';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:
 
@@ -332,6 +333,15 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Escalation Details */}
+                                        {diagnosis.resolution.escalate && (
+                                            <EscalationDetails 
+                                                module={diagnosis.parsed.module}
+                                                escalateTo={diagnosis.resolution.escalate_to}
+                                                escalateReason={diagnosis.resolution.escalate_reason}
+                                            />
+                                        )}
 
                                         {diagnosis.resolution.resolution_steps?.length > 0 && (
                                             <div>

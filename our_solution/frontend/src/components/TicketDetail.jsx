@@ -48,6 +48,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getTicket, updateTicket, closeTicket, deleteTicket, permanentDeleteTicket } from '../api.js';
+import EscalationDetails from './EscalationDetails';
 
 function formatDateTime(dateString) {
   if (!dateString) return 'N/A';
@@ -629,6 +630,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                           </div>
                         </div>
                       </div>
+
+                      {/* Escalation Details */}
+                      {resolution.escalate && (
+                        <EscalationDetails 
+                          module={parsed.module}
+                          escalateTo={resolution.escalate_to}
+                          escalateReason={resolution.escalate_reason}
+                        />
+                      )}
 
                       {resolution.resolution_steps?.length > 0 && (
                         <div>
