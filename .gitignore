@@ -1,7 +1,7 @@
 # Python venvs and bytecode
 venv/
-my_solution/backend/venv/
-my_solution/venv/
+our_solution/backend/venv/
+our_solution/venv/
 __pycache__/
 *.pyc
 node_modules/
@@ -9,17 +9,27 @@ dist/
 
 # macOS
 .DS_Store
-Problem Statement 3 - Redefining Level 2 Product Ops copy/.DS_Store
 
 # Temporary editor artifacts
 *.swp
 *.swo
-.DS_Store
+
+# IDE settings
+.cursor/
+.claude/
+
+# Local databases (SQLite)
+*.db
+*.db-journal
 
 # Generated reports / cache
-my_solution/backend/test_case_*_report.md
+our_solution/backend/test_case_*_report.md
+
+# Environment variables
 .env
-my_solution/backend/.env
-my_solution/frontend/.env
-my_solution/frontend/node_modules/
-my_solution/frontend/dist/
+our_solution/backend/.env
+our_solution/frontend/.env
+
+# Build artifacts
+our_solution/frontend/node_modules/
+our_solution/frontend/dist/
