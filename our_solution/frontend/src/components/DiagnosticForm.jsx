@@ -238,16 +238,6 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm font-medium">Confidence:</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Progress value={diagnosis.rootCause.confidence} className="w-20" />
-                                            <span className="text-sm font-medium">{diagnosis.rootCause.confidence}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 {diagnosis.rootCause.evidence_summary?.length > 0 && (
                                     <div>
                                         <Label className="text-sm font-medium text-muted-foreground">Evidence</Label>

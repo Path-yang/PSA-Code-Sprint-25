@@ -28,6 +28,7 @@ import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
+import { Progress } from './ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Skeleton } from './ui/skeleton';
 import { getTicket, updateTicket, closeTicket, deleteTicket } from '../api.js';
@@ -329,10 +330,11 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
       {/* Main Content */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="diagnosis">Diagnosis</TabsTrigger>
           <TabsTrigger value="resolution">Resolution Plan</TabsTrigger>
+          <TabsTrigger value="confidence">Confidence</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
 
@@ -484,14 +486,6 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                       {rootCause.technical_details}
                     </p>
                   </div>
-                  {rootCause.confidence && (
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm font-medium">Confidence:</Label>
-                        <span className="text-sm font-medium">{rootCause.confidence}%</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </CardContent>
@@ -584,6 +578,204 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                     </div>
                   )}
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="confidence" className="space-y-6">
+          {/* Confidence Assessment */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Confidence Assessment
+              </CardTitle>
+              <CardDescription>
+                Evidence-based confidence analysis for diagnosis and resolution
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {ticket.confidence_assessment ? (
+                <div className="space-y-6">
+                  {/* Overall Score */}
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
+                      <p className="text-3xl font-bold mt-1">{ticket.confidence_assessment.overall_score}%</p>
+                    </div>
+                    <div className="text-right">
+                      <Badge 
+                        variant={
+                          ticket.confidence_assessment.overall_score >= 70 ? "default" :
+                          ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
+                          "destructive"
+                        }
+                        className="text-sm"
+                      >
+                        {ticket.confidence_assessment.interpretation.recommendation}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {ticket.confidence_assessment.interpretation.recommendation_detail}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Evidence Breakdown */}
+                  <div>
+                    <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                    <div className="space-y-4">
+                      {/* Log Evidence */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Application Logs</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {ticket.confidence_assessment.breakdown.log_evidence.score}/
+                              {ticket.confidence_assessment.breakdown.log_evidence.max_score} pts
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ticket.confidence_assessment.breakdown.log_evidence.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={ticket.confidence_assessment.breakdown.log_evidence.percentage} 
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Past Cases */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Similar Past Cases</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {ticket.confidence_assessment.breakdown.past_cases.score}/
+                              {ticket.confidence_assessment.breakdown.past_cases.max_score} pts
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ticket.confidence_assessment.breakdown.past_cases.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={ticket.confidence_assessment.breakdown.past_cases.percentage} 
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Knowledge Base */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Knowledge Base</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {ticket.confidence_assessment.breakdown.knowledge_base.score}/
+                              {ticket.confidence_assessment.breakdown.knowledge_base.max_score} pts
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ticket.confidence_assessment.breakdown.knowledge_base.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={ticket.confidence_assessment.breakdown.knowledge_base.percentage} 
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Identifiers */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Specific Identifiers</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {ticket.confidence_assessment.breakdown.identifiers.score}/
+                              {ticket.confidence_assessment.breakdown.identifiers.max_score} pts
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ticket.confidence_assessment.breakdown.identifiers.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={ticket.confidence_assessment.breakdown.identifiers.percentage} 
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Evidence Quality */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Evidence Quality</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {ticket.confidence_assessment.breakdown.evidence_quality.score}/
+                              {ticket.confidence_assessment.breakdown.evidence_quality.max_score} pts
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ticket.confidence_assessment.breakdown.evidence_quality.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={ticket.confidence_assessment.breakdown.evidence_quality.percentage} 
+                          className="h-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Interpretation */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold block">Interpretation</Label>
+                    
+                    {/* Diagnosis Confidence */}
+                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Diagnosis Confidence</Label>
+                        <Badge 
+                          variant={
+                            ticket.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                            ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                            "destructive"
+                          }
+                        >
+                          {ticket.confidence_assessment.interpretation.diagnosis_confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {ticket.confidence_assessment.interpretation.diagnosis_explanation}
+                      </p>
+                    </div>
+
+                    {/* Solution Confidence */}
+                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Solution Confidence</Label>
+                        <Badge 
+                          variant={
+                            ticket.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                            ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                            "destructive"
+                          }
+                        >
+                          {ticket.confidence_assessment.interpretation.solution_confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {ticket.confidence_assessment.interpretation.solution_explanation}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No confidence assessment available.</p>
               )}
             </CardContent>
           </Card>
