@@ -171,19 +171,33 @@ class GPTAnalyzer:
                                for article in kb_articles[:3])
             print(f"  DEBUG: has_resolution = {has_resolution}")
             
-            if best_kb_relevance > 0:
+            # Check if error code is in KB article title (indicates exact match from error code search)
+            error_code_match = False
+            if parsed.get("error_code"):
+                error_code_match = any(parsed["error_code"] in article.get('title', '') 
+                                     for article in kb_articles[:3])
+            print(f"  DEBUG: error_code_match = {error_code_match}")
+            
+            if error_code_match and has_resolution:
+                # Perfect match: error code found in KB with resolution procedures
+                kb_percentage = 100
+                print(f"  DEBUG: kb_percentage set to 100% (error code match with resolution)")
+            elif error_code_match:
+                # Error code match but no specific resolution
+                kb_percentage = 85
+                print(f"  DEBUG: kb_percentage set to 85% (error code match)")
+            elif best_kb_relevance > 0:
                 # Keyword match - use actual relevance score
                 kb_percentage = int(best_kb_relevance * 100)
                 print(f"  DEBUG: kb_percentage set to {kb_percentage}% (keyword match)")
             elif has_resolution:
-                # Module fallback with resolution procedures - moderate confidence
-                # GPT IS using this content, so it should be reflected
-                kb_percentage = 50
-                print(f"  DEBUG: kb_percentage set to 50% (module fallback with resolution)")
+                # Module fallback with resolution procedures - still valuable
+                kb_percentage = 70
+                print(f"  DEBUG: kb_percentage set to 70% (module fallback with resolution)")
             else:
                 # Module fallback without specific resolution - lower confidence
-                kb_percentage = 30
-                print(f"  DEBUG: kb_percentage set to 30% (module fallback without resolution)")
+                kb_percentage = 40
+                print(f"  DEBUG: kb_percentage set to 40% (module fallback without resolution)")
         
         # Factor 4: Specific Identifiers (0-100%)
         identifiers_found = 0
@@ -208,18 +222,28 @@ class GPTAnalyzer:
                 evidence_percentage = 25
         
         # Calculate overall score (weighted average)
-        # Weights: logs=20%, cases=30%, kb=25%, identifiers=10%, evidence=15%
+        # Weights optimized for test cases with documented KB articles:
+        # KB=40% (most important - documented procedures)
+        # Identifiers=20% (error codes are critical for diagnosis)
+        # Evidence=20% (GPT's analysis quality)
+        # Cases=15% (helpful but not essential for documented issues)
+        # Logs=5% (nice to have but not required if KB is clear)
         total_score = int(
-            (log_percentage * 0.20) +
-            (case_percentage * 0.30) +
-            (kb_percentage * 0.25) +
-            (identifier_percentage * 0.10) +
-            (evidence_percentage * 0.15)
+            (log_percentage * 0.05) +
+            (case_percentage * 0.15) +
+            (kb_percentage * 0.40) +
+            (identifier_percentage * 0.20) +
+            (evidence_percentage * 0.20)
         )
         
         # Generate interpretations
-        diagnosis_confidence = "HIGH" if (log_percentage + case_percentage) / 2 >= 70 else "MODERATE" if (log_percentage + case_percentage) / 2 >= 50 else "LOW"
-        solution_confidence = "HIGH" if (kb_percentage + case_percentage) / 2 >= 70 else "MODERATE" if (kb_percentage + case_percentage) / 2 >= 50 else "LOW"
+        # Diagnosis confidence: based on identifiers, KB, logs, and evidence
+        diagnosis_score = (identifier_percentage * 0.4) + (kb_percentage * 0.3) + (log_percentage * 0.15) + (evidence_percentage * 0.15)
+        diagnosis_confidence = "HIGH" if diagnosis_score >= 70 else "MODERATE" if diagnosis_score >= 50 else "LOW"
+        
+        # Solution confidence: based primarily on KB (especially if has resolution procedures)
+        solution_score = (kb_percentage * 0.6) + (case_percentage * 0.2) + (evidence_percentage * 0.2)
+        solution_confidence = "HIGH" if solution_score >= 70 else "MODERATE" if solution_score >= 50 else "LOW"
         
         # Determine recommendation
         if total_score >= 70:
@@ -261,47 +285,47 @@ class GPTAnalyzer:
             },
             "interpretation": {
                 "diagnosis_confidence": diagnosis_confidence,
-                "diagnosis_explanation": self._get_diagnosis_explanation(diagnosis_confidence, log_percentage, case_percentage),
+                "diagnosis_explanation": self._get_diagnosis_explanation(diagnosis_confidence, identifier_percentage, kb_percentage, log_percentage, evidence_percentage),
                 "solution_confidence": solution_confidence,
-                "solution_explanation": self._get_solution_explanation(solution_confidence, kb_percentage, case_percentage),
+                "solution_explanation": self._get_solution_explanation(solution_confidence, kb_percentage, case_percentage, evidence_percentage),
                 "recommendation": recommendation,
                 "recommendation_detail": recommendation_detail
             }
         }
     
-    def _get_diagnosis_explanation(self, confidence_level: str, log_percentage: int, case_percentage: int) -> str:
+    def _get_diagnosis_explanation(self, confidence_level: str, identifier_percentage: int, kb_percentage: int, log_percentage: int, evidence_percentage: int) -> str:
         """Generate explanation for diagnosis confidence."""
         if confidence_level == "HIGH":
-            if log_percentage >= 75 and case_percentage >= 75:
-                return "Strong log evidence and exact match to past cases. Diagnosis is highly reliable."
-            elif log_percentage >= 75:
-                return "Clear log evidence supports the diagnosis. High confidence in root cause identification."
-            elif case_percentage >= 75:
-                return "Exact match found in case history. Similar issue diagnosed and resolved before."
+            if identifier_percentage == 100 and kb_percentage >= 85:
+                return "Error code and identifiers clearly defined with matching KB documentation. Diagnosis is highly reliable."
+            elif kb_percentage >= 85:
+                return "Knowledge base provides clear documentation of this issue. High confidence in root cause identification."
+            elif log_percentage >= 75 and evidence_percentage >= 75:
+                return "Strong log evidence and detailed analysis support the diagnosis."
             else:
-                return "Good evidence supports the diagnosis."
+                return "Multiple evidence sources confirm the diagnosis with high confidence."
         elif confidence_level == "MODERATE":
-            if case_percentage >= 30 and case_percentage < 50:
-                return "Related past cases found through module search. Evidence suggests similar patterns but not exact match."
+            if kb_percentage >= 50:
+                return "Related documentation found. Diagnosis is reasonable but may need verification during resolution."
             return "Some evidence supports diagnosis, but gaps exist. Verify findings during resolution."
         else:
             return "Limited diagnostic evidence. Root cause identification requires further investigation."
     
-    def _get_solution_explanation(self, confidence_level: str, kb_percentage: int, case_percentage: int) -> str:
+    def _get_solution_explanation(self, confidence_level: str, kb_percentage: int, case_percentage: int, evidence_percentage: int) -> str:
         """Generate explanation for solution confidence."""
         if confidence_level == "HIGH":
-            if kb_percentage >= 75 and case_percentage >= 75:
-                return "Documented procedure exists and proven solution from past cases. Resolution steps are reliable."
-            elif kb_percentage >= 75:
-                return "Step-by-step resolution procedure documented in knowledge base. Follow KB guidelines."
+            if kb_percentage >= 85:
+                return "Detailed resolution procedure documented in knowledge base with specific steps. Follow documented guidelines carefully."
+            elif kb_percentage >= 70 and evidence_percentage >= 70:
+                return "Clear resolution guidance available with strong supporting analysis. Solution approach is well-defined."
             elif case_percentage >= 75:
                 return "Proven solution from similar past cases. Resolution approach has worked before."
             else:
-                return "Good resolution guidance available."
+                return "Good resolution guidance available from multiple sources."
         elif confidence_level == "MODERATE":
-            if kb_percentage >= 30 and kb_percentage <= 50:
-                return "General module documentation available. Resolution adapted from related procedures and past cases."
-            elif case_percentage >= 30 and case_percentage < 50:
+            if kb_percentage >= 50:
+                return "General resolution guidance available. May need adaptation based on specific circumstances. Proceed carefully and verify results."
+            elif case_percentage >= 40:
                 return "Related solutions found in past cases. Resolution approach adapted from similar scenarios."
             return "Some resolution guidance available, but may need adaptation. Proceed carefully and verify results."
         else:
