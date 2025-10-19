@@ -13,7 +13,9 @@ import {
   MessageSquare,
   ArrowLeft,
   Filter,
-  Search
+  Search,
+  Grid3X3,
+  List
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -21,6 +23,7 @@ import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
+import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
 import { listTickets } from '../api.js';
 
 function formatDuration(created, closed) {
@@ -64,12 +67,133 @@ function getChannelIcon(channel) {
   }
 }
 
+function renderTicketCard(ticket, index, onSelectTicket) {
+  const parsedData = ticket.diagnosis_data?.parsed || {};
+  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
+
+  return (
+    <motion.div
+      key={ticket.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card
+        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
+        onClick={() => onSelectTicket(ticket.id)}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Ticket className="w-4 h-4 text-foreground" />
+              <span className="font-mono text-sm font-medium">#{ticket.id}</span>
+            </div>
+            <Badge
+              variant={ticket.status === 'active' ? 'default' : 'secondary'}
+              className="gap-1"
+            >
+              {ticket.status === 'active' ? (
+                <AlertCircle className="w-3 h-3" />
+              ) : (
+                <CheckCircle className="w-3 h-3" />
+              )}
+              {ticket.status}
+            </Badge>
+          </div>
+          <CardTitle className="text-sm font-medium line-clamp-2">
+            {parsedData.alert_type || 'Unknown Alert'}
+          </CardTitle>
+          <CardDescription className="text-xs">
+            {alertSummary}...
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {getChannelIcon(parsedData.channel)}
+              <span>{parsedData.channel || 'Unknown'}</span>
+              <span>•</span>
+              <Clock className="w-3 h-3" />
+              <span>{formatDuration(ticket.created_at, ticket.closed_at)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Calendar className="w-3 h-3" />
+              <span>{formatDate(ticket.created_at)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function renderTicketListItem(ticket, index, onSelectTicket) {
+  const parsedData = ticket.diagnosis_data?.parsed || {};
+  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 100);
+
+  return (
+    <motion.div
+      key={ticket.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card
+        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
+        onClick={() => onSelectTicket(ticket.id)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Ticket className="w-4 h-4 text-foreground" />
+                <span className="font-mono text-sm font-medium">#{ticket.id}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {getChannelIcon(parsedData.channel)}
+                <span className="text-sm text-muted-foreground">{parsedData.channel || 'Unknown'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="w-3 h-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{formatDuration(ticket.created_at, ticket.closed_at)}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-sm font-medium">{parsedData.alert_type || 'Unknown Alert'}</div>
+                <div className="text-xs text-muted-foreground">{formatDate(ticket.created_at)}</div>
+              </div>
+              <Badge
+                variant={ticket.status === 'active' ? 'default' : 'secondary'}
+                className="gap-1"
+              >
+                {ticket.status === 'active' ? (
+                  <AlertCircle className="w-3 h-3" />
+                ) : (
+                  <CheckCircle className="w-3 h-3" />
+                )}
+                {ticket.status}
+              </Badge>
+            </div>
+          </div>
+          <div className="mt-2 text-sm text-muted-foreground line-clamp-1">
+            {alertSummary}...
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [activeTab, setActiveTab] = useState('active');
   const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('card');
 
   useEffect(() => {
     loadAllTickets();
@@ -119,6 +243,16 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
           <Filter className="w-4 h-4" />
           Filter
         </Button>
+        <ToggleGroup type="single" value={viewMode} onValueChange={setViewMode} className="border rounded-md">
+          <ToggleGroupItem value="card" aria-label="Card view" className="gap-2">
+            <Grid3X3 className="w-4 h-4" />
+            Cards
+          </ToggleGroupItem>
+          <ToggleGroupItem value="list" aria-label="List view" className="gap-2">
+            <List className="w-4 h-4" />
+            List
+          </ToggleGroupItem>
+        </ToggleGroup>
       </motion.div>
 
       {/* Tabs */}
@@ -198,7 +332,10 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              className={viewMode === 'card'
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-2"
+              }
             >
               <AnimatePresence>
                 {filteredTickets.map((ticket, index) => {
@@ -329,7 +466,10 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              className={viewMode === 'card'
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-2"
+              }
             >
               <AnimatePresence>
                 {filteredTickets.map((ticket, index) => {
