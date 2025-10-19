@@ -661,13 +661,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-                        <Progress 
-                          value={ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0} 
-=======
                         <Progress
                           value={ticket.confidence_assessment.breakdown.log_evidence.percentage}
->>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -685,13 +680,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-                        <Progress 
-                          value={ticket.confidence_assessment.breakdown.past_cases?.percentage || 0} 
-=======
                         <Progress
                           value={ticket.confidence_assessment.breakdown.past_cases.percentage}
->>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -709,13 +699,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-                        <Progress 
-                          value={ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0} 
-=======
                         <Progress
                           value={ticket.confidence_assessment.breakdown.knowledge_base.percentage}
->>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -733,13 +718,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-                        <Progress 
-                          value={ticket.confidence_assessment.breakdown.identifiers?.percentage || 0} 
-=======
                         <Progress
                           value={ticket.confidence_assessment.breakdown.identifiers.percentage}
->>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -757,13 +737,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-                        <Progress 
-                          value={ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0} 
-=======
                         <Progress
                           value={ticket.confidence_assessment.breakdown.evidence_quality.percentage}
->>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>

@@ -393,22 +393,6 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
                                         {/* Evidence Breakdown */}
                                         {diagnosis.confidenceAssessment.breakdown && (
-<<<<<<< Updated upstream
-                                        <div>
-                                            <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
-                                            <div className="space-y-4">
-                                                {/* Log Evidence */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-medium">Application Logs</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidenceAssessment.breakdown.log_evidence?.percentage || 0}%
-                                                            </span>
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidenceAssessment.breakdown.log_evidence?.status || 'none'}
-                                                            </Badge>
-=======
                                             <div>
                                                 <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
                                                 <div className="space-y-4">
@@ -425,32 +409,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                                     {diagnosis.confidenceAssessment.breakdown.log_evidence.status}
                                                                 </Badge>
                                                             </div>
->>>>>>> Stashed changes
                                                         </div>
                                                         <Progress
                                                             value={diagnosis.confidenceAssessment.breakdown.log_evidence.percentage}
                                                             className="h-2"
                                                         />
                                                     </div>
-<<<<<<< Updated upstream
-                                                    <Progress 
-                                                        value={diagnosis.confidenceAssessment.breakdown.log_evidence?.percentage || 0} 
-                                                        className="h-2"
-                                                    />
-                                                </div>
-
-                                                {/* Past Cases */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-medium">Similar Past Cases</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidenceAssessment.breakdown.past_cases?.percentage || 0}%
-                                                            </span>
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidenceAssessment.breakdown.past_cases?.status || 'none'}
-                                                            </Badge>
-=======
 
                                                     {/* Past Cases */}
                                                     <div className="space-y-2">
@@ -465,32 +429,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                                     {diagnosis.confidenceAssessment.breakdown.past_cases.status}
                                                                 </Badge>
                                                             </div>
->>>>>>> Stashed changes
                                                         </div>
                                                         <Progress
                                                             value={diagnosis.confidenceAssessment.breakdown.past_cases.percentage}
                                                             className="h-2"
                                                         />
                                                     </div>
-<<<<<<< Updated upstream
-                                                    <Progress 
-                                                        value={diagnosis.confidenceAssessment.breakdown.past_cases?.percentage || 0} 
-                                                        className="h-2"
-                                                    />
-                                                </div>
-
-                                                {/* Knowledge Base */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-medium">Knowledge Base</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidenceAssessment.breakdown.knowledge_base?.percentage || 0}%
-                                                            </span>
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidenceAssessment.breakdown.knowledge_base?.status || 'none'}
-                                                            </Badge>
-=======
 
                                                     {/* Knowledge Base */}
                                                     <div className="space-y-2">
@@ -505,32 +449,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                                     {diagnosis.confidenceAssessment.breakdown.knowledge_base.status}
                                                                 </Badge>
                                                             </div>
->>>>>>> Stashed changes
                                                         </div>
                                                         <Progress
                                                             value={diagnosis.confidenceAssessment.breakdown.knowledge_base.percentage}
                                                             className="h-2"
                                                         />
                                                     </div>
-<<<<<<< Updated upstream
-                                                    <Progress 
-                                                        value={diagnosis.confidenceAssessment.breakdown.knowledge_base?.percentage || 0} 
-                                                        className="h-2"
-                                                    />
-                                                </div>
-
-                                                {/* Identifiers */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-medium">Specific Identifiers</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidenceAssessment.breakdown.identifiers?.percentage || 0}%
-                                                            </span>
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidenceAssessment.breakdown.identifiers?.status || 'none'}
-                                                            </Badge>
-=======
 
                                                     {/* Identifiers */}
                                                     <div className="space-y-2">
@@ -545,32 +469,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                                     {diagnosis.confidenceAssessment.breakdown.identifiers.status}
                                                                 </Badge>
                                                             </div>
->>>>>>> Stashed changes
                                                         </div>
                                                         <Progress
                                                             value={diagnosis.confidenceAssessment.breakdown.identifiers.percentage}
                                                             className="h-2"
                                                         />
                                                     </div>
-<<<<<<< Updated upstream
-                                                    <Progress 
-                                                        value={diagnosis.confidenceAssessment.breakdown.identifiers?.percentage || 0} 
-                                                        className="h-2"
-                                                    />
-                                                </div>
-
-                                                {/* Evidence Quality */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-medium">Evidence Quality</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidenceAssessment.breakdown.evidence_quality?.percentage || 0}%
-                                                            </span>
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidenceAssessment.breakdown.evidence_quality?.status || 'none'}
-                                                            </Badge>
-=======
 
                                                     {/* Evidence Quality */}
                                                     <div className="space-y-2">
@@ -585,20 +489,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                                     {diagnosis.confidenceAssessment.breakdown.evidence_quality.status}
                                                                 </Badge>
                                                             </div>
->>>>>>> Stashed changes
                                                         </div>
                                                         <Progress
                                                             value={diagnosis.confidenceAssessment.breakdown.evidence_quality.percentage}
                                                             className="h-2"
                                                         />
                                                     </div>
-<<<<<<< Updated upstream
-                                                    <Progress 
-                                                        value={diagnosis.confidenceAssessment.breakdown.evidence_quality?.percentage || 0} 
-                                                        className="h-2"
-                                                    />
-=======
->>>>>>> Stashed changes
                                                 </div>
                                             </div>
                                         )}
