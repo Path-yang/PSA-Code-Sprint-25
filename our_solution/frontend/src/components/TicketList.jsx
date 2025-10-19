@@ -123,8 +123,14 @@ function renderTicketCard(ticket, index, onSelectTicket) {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar className="w-3 h-3" />
-              <span>{formatDate(ticket.created_at)}</span>
+              <span>Opened: {formatDate(ticket.created_at)}</span>
             </div>
+            {ticket.status === 'closed' && ticket.closed_at && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CheckCircle className="w-3 h-3" />
+                <span>Closed: {formatDate(ticket.closed_at)}</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -175,7 +181,18 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
         </div>
       </TableCell>
       <TableCell className="text-sm text-muted-foreground">
-        {formatDate(ticket.created_at)}
+        <div className="space-y-1">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            <span>Opened: {formatDate(ticket.created_at)}</span>
+          </div>
+          {ticket.status === 'closed' && ticket.closed_at && (
+            <div className="flex items-center gap-1 text-xs">
+              <CheckCircle className="w-3 h-3" />
+              <span>Closed: {formatDate(ticket.closed_at)}</span>
+            </div>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );
@@ -192,7 +209,7 @@ function renderTicketsTable(tickets, onSelectTicket) {
             <TableHead>Alert & Description</TableHead>
             <TableHead className="w-[120px]">Channel</TableHead>
             <TableHead className="w-[120px]">Duration</TableHead>
-            <TableHead className="w-[150px]">Created</TableHead>
+            <TableHead className="w-[180px]">Timeline</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
