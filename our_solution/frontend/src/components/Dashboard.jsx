@@ -138,7 +138,6 @@ export default function Dashboard() {
                                 className="flex flex-col"
                             >
                                 <h1 className="text-lg font-semibold whitespace-nowrap">PSA Diagnostic</h1>
-                                <p className="text-sm text-muted-foreground whitespace-nowrap">L2 Assistant</p>
                             </motion.div>
                         )}
                     </div>

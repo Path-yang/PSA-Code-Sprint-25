@@ -24,6 +24,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { listTickets } from '../api.js';
 
 function formatDuration(created, closed) {
@@ -128,62 +131,76 @@ function renderTicketCard(ticket, index, onSelectTicket) {
   );
 }
 
-function renderTicketListItem(ticket, index, onSelectTicket) {
+function renderTicketTableRow(ticket, index, onSelectTicket) {
   const parsedData = ticket.diagnosis_data?.parsed || {};
-  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 100);
+  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
 
   return (
-    <motion.div
+    <TableRow
       key={ticket.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ delay: index * 0.05 }}
+      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={() => onSelectTicket(ticket.id)}
     >
-      <Card
-        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50"
-        onClick={() => onSelectTicket(ticket.id)}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Ticket className="w-4 h-4 text-foreground" />
-                <span className="font-mono text-sm font-medium">#{ticket.id}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getChannelIcon(parsedData.channel)}
-                <span className="text-sm text-muted-foreground">{parsedData.channel || 'Unknown'}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{formatDuration(ticket.created_at, ticket.closed_at)}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className="text-sm font-medium">{parsedData.alert_type || 'Unknown Alert'}</div>
-                <div className="text-xs text-muted-foreground">{formatDate(ticket.created_at)}</div>
-              </div>
-              <Badge
-                variant={ticket.status === 'active' ? 'default' : 'secondary'}
-                className="gap-1"
-              >
-                {ticket.status === 'active' ? (
-                  <AlertCircle className="w-3 h-3" />
-                ) : (
-                  <CheckCircle className="w-3 h-3" />
-                )}
-                {ticket.status}
-              </Badge>
-            </div>
-          </div>
-          <div className="mt-2 text-sm text-muted-foreground line-clamp-1">
-            {alertSummary}...
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+      <TableCell className="font-mono font-medium">#{ticket.id}</TableCell>
+      <TableCell>
+        <Badge
+          variant={ticket.status === 'active' ? 'default' : 'secondary'}
+          className="gap-1"
+        >
+          {ticket.status === 'active' ? (
+            <AlertCircle className="w-3 h-3" />
+          ) : (
+            <CheckCircle className="w-3 h-3" />
+          )}
+          {ticket.status}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <div className="max-w-md">
+          <div className="font-medium">{parsedData.alert_type || 'Unknown Alert'}</div>
+          <div className="text-xs text-muted-foreground line-clamp-1">{alertSummary}...</div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          {getChannelIcon(parsedData.channel)}
+          <span className="text-sm">{parsedData.channel || 'Unknown'}</span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          <Clock className="w-3 h-3 text-muted-foreground" />
+          <span className="text-sm">{formatDuration(ticket.created_at, ticket.closed_at)}</span>
+        </div>
+      </TableCell>
+      <TableCell className="text-sm text-muted-foreground">
+        {formatDate(ticket.created_at)}
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function renderTicketsTable(tickets, onSelectTicket) {
+  return (
+    <div className="border rounded-md">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Ticket ID</TableHead>
+            <TableHead className="w-[120px]">Status</TableHead>
+            <TableHead>Alert & Description</TableHead>
+            <TableHead className="w-[120px]">Channel</TableHead>
+            <TableHead className="w-[120px]">Duration</TableHead>
+            <TableHead className="w-[150px]">Created</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <AnimatePresence>
+            {tickets.map((ticket, index) => renderTicketTableRow(ticket, index, onSelectTicket))}
+          </AnimatePresence>
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
@@ -194,6 +211,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('card');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [channelFilter, setChannelFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
 
   useEffect(() => {
     loadAllTickets();
@@ -213,13 +233,42 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
     }
   };
 
-  // Filter tickets by active tab and search query
+  // Filter tickets by active tab, search query, and additional filters
   const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
-  const filteredTickets = ticketsForCurrentTab.filter(ticket =>
-    ticket.alert_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ticket.id.toString().includes(searchQuery) ||
-    (ticket.diagnosis_data?.parsed?.ticket_id || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTickets = ticketsForCurrentTab.filter(ticket => {
+    const parsedData = ticket.diagnosis_data?.parsed || {};
+
+    // Search filter
+    const matchesSearch = searchQuery === '' ||
+      ticket.alert_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.id.toString().includes(searchQuery) ||
+      (parsedData.ticket_id || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Status filter (additional to active tab)
+    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+
+    // Channel filter
+    const matchesChannel = channelFilter === 'all' || parsedData.channel === channelFilter;
+
+    // Date filter
+    const matchesDate = (() => {
+      if (dateFilter === 'all') return true;
+      const ticketDate = new Date(ticket.created_at);
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      switch (dateFilter) {
+        case 'today': return ticketDate >= oneDayAgo;
+        case 'week': return ticketDate >= oneWeekAgo;
+        case 'month': return ticketDate >= oneMonthAgo;
+        default: return true;
+      }
+    })();
+
+    return matchesSearch && matchesStatus && matchesChannel && matchesDate;
+  });
 
   return (
     <div className="p-6 space-y-6">
@@ -239,10 +288,53 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
             className="pl-10"
           />
         </div>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Filter className="w-4 h-4" />
-          Filter
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Filter className="w-4 h-4" />
+              Filter
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Filter by Channel</DropdownMenuLabel>
+            <Select value={channelFilter} onValueChange={setChannelFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Channels" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Channels</SelectItem>
+                <SelectItem value="Email">Email</SelectItem>
+                <SelectItem value="SMS">SMS</SelectItem>
+                <SelectItem value="Phone">Phone</SelectItem>
+              </SelectContent>
+            </Select>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Filter by Date</DropdownMenuLabel>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Time" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <ToggleGroup type="single" value={viewMode} onValueChange={setViewMode} className="border rounded-md">
           <ToggleGroupItem value="card" aria-label="Card view" className="gap-2">
             <Grid3X3 className="w-4 h-4" />
@@ -328,14 +420,18 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
                 </Button>
               )}
             </motion.div>
+          ) : viewMode === 'list' ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {renderTicketsTable(filteredTickets, onSelectTicket)}
+            </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className={viewMode === 'card'
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-2"
-              }
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               <AnimatePresence>
                 {filteredTickets.map((ticket, index) => {
@@ -462,14 +558,18 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
                 Closed tickets will appear here once they are resolved
               </p>
             </motion.div>
+          ) : viewMode === 'list' ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {renderTicketsTable(filteredTickets, onSelectTicket)}
+            </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className={viewMode === 'card'
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-2"
-              }
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               <AnimatePresence>
                 {filteredTickets.map((ticket, index) => {
