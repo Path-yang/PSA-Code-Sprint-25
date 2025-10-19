@@ -21,6 +21,7 @@
 │
 ├── api/                                         # Vercel serverless functions (required at root)
 │   ├── diagnose/index.py                       # Main diagnostic endpoint
+│   ├── tickets.py                              # Ticket management endpoint 🆕
 │   ├── test.py                                 # Health check endpoint
 │   └── hello.py                                # Simple test endpoint
 │
@@ -32,15 +33,22 @@
 │   │   │   ├── log_searcher.py                 # Application log parser
 │   │   │   ├── kb_searcher.py                  # Knowledge base search
 │   │   │   ├── case_log_searcher.py            # Historical case matcher
+│   │   │   ├── database.py                     # SQLite ticket operations 🆕
+│   │   │   ├── db_schema.sql                   # Database schema 🆕
+│   │   │   ├── seed_demo_tickets.py            # Demo ticket generator 🆕
 │   │   │   └── config.py                       # Configuration & paths
-│   │   ├── webapp.py                           # Flask API for local dev
+│   │   ├── tickets.db                          # SQLite database with demo tickets 🆕
+│   │   ├── webapp.py                           # Flask API (diagnostic + tickets)
 │   │   ├── test_all_cases.py                   # Automated test suite
 │   │   └── requirements.txt                    # Python dependencies (local dev)
 │   │
 │   ├── frontend/                                # React + Vite UI
 │   │   ├── src/
-│   │   │   ├── App.jsx                         # Main application component
-│   │   │   ├── api.js                          # API client
+│   │   │   ├── components/
+│   │   │   │   ├── TicketList.jsx             # Ticket list view 🆕
+│   │   │   │   └── TicketDetail.jsx           # Ticket edit view 🆕
+│   │   │   ├── App.jsx                         # Main app (diagnosis + tickets)
+│   │   │   ├── api.js                          # API client (diagnosis + tickets)
 │   │   │   └── styles.css                      # Styling
 │   │   ├── package.json                        # Frontend dependencies
 │   │   └── vite.config.js                      # Vite configuration
@@ -267,6 +275,19 @@ curl -X POST http://localhost:5001/api/diagnose \
 - Clear sections for all findings
 - Ready to share with team
 
+### 6. Ticketing System 🆕
+- **Save diagnoses as tickets** with "Save as Ticket" button
+- **Active/Closed ticket tabs** for easy management
+- **Full editing capabilities**:
+  - Modify root cause and technical details
+  - Edit resolution steps
+  - Add custom fields (key-value pairs)
+  - Add notes for team collaboration
+- **Accurate time tracking**: Shows "Open for X hours" or "Resolved in X hours"
+- **SQLite database** with 3 pre-seeded demo tickets
+- **Works identically** on Vercel and locally (database committed to repo)
+- Beautiful, modern UI with status badges and responsive design
+
 ---
 
 ## 📊 Technology Stack
@@ -276,6 +297,7 @@ curl -X POST http://localhost:5001/api/diagnose \
 - Azure OpenAI API (GPT-4.1-nano)
 - Flask (local dev)
 - Vercel Serverless Functions (production)
+- SQLite (ticketing database) 🆕
 
 **Frontend:**
 - React 18
@@ -290,6 +312,7 @@ curl -X POST http://localhost:5001/api/diagnose \
 - XML parsing (Case Log without openpyxl)
 - Regex-based log searching
 - Text similarity matching
+- SQLite for persistent ticket storage 🆕
 
 ---
 
@@ -378,6 +401,40 @@ Health check endpoint.
 }
 ```
 
+### Ticketing System API 🆕
+
+#### POST `/api/tickets`
+Create a new ticket from diagnostic data.
+
+**Request:**
+```json
+{
+  "alertText": "Original alert text...",
+  "diagnosis": { /* full diagnosis object */ }
+}
+```
+
+**Response:** Created ticket object with ID and timestamps.
+
+#### GET `/api/tickets?status=active`
+List tickets (status: `active`, `closed`, or omit for all).
+
+**Response:** Array of ticket objects.
+
+#### GET `/api/tickets/:id`
+Get a specific ticket by ID.
+
+#### PUT `/api/tickets/:id`
+Update ticket fields (edited_diagnosis, notes, custom_fields).
+
+#### POST `/api/tickets/:id/close`
+Close a ticket (sets status and closed_at timestamp).
+
+#### DELETE `/api/tickets/:id`
+Delete a ticket (for cleanup).
+
+See `TICKETING_DEPLOYMENT.md` for full documentation.
+
 ---
 
 ## 🐛 Troubleshooting
@@ -432,10 +489,9 @@ Ensure no extra spaces or quotes around the API key.
 
 ## 📚 Additional Documentation
 
-- **`my_solution/STARTUP_GUIDE.md`** - Comprehensive setup guide
-- **`my_solution/VERCEL_DEPLOYMENT.md`** - Vercel deployment details
-- **`my_solution/VERCEL_QUICK_FIX.md`** - Common deployment fixes
-- **`my_solution/FIXES_APPLIED.md`** - Technical fixes log
+- **`TICKETING_DEPLOYMENT.md`** - Complete ticketing system guide 🆕
+- **`DEPLOY_TO_VERCEL.md`** - Vercel deployment guide
+- **`FINAL_STRUCTURE.md`** - Project structure explanation
 - **`my_solution/backend/docs/`** - Backend implementation docs
 
 ---
