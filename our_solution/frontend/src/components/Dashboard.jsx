@@ -361,10 +361,12 @@ function AnalyticsView() {
         setLoading(true);
         setError('');
         try {
-            const allTickets = await listTickets();
+            const fetchedTickets = await listTickets();
+            // Exclude deleted tickets from analytics
+            const allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
             setTickets(allTickets);
 
-            // Calculate metrics
+            // Calculate metrics (excluding deleted tickets)
             const total = allTickets.length;
             const active = allTickets.filter(t => t.status === 'active').length;
             const closed = allTickets.filter(t => t.status === 'closed').length;
