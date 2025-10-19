@@ -136,8 +136,12 @@ export default function Dashboard() {
                         onClick={() => setActiveView('home')}
                         className="flex items-center gap-3 w-full hover:opacity-80 transition-opacity"
                     >
-                        <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
-                            <Activity className="w-5 h-5 text-foreground" />
+                        <div className="w-8 h-8 flex items-center justify-center">
+                            <img 
+                                src="/PSA-Logo.png" 
+                                alt="PSA Logo" 
+                                className="w-8 h-8 object-contain"
+                            />
                         </div>
                         {!sidebarCollapsed && (
                             <motion.div
@@ -147,7 +151,7 @@ export default function Dashboard() {
                                 transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
                                 className="flex flex-col"
                             >
-                                <h1 className="text-lg font-semibold whitespace-nowrap text-left">PSA Diagnostic</h1>
+                                <h1 className="text-lg font-semibold whitespace-nowrap text-left">L2 Diagnostic Assistant</h1>
                             </motion.div>
                         )}
                     </button>
@@ -221,18 +225,25 @@ export default function Dashboard() {
                 {/* Top Bar */}
                 <div className="glass-header px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold capitalize">
-                                {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
-                            </h2>
-                            <p className="text-sm text-muted-foreground">
-                                {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
-                                {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
-                                {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
-                                {activeView === 'ticket-detail' && 'View and edit ticket details'}
-                                {activeView === 'analytics' && 'View diagnostic insights and metrics'}
-                                {activeView === 'settings' && 'Configure diagnostic settings'}
-                            </p>
+                        <div className="flex items-center gap-4">
+                            <img 
+                                src="/PSA-Logo.png" 
+                                alt="PSA Logo" 
+                                className="h-10 w-auto object-contain hidden sm:block"
+                            />
+                            <div>
+                                <h2 className="text-xl font-semibold capitalize">
+                                    {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
+                                </h2>
+                                <p className="text-sm text-muted-foreground">
+                                    {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
+                                    {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
+                                    {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
+                                    {activeView === 'ticket-detail' && 'View and edit ticket details'}
+                                    {activeView === 'analytics' && 'View diagnostic insights and metrics'}
+                                    {activeView === 'settings' && 'Configure diagnostic settings'}
+                                </p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <Badge variant="secondary" className="gap-1">
