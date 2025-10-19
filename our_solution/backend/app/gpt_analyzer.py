@@ -360,7 +360,7 @@ Return JSON with this exact structure:
 {{
     "ticket_id": "ticket ID from alert (e.g., ALR-861600, INC-154599, TCK-742311)",
     "channel": "Email/SMS/Call",
-    "module": "Container/Vessel/EDI-API",
+    "module": "Container/Vessel/EDI/API",
     "priority": "Low/Medium/High/Critical",
     "entity_type": "container/vessel/message/other",
     "entity_id": "the specific container number, vessel name, or message reference",
@@ -580,7 +580,7 @@ Return JSON:
         "sql_commands_time": "Z minutes"
     }},
     "escalate": true/false,
-    "escalate_to": "Module owner (Container/Vessel/EDI-API) or null",
+    "escalate_to": "Module owner (Container/Vessel/EDI/API) or null",
     "escalate_reason": "why escalation is or isn't needed"
 }}
 
@@ -691,7 +691,7 @@ Return ONLY valid JSON."""
         Provide your reasoning explicitly and return JSON:
         {{
             "escalate": true/false,
-            "escalate_to": "Module owner (Container/Vessel/EDI-API) or null",
+            "escalate_to": "Module owner (Container/Vessel/EDI/API) or null",
             "escalate_reason": "why escalation is or isn't needed",
             "estimated_time": "estimated time to resolve",
             "resolution_steps": ["step1", "step2", "step3"],
