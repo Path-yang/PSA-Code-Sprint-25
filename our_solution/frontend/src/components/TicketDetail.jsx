@@ -44,6 +44,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './ui/alert-dialog';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { getTicket, updateTicket, closeTicket, deleteTicket, permanentDeleteTicket } from '../api.js';
 
 function formatDateTime(dateString) {
@@ -491,7 +493,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                             )}
                             {parsed.priority && (
                               <TableCell>
-                                <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                                <Badge variant={
+                                  parsed.priority === 'High' ? 'destructive' : 
+                                  parsed.priority === 'Medium' ? 'warning' : 
+                                  'success'
+                                }>
                                   {parsed.priority}
                                 </Badge>
                               </TableCell>
@@ -504,20 +510,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 </Card>
               )}
 
-              {/* Original Alert */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5" />
-                    Original Alert
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="text-sm bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap font-mono">
-                    {ticket.alert_text}
-                  </pre>
-                </CardContent>
-              </Card>
             </div>
         </div>
         </TabsContent>
@@ -877,128 +869,22 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         </TabsContent>
 
         <TabsContent value="full-report" className="space-y-6 mt-6">
-          {/* Full Report - All Diagnosis Data */}
-          <div className="space-y-6">
-            
-            {/* Alert Summary Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Alert Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {parsed && Object.keys(parsed).length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(parsed).map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <Label className="text-xs text-muted-foreground capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </Label>
-                        <p className="text-sm font-medium">{value || 'N/A'}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Root Cause Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Root Cause Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Root Cause</Label>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {rootCause.root_cause || 'No root cause identified'}
-                  </p>
-                </div>
-                {rootCause.technical_details && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Technical Details</Label>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                      {rootCause.technical_details}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Resolution Plan Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Resolution Plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {resolution.resolution_steps && resolution.resolution_steps.length > 0 && (
-                  <div className="space-y-3">
-                    {resolution.resolution_steps.map((step, index) => (
-                      <div key={index} className="flex gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                          {index + 1}
-                        </div>
-                        <p className="text-sm flex-1">{step}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Confidence Assessment Section */}
-            {confidenceAssessment && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
-                    Confidence Assessment
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                      <p className="text-3xl font-bold mt-1">{confidenceAssessment.overall_score}%</p>
-                    </div>
-                    <Badge
-                      variant={
-                        confidenceAssessment.overall_score >= 70 ? "default" :
-                          confidenceAssessment.overall_score >= 50 ? "secondary" :
-                            "destructive"
-                      }
-                      className="text-sm"
-                    >
-                      {confidenceAssessment.interpretation.recommendation}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Original Alert */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  Original Alert
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-xs bg-muted p-4 rounded-lg overflow-x-auto whitespace-pre-wrap font-mono">
-                  {ticket.alert_text}
-                </pre>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Full Report - Exact same as DiagnosticForm */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Full Report
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {displayData.report || 'No report available'}
+                </ReactMarkdown>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6 mt-6">

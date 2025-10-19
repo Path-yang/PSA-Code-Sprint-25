@@ -237,7 +237,11 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                         </td>
                                                         <td className="px-4 py-3 text-sm">{diagnosis.parsed.module || '—'}</td>
                                                         <td className="px-4 py-3">
-                                                            <Badge variant={diagnosis.parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                                                            <Badge variant={
+                                                                diagnosis.parsed.priority === 'High' ? 'destructive' : 
+                                                                diagnosis.parsed.priority === 'Medium' ? 'warning' : 
+                                                                'success'
+                                                            }>
                                                                 {diagnosis.parsed.priority || '—'}
                                                             </Badge>
                                                         </td>

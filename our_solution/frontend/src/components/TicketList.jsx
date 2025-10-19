@@ -75,6 +75,7 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
   const parsedData = ticket.diagnosis_data?.parsed || {};
   const priority = parsedData.priority || 'Medium';
   const module = parsedData.module || 'N/A';
+  const ticketId = parsedData.ticket_id || `#${ticket.ticket_number}`;
 
   return (
     <Card
@@ -83,13 +84,19 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
     >
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-medium">#{ticket.ticket_number}</span>
+          <span className="font-mono text-sm font-medium">{ticketId}</span>
           <Badge variant={ticket.status === 'active' ? 'default' : 'secondary'}>
             {ticket.status}
           </Badge>
         </div>
         <CardTitle className="text-sm font-medium line-clamp-2">
-          {priority}
+          <Badge variant={
+            priority === 'High' ? 'destructive' : 
+            priority === 'Medium' ? 'warning' : 
+            'success'
+          }>
+            {priority}
+          </Badge>
         </CardTitle>
         <CardDescription className="text-xs line-clamp-2">
           {module}
@@ -112,6 +119,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
   const parsedData = ticket.diagnosis_data?.parsed || {};
   const priority = parsedData.priority || 'Medium';
   const module = parsedData.module || 'N/A';
+  const ticketId = parsedData.ticket_id || `#${ticket.ticket_number}`;
 
   return (
     <TableRow
@@ -119,7 +127,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={() => onSelectTicket(ticket.id)}
     >
-      <TableCell className="font-mono font-medium">#{ticket.ticket_number}</TableCell>
+      <TableCell className="font-mono font-medium">{ticketId}</TableCell>
       <TableCell>
         <Badge
           variant={ticket.status === 'active' ? 'default' : 'secondary'}
@@ -135,7 +143,15 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
       </TableCell>
       <TableCell>
         <div className="max-w-md">
-          <div className="font-medium">{priority}</div>
+          <div className="font-medium">
+            <Badge variant={
+              priority === 'High' ? 'destructive' : 
+              priority === 'Medium' ? 'warning' : 
+              'success'
+            }>
+              {priority}
+            </Badge>
+          </div>
           <div className="text-xs text-muted-foreground line-clamp-1">{module}</div>
         </div>
       </TableCell>
