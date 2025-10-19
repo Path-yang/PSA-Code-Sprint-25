@@ -23,11 +23,11 @@ Your ticketing system is complete and includes:
 - **Beautiful modern UI** with status badges and responsive design
 
 ### Database
-- **Location**: `my_solution/backend/tickets.db` (local dev)
-- **Vercel**: Automatically copied to `/tmp/tickets.db` (writable location)
-- **Pre-seeded tickets** restored on every Vercel cold start
-- **Committed to repo** so judges can download and run locally
-- **Important**: Vercel tickets reset on cold starts (serverless behavior), but demo tickets always available
+- **Local Dev**: SQLite at `my_solution/backend/tickets.db` (permanent storage)
+- **Vercel Production**: Neon Postgres in Singapore region (permanent storage) ✨
+- **Pre-seeded tickets**: 3 demo tickets in Neon for judges
+- **Auto-detection**: Code automatically uses Postgres on Vercel, SQLite locally
+- **Permanent storage**: All tickets persist indefinitely on Neon! 🎉
 
 ---
 
@@ -108,21 +108,15 @@ Visit `http://localhost:5173` and test ticketing system.
 
 ## 📊 For Hackathon Judges
 
-### Why SQLite is Perfect for This Hackathon
+### Why Neon Postgres is Perfect for This Hackathon
 
-✅ **Zero setup** - Judges can download and run immediately  
-✅ **Database included** in repo with demo tickets  
-✅ **Works on Vercel** - Automatically handles read-only filesystem  
-✅ **Self-contained** - No cloud credentials needed  
-✅ **Portable** - Single `.db` file with all data  
-✅ **Production-ready** - Full ACID compliance
-
-### Vercel Behavior Note
-On Vercel, the database is copied to `/tmp/tickets.db` on each cold start:
-- **Demo tickets always available** - Restored from committed database file
-- **New tickets persist** during warm function instances (~15 minutes)
-- **Cold start resets** tickets (expected serverless behavior)
-- **For persistent storage**, consider Vercel Postgres (but SQLite is perfect for hackathon demos!)
+✅ **Permanent storage** - All tickets persist indefinitely  
+✅ **Singapore region** - Low latency for PSA/Asia judges  
+✅ **Auto-detection** - Code switches between SQLite (local) and Postgres (Vercel)  
+✅ **Pre-seeded demo tickets** - 3 tickets ready for judges to see  
+✅ **Industry standard** - Production-grade Postgres database  
+✅ **Free tier** - No cost for hackathon usage  
+✅ **JSONB support** - Efficient JSON storage for diagnosis data
 
 ### Judges Can:
 1. **Test the live site** at your Vercel URL

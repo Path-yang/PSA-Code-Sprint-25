@@ -284,8 +284,9 @@ curl -X POST http://localhost:5001/api/diagnose \
   - Add custom fields (key-value pairs)
   - Add notes for team collaboration
 - **Accurate time tracking**: Shows "Open for X hours" or "Resolved in X hours"
-- **SQLite database** with 3 pre-seeded demo tickets
-- **Works identically** on Vercel and locally (database committed to repo)
+- **Neon Postgres database** (Singapore region) with 3 pre-seeded demo tickets on Vercel ✨
+- **SQLite locally** for easy development (no setup needed)
+- **Permanent storage** - tickets persist indefinitely on live site
 - Beautiful, modern UI with status badges and responsive design
 
 ---
@@ -297,7 +298,8 @@ curl -X POST http://localhost:5001/api/diagnose \
 - Azure OpenAI API (GPT-4.1-nano)
 - Flask (local dev)
 - Vercel Serverless Functions (production)
-- SQLite (ticketing database) 🆕
+- Neon Postgres (Vercel production database) 🆕
+- SQLite (local development database) 🆕
 
 **Frontend:**
 - React 18
@@ -312,7 +314,8 @@ curl -X POST http://localhost:5001/api/diagnose \
 - XML parsing (Case Log without openpyxl)
 - Regex-based log searching
 - Text similarity matching
-- SQLite for persistent ticket storage 🆕
+- Neon Postgres (Vercel) / SQLite (local) for ticket storage 🆕
+- Automatic database backend selection based on environment
 
 ---
 
