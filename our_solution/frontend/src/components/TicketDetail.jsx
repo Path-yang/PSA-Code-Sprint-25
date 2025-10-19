@@ -31,6 +31,16 @@ import { Separator } from './ui/separator';
 import { Progress } from './ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Skeleton } from './ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
 import { getTicket, updateTicket, closeTicket, deleteTicket } from '../api.js';
 
 function formatDateTime(dateString) {
@@ -60,6 +70,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showCloseDialog, setShowCloseDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Editable fields
   const [editedRootCause, setEditedRootCause] = useState('');
@@ -135,10 +147,9 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   };
 
   const handleClose = async () => {
-    if (!confirm('Close this ticket? This will mark it as resolved.')) return;
-
     setSaving(true);
     setError('');
+    setShowCloseDialog(false);
     try {
       await closeTicket(ticketId);
       onTicketUpdated?.();
@@ -150,10 +161,9 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this ticket permanently? This cannot be undone.')) return;
-
     setSaving(true);
     setError('');
+    setShowDeleteDialog(false);
     try {
       await deleteTicket(ticketId);
       onTicketUpdated?.();
@@ -898,19 +908,53 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Notes'}
                 </Button>
-                <Button onClick={handleClose} disabled={saving} variant="secondary" className="gap-2">
+                <Button onClick={() => setShowCloseDialog(true)} disabled={saving} variant="secondary" className="gap-2">
                   <CheckCircle className="w-4 h-4" />
                   Close Ticket
                 </Button>
               </>
             )}
-            <Button onClick={handleDelete} disabled={saving} variant="destructive" className="gap-2">
+            <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
               <Trash2 className="w-4 h-4" />
               Delete Ticket
             </Button>
           </>
         )}
       </motion.div>
+
+      {/* Close Ticket Confirmation Dialog */}
+      <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Close this ticket?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark the ticket as resolved and move it to closed tickets. You can still view it later in the tickets list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClose}>Close Ticket</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Ticket Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this ticket permanently?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The ticket and all its data will be permanently deleted from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

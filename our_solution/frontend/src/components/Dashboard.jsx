@@ -231,25 +231,18 @@ export default function Dashboard() {
                 {/* Top Bar */}
                 <div className="glass-header px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <img 
-                                src="/PSA-Logo.png" 
-                                alt="PSA Logo" 
-                                className="h-10 w-auto object-contain hidden sm:block"
-                            />
-                            <div>
-                                <h2 className="text-xl font-semibold capitalize">
-                                    {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
-                                </h2>
-                                <p className="text-sm text-muted-foreground">
-                                    {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
-                                    {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
-                                    {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
-                                    {activeView === 'ticket-detail' && 'View and edit ticket details'}
-                                    {activeView === 'analytics' && 'View diagnostic insights and metrics'}
-                                    {activeView === 'settings' && 'Configure diagnostic settings'}
-                                </p>
-                            </div>
+                        <div>
+                            <h2 className="text-xl font-semibold capitalize">
+                                {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
+                            </h2>
+                            <p className="text-sm text-muted-foreground">
+                                {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
+                                {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
+                                {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
+                                {activeView === 'ticket-detail' && 'View and edit ticket details'}
+                                {activeView === 'analytics' && 'View diagnostic insights and metrics'}
+                                {activeView === 'settings' && 'Configure diagnostic settings'}
+                            </p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Badge variant="secondary" className="gap-1">
