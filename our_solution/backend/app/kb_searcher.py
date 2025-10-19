@@ -27,13 +27,17 @@ class KnowledgeBaseSearcher:
         current_article = None
 
         for line in self.content.split("\n"):
-            if line.startswith(("CNTR:", "VSL:", "EDI:", "API:")):
+            if line.startswith(("CNTR:", "VSL:", "VAS:", "EDI:", "API:")):
                 if current_article:
                     articles.append(current_article)
+                # Map VAS to VSL for consistency
+                module = line.split(":")[0] if ":" in line else "Unknown"
+                if module == "VAS":
+                    module = "VSL"
                 current_article = {
                     "title": line.strip(),
                     "content": "",
-                    "module": line.split(":")[0] if ":" in line else "Unknown",
+                    "module": module,
                 }
             elif current_article:
                 current_article["content"] += line + "\n"
@@ -89,7 +93,7 @@ class KnowledgeBaseSearcher:
         output = []
         for i, article in enumerate(articles[:max_articles]):
             output.append(f"=== Article {i + 1}: {article['title']} ===")
-            output.append(article["content"][:1000])
+            output.append(article["content"][:2000])  # Increased from 1000 to 2000
             output.append("")
 
         return "\n".join(output)

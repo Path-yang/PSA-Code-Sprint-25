@@ -432,7 +432,7 @@ ROOT CAUSE:
 {json.dumps(root_cause, indent=2)}
 
 KNOWLEDGE BASE (relevant articles):
-{kb_context[:2000] if kb_context else "No KB context"}
+{kb_context[:4000] if kb_context else "No KB context"}
 
 PAST CASE SOLUTIONS:
 {case_solutions if case_solutions else "No past solutions found"}

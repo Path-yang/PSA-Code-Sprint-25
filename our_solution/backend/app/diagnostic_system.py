@@ -115,10 +115,26 @@ class L2DiagnosticSystem:
         if verbose:
             print("\n📖 Step 4: Searching Knowledge Base...")
         kb_articles = []
+        
+        # First try keyword search
         if parsed.get("symptoms"):
             kb_articles = self.kb_searcher.search_by_keywords(parsed["symptoms"])
+        
+        # If no keyword matches, try error code search
+        if not kb_articles and parsed.get("error_code"):
+            kb_articles = self.kb_searcher.search_by_keywords([parsed["error_code"]])
+        
+        # If still no matches, try module search
         if not kb_articles and parsed.get("module"):
-            kb_articles = self.kb_searcher.search_by_module(parsed["module"])
+            # Map module names to KB module codes
+            module_mapping = {
+                "Vessel": "VSL",
+                "Container": "CNTR", 
+                "EDI": "EDI",
+                "API": "API"
+            }
+            kb_module = module_mapping.get(parsed["module"], parsed["module"])
+            kb_articles = self.kb_searcher.search_by_module(kb_module)
 
         if verbose:
             print(f"   ✓ Found {len(kb_articles)} relevant KB articles")
