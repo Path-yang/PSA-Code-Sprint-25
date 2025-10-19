@@ -47,70 +47,84 @@ export default function LandingPage({ onNavigate }) {
     return (
         <div className="min-h-screen">
             {/* Hero Section */}
-            <section className="bg-white dark:bg-slate-900">
-                <div className="container mx-auto px-6 py-20">
+            <section className="relative bg-white dark:bg-slate-900 overflow-hidden">
+                {/* Background Image */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/PSA hero image.png"
+                        alt="PSA Facility"
+                        className="w-full h-full object-cover blur-sm opacity-15"
+                    />
+                    {/* Dark Overlay */}
+                    <div className="absolute inset-0 bg-black/5 dark:bg-black/8"></div>
+                </div>
+
+                <div className="container mx-auto px-6 py-20 relative z-10">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="text-center space-y-8"
+                        className="text-center"
                     >
-                        {/* Logo and Badge */}
-                        <div className="flex flex-col items-center gap-4">
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                className="flex items-center gap-4"
-                            >
-                                <img
-                                    src="/PSA-Logo.png"
-                                    alt="PSA Logo"
-                                    className="h-20 w-auto object-contain"
-                                />
-                                <span className="text-5xl font-bold">PSA</span>
-                            </motion.div>
-                            
-                            <Badge variant="secondary" className="gap-2">
-                                <Sparkles className="w-4 h-4" />
-                                L2 Diagnostic Assistant
-                            </Badge>
-                        </div>
+                        {/* Glass Container */}
+                        <div className="backdrop-blur-md bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl max-w-4xl mx-auto space-y-6">
+                            {/* Logo and Badge */}
+                            <div className="flex flex-col items-center gap-4">
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                    className="flex items-center gap-4"
+                                >
+                                    <img
+                                        src="/PSA-Logo.png"
+                                        alt="PSA Logo"
+                                        className="h-20 w-auto object-contain"
+                                    />
+                                    <span className="text-5xl font-bold">PSA</span>
+                                </motion.div>
 
-                        {/* Text Flip Animation */}
-                        <div className="space-y-4">
-                            <div className="mb-4">
-                                <LayoutTextFlip />
+                                <Badge variant="secondary" className="gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    L2 Diagnostic Assistant
+                                </Badge>
                             </div>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.8 }}
-                                className="text-xl text-muted-foreground max-w-2xl mx-auto"
-                            >
-                                Transform your L2 support operations with AI-powered diagnostics,
-                                intelligent ticket management, and automated resolution workflows.
-                            </motion.p>
-                        </div>
 
-                        {/* CTA Buttons */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 1 }}
-                            className="flex flex-col sm:flex-row gap-4 justify-center"
-                        >
-                            <Button
-                                size="lg"
-                                onClick={() => onNavigate('diagnose')}
-                                className="gap-2"
+                            {/* Text Flip Animation */}
+                            <div className="space-y-3">
+                                <div className="mb-4">
+                                    <LayoutTextFlip />
+                                </div>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.8 }}
+                                    className="text-xl text-muted-foreground max-w-2xl mx-auto"
+                                >
+                                    Transform your L2 support operations with AI-powered diagnostics,
+                                    intelligent ticket management, and automated resolution workflows.
+                                </motion.p>
+                            </div>
+
+                            {/* CTA Buttons */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 1 }}
+                                className="flex flex-col sm:flex-row gap-4 justify-center"
                             >
-                                Get Started <ArrowRight className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" size="lg" onClick={() => onNavigate('analytics')}>
-                                View Analytics
-                            </Button>
-                        </motion.div>
+                                <Button
+                                    size="lg"
+                                    onClick={() => onNavigate('diagnose')}
+                                    className="gap-2"
+                                >
+                                    Get Started <ArrowRight className="w-4 h-4" />
+                                </Button>
+                                <Button variant="outline" size="lg" onClick={() => onNavigate('analytics')}>
+                                    View Analytics
+                                </Button>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 </div>
             </section>
