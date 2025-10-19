@@ -17,6 +17,8 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { diagnoseAlert, createTicket } from '../api.js';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:
@@ -75,7 +77,43 @@ export default function DiagnosticForm({ onTicketCreated }) {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 relative">
+
+            {/* Floating Save Ticket Button */}
+            {diagnosis && !ticketCreated && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-6 right-6 z-10"
+                >
+                    <button
+                        onClick={handleCreateTicket}
+                        disabled={loading}
+                        className="group relative inline-flex h-10 items-center justify-center gap-2 overflow-hidden rounded-md bg-primary px-6 font-medium text-primary-foreground transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
+                            <div className="relative h-full w-8 bg-white/20"></div>
+                        </div>
+                        <CheckCircle className="w-4 h-4" />
+                        Save as Ticket
+                    </button>
+                </motion.div>
+            )}
+
+            {/* Success Message */}
+            {ticketCreated && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-6 right-6 z-10"
+                >
+                    <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-md border border-green-200 dark:border-green-800">
+                        <CheckCircle className="w-4 h-4" />
+                        Ticket created!
+                    </div>
+                </motion.div>
+            )}
 
             {/* Diagnostic Form */}
             <motion.div
@@ -106,41 +144,19 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 />
                             </div>
 
-                            <div className="flex gap-3">
-                                <Button type="submit" disabled={loading} className="flex-1">
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Running diagnostics...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Zap className="w-4 h-4 mr-2" />
-                                            Run Diagnostics
-                                        </>
-                                    )}
-                                </Button>
-
-                                {diagnosis && !ticketCreated && (
-                                    <Button
-                                        type="button"
-                                        onClick={handleCreateTicket}
-                                        disabled={loading}
-                                        variant="secondary"
-                                        className="flex-1"
-                                    >
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Save as Ticket
-                                    </Button>
+                            <Button type="submit" disabled={loading} className="w-full">
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Running diagnostics...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Zap className="w-4 h-4 mr-2" />
+                                        Run Diagnostics
+                                    </>
                                 )}
-
-                                {ticketCreated && (
-                                    <div className="flex items-center gap-2 text-green-600 font-medium">
-                                        <CheckCircle className="w-4 h-4" />
-                                        Ticket created!
-                                    </div>
-                                )}
-                            </div>
+                            </Button>
 
                             {error && (
                                 <motion.div
@@ -329,9 +345,11 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap">
-                                    {diagnosis.report}
-                                </pre>
+                                <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {diagnosis.report}
+                                    </ReactMarkdown>
+                                </div>
                             </CardContent>
                         </Card>
                     </motion.div>
