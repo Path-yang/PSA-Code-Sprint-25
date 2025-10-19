@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "cross-env": "^10.1.0"
+  },
+  "dependencies": {
+    "@tailwindcss/typography": "^0.5.19"
   }
 }
