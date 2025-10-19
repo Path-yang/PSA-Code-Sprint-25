@@ -332,7 +332,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="diagnosis">Diagnosis</TabsTrigger>
-          <TabsTrigger value="resolution">Resolution</TabsTrigger>
+          <TabsTrigger value="resolution">Resolution Plan</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>
 
