@@ -7,7 +7,8 @@ import {
     CheckCircle,
     AlertTriangle,
     Loader2,
-    Sparkles
+    Sparkles,
+    Settings
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
