@@ -86,11 +86,28 @@ class L2DiagnosticSystem:
         if verbose:
             print("\n📚 Step 2: Searching Case Log for similar cases...")
         similar_cases = []
+        
+        # First try keyword search with symptoms
         if parsed.get("symptoms"):
             similar_cases = self.case_log_searcher.find_similar_cases(
                 symptoms=parsed["symptoms"],
                 module=parsed.get("module"),
             )
+        
+        # If no keyword matches, try error code search
+        if not similar_cases and parsed.get("error_code"):
+            error_cases = self.case_log_searcher.search_by_keywords([parsed["error_code"]])
+            if parsed.get("module"):
+                # Filter by module
+                similar_cases = [case for case in error_cases if parsed["module"].lower() in case.get('module', '').lower()]
+            else:
+                similar_cases = error_cases
+        
+        # If still no matches, try module search as fallback
+        if not similar_cases and parsed.get("module"):
+            module_cases = self.case_log_searcher.search_by_module(parsed["module"])
+            similar_cases = module_cases[:5]  # Limit to top 5 module cases
+        
         if verbose:
             print(f"   ✓ Found {len(similar_cases)} similar past cases")
             if similar_cases:
