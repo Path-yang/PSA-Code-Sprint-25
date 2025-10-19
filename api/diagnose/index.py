@@ -97,6 +97,7 @@ class handler(BaseHTTPRequestHandler):
                 "logEvidence": result["log_evidence"],
                 "knowledgeBase": result["kb_articles"],
                 "similarCases": result["similar_cases"],
+                "confidenceAssessment": result.get("confidence_assessment"),
             })
             
         except Exception as exc:

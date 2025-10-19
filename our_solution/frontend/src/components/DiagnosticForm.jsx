@@ -328,7 +328,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                         </Card>
 
                         {/* Confidence Assessment */}
-                        {diagnosis.confidence_assessment && (
+                        {diagnosis.confidenceAssessment && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -345,21 +345,21 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                                             <div>
                                                 <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                                                <p className="text-3xl font-bold mt-1">{diagnosis.confidence_assessment.overall_score}%</p>
+                                                <p className="text-3xl font-bold mt-1">{diagnosis.confidenceAssessment.overall_score}%</p>
                                             </div>
                                             <div className="text-right">
                                                 <Badge 
                                                     variant={
-                                                        diagnosis.confidence_assessment.overall_score >= 70 ? "default" :
-                                                        diagnosis.confidence_assessment.overall_score >= 50 ? "secondary" :
+                                                        diagnosis.confidenceAssessment.overall_score >= 70 ? "default" :
+                                                        diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
                                                         "destructive"
                                                     }
                                                     className="text-sm"
                                                 >
-                                                    {diagnosis.confidence_assessment.interpretation.recommendation}
+                                                    {diagnosis.confidenceAssessment.interpretation.recommendation}
                                                 </Badge>
                                                 <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                                                    {diagnosis.confidence_assessment.interpretation.recommendation_detail}
+                                                    {diagnosis.confidenceAssessment.interpretation.recommendation_detail}
                                                 </p>
                                             </div>
                                         </div>
@@ -376,16 +376,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                         <Label className="text-sm font-medium">Application Logs</Label>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidence_assessment.breakdown.log_evidence.score}/
-                                                                {diagnosis.confidence_assessment.breakdown.log_evidence.max_score} pts
+                                                                {diagnosis.confidenceAssessment.breakdown.log_evidence.score}/
+                                                                {diagnosis.confidenceAssessment.breakdown.log_evidence.max_score} pts
                                                             </span>
                                                             <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidence_assessment.breakdown.log_evidence.status}
+                                                                {diagnosis.confidenceAssessment.breakdown.log_evidence.status}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <Progress 
-                                                        value={diagnosis.confidence_assessment.breakdown.log_evidence.percentage} 
+                                                        value={diagnosis.confidenceAssessment.breakdown.log_evidence.percentage} 
                                                         className="h-2"
                                                     />
                                                 </div>
@@ -396,16 +396,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                         <Label className="text-sm font-medium">Similar Past Cases</Label>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidence_assessment.breakdown.past_cases.score}/
-                                                                {diagnosis.confidence_assessment.breakdown.past_cases.max_score} pts
+                                                                {diagnosis.confidenceAssessment.breakdown.past_cases.score}/
+                                                                {diagnosis.confidenceAssessment.breakdown.past_cases.max_score} pts
                                                             </span>
                                                             <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidence_assessment.breakdown.past_cases.status}
+                                                                {diagnosis.confidenceAssessment.breakdown.past_cases.status}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <Progress 
-                                                        value={diagnosis.confidence_assessment.breakdown.past_cases.percentage} 
+                                                        value={diagnosis.confidenceAssessment.breakdown.past_cases.percentage} 
                                                         className="h-2"
                                                     />
                                                 </div>
@@ -416,16 +416,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                         <Label className="text-sm font-medium">Knowledge Base</Label>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidence_assessment.breakdown.knowledge_base.score}/
-                                                                {diagnosis.confidence_assessment.breakdown.knowledge_base.max_score} pts
+                                                                {diagnosis.confidenceAssessment.breakdown.knowledge_base.score}/
+                                                                {diagnosis.confidenceAssessment.breakdown.knowledge_base.max_score} pts
                                                             </span>
                                                             <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidence_assessment.breakdown.knowledge_base.status}
+                                                                {diagnosis.confidenceAssessment.breakdown.knowledge_base.status}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <Progress 
-                                                        value={diagnosis.confidence_assessment.breakdown.knowledge_base.percentage} 
+                                                        value={diagnosis.confidenceAssessment.breakdown.knowledge_base.percentage} 
                                                         className="h-2"
                                                     />
                                                 </div>
@@ -436,16 +436,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                         <Label className="text-sm font-medium">Specific Identifiers</Label>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidence_assessment.breakdown.identifiers.score}/
-                                                                {diagnosis.confidence_assessment.breakdown.identifiers.max_score} pts
+                                                                {diagnosis.confidenceAssessment.breakdown.identifiers.score}/
+                                                                {diagnosis.confidenceAssessment.breakdown.identifiers.max_score} pts
                                                             </span>
                                                             <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidence_assessment.breakdown.identifiers.status}
+                                                                {diagnosis.confidenceAssessment.breakdown.identifiers.status}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <Progress 
-                                                        value={diagnosis.confidence_assessment.breakdown.identifiers.percentage} 
+                                                        value={diagnosis.confidenceAssessment.breakdown.identifiers.percentage} 
                                                         className="h-2"
                                                     />
                                                 </div>
@@ -456,16 +456,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                         <Label className="text-sm font-medium">Evidence Quality</Label>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm text-muted-foreground">
-                                                                {diagnosis.confidence_assessment.breakdown.evidence_quality.score}/
-                                                                {diagnosis.confidence_assessment.breakdown.evidence_quality.max_score} pts
+                                                                {diagnosis.confidenceAssessment.breakdown.evidence_quality.score}/
+                                                                {diagnosis.confidenceAssessment.breakdown.evidence_quality.max_score} pts
                                                             </span>
                                                             <Badge variant="outline" className="text-xs">
-                                                                {diagnosis.confidence_assessment.breakdown.evidence_quality.status}
+                                                                {diagnosis.confidenceAssessment.breakdown.evidence_quality.status}
                                                             </Badge>
                                                         </div>
                                                     </div>
                                                     <Progress 
-                                                        value={diagnosis.confidence_assessment.breakdown.evidence_quality.percentage} 
+                                                        value={diagnosis.confidenceAssessment.breakdown.evidence_quality.percentage} 
                                                         className="h-2"
                                                     />
                                                 </div>
@@ -484,16 +484,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                     <Label className="text-sm font-medium">Diagnosis Confidence</Label>
                                                     <Badge 
                                                         variant={
-                                                            diagnosis.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                                            diagnosis.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
                                                             "destructive"
                                                         }
                                                     >
-                                                        {diagnosis.confidence_assessment.interpretation.diagnosis_confidence}
+                                                        {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
                                                     </Badge>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {diagnosis.confidence_assessment.interpretation.diagnosis_explanation}
+                                                    {diagnosis.confidenceAssessment.interpretation.diagnosis_explanation}
                                                 </p>
                                             </div>
 
@@ -503,16 +503,16 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                     <Label className="text-sm font-medium">Solution Confidence</Label>
                                                     <Badge 
                                                         variant={
-                                                            diagnosis.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                                            diagnosis.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
                                                             "destructive"
                                                         }
                                                     >
-                                                        {diagnosis.confidence_assessment.interpretation.solution_confidence}
+                                                        {diagnosis.confidenceAssessment.interpretation.solution_confidence}
                                                     </Badge>
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {diagnosis.confidence_assessment.interpretation.solution_explanation}
+                                                    {diagnosis.confidenceAssessment.interpretation.solution_explanation}
                                                 </p>
                                             </div>
                                         </div>
