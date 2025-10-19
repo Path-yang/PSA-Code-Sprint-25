@@ -664,8 +664,9 @@ Return ONLY valid JSON."""
     ) -> Dict:
         """Get GPT resolution decision with enhanced structured context."""
         
-        system_prompt = """You are an AI duty officer deciding whether to escalate an incident.
-        Use the structured metadata and historical patterns to make consistent, auditable decisions."""
+        system_prompt = """You are an experienced duty officer deciding whether to escalate an incident.
+        Use the structured metadata and historical patterns to make consistent, auditable decisions.
+        Provide professional escalation recommendations without mentioning AI or GPT."""
         
         user_prompt = f"""Based on the metadata and historical patterns, decide:
         1. Should this be escalated? (Yes/No)
@@ -767,11 +768,11 @@ Return ONLY valid JSON."""
             final_escalate_to = gpt_escalate_to or "Product Team"
             final_reason = f"Very low confidence ({confidence_score}%) requires escalation"
         
-        # Rule 5: GPT recommendation with high confidence
+        # Rule 5: AI recommendation with high confidence
         elif gpt_escalate and confidence_score >= 50:
             final_escalate = True
             final_escalate_to = gpt_escalate_to
-            final_reason = f"GPT recommends escalation: {gpt_reason}"
+            final_reason = f"It is recommended to escalate: {gpt_reason}"
         
         # Rule 6: Default to GPT decision
         else:
@@ -797,13 +798,13 @@ Return ONLY valid JSON."""
                 "confidence_score": confidence_score,
                 "impact_score": impact_score,
                 "severity": severity,
-                "gpt_recommendation": gpt_escalate,
+                "ai_recommendation": gpt_escalate,
                 "final_decision": final_escalate,
                 "decision_factors": [
                     f"Confidence: {confidence_score}%",
                     f"Impact: {impact_score}",
                     f"Severity: {severity}",
-                    f"GPT: {'Escalate' if gpt_escalate else 'No escalation'}"
+                    f"Recommendation: {'Escalate' if gpt_escalate else 'No escalation'}"
                 ]
             }
         }
