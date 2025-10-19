@@ -22,6 +22,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Navbar, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavMenu, MobileNavToggle } from './ui/resizable-navbar';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
@@ -225,6 +226,8 @@ function renderTicketsTable(tickets, onSelectTicket) {
 
 export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [activeTab, setActiveTab] = useState('active');
+  const [hoveredTab, setHoveredTab] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -233,6 +236,17 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+
+  const tabItems = [
+    { name: 'Active Tickets', id: 'active' },
+    { name: 'Closed Tickets', id: 'closed' },
+    { name: 'Deleted Tickets', id: 'deleted' }
+  ];
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    setIsMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     loadAllTickets();
@@ -259,7 +273,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   // Memoize filtered tickets for better performance
   const filteredTickets = useMemo(() => {
     const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
-    
+
     return ticketsForCurrentTab.filter(ticket => {
       const parsedData = ticket.diagnosis_data?.parsed || {};
 
@@ -316,7 +330,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 hover:bg-white hover:text-black">
               <Filter className="w-4 h-4" />
               Filter
             </Button>
@@ -362,228 +376,290 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
           </DropdownMenuContent>
         </DropdownMenu>
         <ToggleGroup type="single" value={viewMode} onValueChange={setViewMode} className="border rounded-md">
-          <ToggleGroupItem value="card" aria-label="Card view" className="gap-2">
+          <ToggleGroupItem value="card" aria-label="Card view" className="gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200">
             <Grid3X3 className="w-4 h-4" />
             Cards
           </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="List view" className="gap-2">
+          <ToggleGroupItem value="list" aria-label="List view" className="gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200">
             <List className="w-4 h-4" />
             List
           </ToggleGroupItem>
         </ToggleGroup>
       </motion.div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="active" className="gap-2">
-            <AlertCircle className="w-4 h-4" />
-            Active Tickets
-            <Badge variant="secondary" className="ml-2">
-              {allTickets.filter(t => t.status === 'active').length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="closed" className="gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Closed Tickets
-            <Badge variant="secondary" className="ml-2">
-              {allTickets.filter(t => t.status === 'closed').length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="deleted" className="gap-2">
-            <Trash2 className="w-4 h-4" />
-            Deleted Tickets
-            <Badge variant="secondary" className="ml-2">
-              {allTickets.filter(t => t.status === 'deleted').length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="mt-6">
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
-            >
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            </motion.div>
-          )}
-
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+      {/* Resizable Navbar */}
+      <Navbar>
+        <NavBody>
+          <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2">
+            {tabItems.map((item, idx) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabClick(item.id)}
+                className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors flex items-center gap-2"
+                onMouseEnter={() => setHoveredTab(idx)}
+                onMouseLeave={() => setHoveredTab(null)}
+              >
+                {hoveredTab === idx && (
+                  <motion.div
+                    layoutId="hovered-tab"
+                    className="absolute inset-0 h-full w-full rounded-full bg-black/10 dark:bg-white/10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+                {activeTab === item.id && (
+                  <motion.div
+                    layoutId="active-tab"
+                    className="absolute inset-0 h-full w-full rounded-full bg-primary"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+                <span className={`relative z-10 flex items-center gap-2 ${activeTab === item.id ? 'text-primary-foreground' :
+                  'text-neutral-600 dark:text-neutral-300'
+                  }`}>
+                  {item.id === 'active' && <AlertCircle className="w-4 h-4" />}
+                  {item.id === 'closed' && <CheckCircle className="w-4 h-4" />}
+                  {item.id === 'deleted' && <Trash2 className="w-4 h-4" />}
+                  {item.name}
+                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                    {allTickets.filter(t => t.status === item.id).length}
+                  </Badge>
+                </span>
+              </button>
+            ))}
+          </div>
+        </NavBody>
+        <MobileNav>
+          <MobileNavHeader>
+            <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+              {tabItems.find(item => item.id === activeTab)?.name}
             </div>
-          ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Ticket className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? 'Try adjusting your search terms' : 'Create a ticket from a diagnosis to get started'}
-              </p>
-              {!searchQuery && (
-                <Button onClick={onBackToDiagnose} className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Go to Diagnostics
-                </Button>
-              )}
-            </motion.div>
-          ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </TabsContent>
+            <MobileNavToggle
+              isOpen={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            />
+          </MobileNavHeader>
+          <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+            {tabItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabClick(item.id)}
+                className={`w-full text-left px-4 py-2 rounded-md transition-colors flex items-center gap-2 ${activeTab === item.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }`}
+              >
+                {item.id === 'active' && <AlertCircle className="w-4 h-4" />}
+                {item.id === 'closed' && <CheckCircle className="w-4 h-4" />}
+                {item.id === 'deleted' && <Trash2 className="w-4 h-4" />}
+                <span>{item.name}</span>
+                <Badge variant="secondary" className="ml-auto">
+                  {allTickets.filter(t => t.status === item.id).length}
+                </Badge>
+              </button>
+            ))}
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
 
-        <TabsContent value="closed" className="mt-6">
-          {/* Same content structure for closed tickets */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No closed tickets</h3>
-              <p className="text-muted-foreground">
-                Closed tickets will appear here once they are resolved
-              </p>
-            </motion.div>
-          ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </TabsContent>
+      {/* Content Area */}
+      <div className="mt-6">
+        {activeTab === 'active' && (
+          <>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+              >
+                <div className="flex items-center gap-2 text-destructive">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              </motion.div>
+            )}
 
-        <TabsContent value="deleted" className="mt-6">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Skeleton className="h-4 w-16" />
-                      <Skeleton className="h-6 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-muted-foreground" />
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-3/4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-lg font-semibold mb-2">No Deleted Tickets</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
-              </p>
-            </motion.div>
-          ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </TabsContent>
-      </Tabs>
+            ) : filteredTickets.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-12"
+              >
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Ticket className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchQuery ? 'Try adjusting your search terms' : 'Create a ticket from a diagnosis to get started'}
+                </p>
+                {!searchQuery && (
+                  <Button onClick={onBackToDiagnose} className="gap-2">
+                    <ArrowLeft className="w-4 h-4" />
+                    Go to Diagnostics
+                  </Button>
+                )}
+              </motion.div>
+            ) : viewMode === 'list' ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {renderTicketsTable(filteredTickets, onSelectTicket)}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <AnimatePresence>
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'closed' && (
+          <>
+            {/* Same content structure for closed tickets */}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-3/4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredTickets.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-12"
+              >
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No closed tickets</h3>
+                <p className="text-muted-foreground">
+                  Closed tickets will appear here once they are resolved
+                </p>
+              </motion.div>
+            ) : viewMode === 'list' ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {renderTicketsTable(filteredTickets, onSelectTicket)}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <AnimatePresence>
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'deleted' && (
+          <>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-3/4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredTickets.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-12"
+              >
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No Deleted Tickets</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
+                </p>
+              </motion.div>
+            ) : viewMode === 'list' ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {renderTicketsTable(filteredTickets, onSelectTicket)}
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <AnimatePresence>
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

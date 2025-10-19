@@ -90,6 +90,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [newFieldKey, setNewFieldKey] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [hoveredTab, setHoveredTab] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -360,12 +361,35 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors ${activeTab === item.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-gray-100 dark:hover:bg-neutral-800'
-                  }`}
+                className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors flex items-center gap-2"
+                onMouseEnter={() => setHoveredTab(idx)}
+                onMouseLeave={() => setHoveredTab(null)}
               >
-                {item.name}
+                {hoveredTab === idx && (
+                  <motion.div
+                    layoutId="hovered-tab"
+                    className="absolute inset-0 h-full w-full rounded-full bg-black/10 dark:bg-white/10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+                {activeTab === item.id && (
+                  <motion.div
+                    layoutId="active-tab"
+                    className="absolute inset-0 h-full w-full rounded-full bg-primary"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+                <span className={`relative z-10 flex items-center gap-2 ${activeTab === item.id ? 'text-primary-foreground' :
+                    'text-neutral-600 dark:text-neutral-300'
+                  }`}>
+                  {item.name}
+                </span>
               </button>
             ))}
           </div>
