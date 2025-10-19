@@ -393,6 +393,7 @@ def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
     """Soft delete a ticket (move to deleted status with reason)."""
     with _db_lock:
         now = _get_singapore_time()
+        now_iso = now.isoformat()
         
         if USE_POSTGRES:
             conn = _get_postgres_connection()
@@ -400,9 +401,9 @@ def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE tickets
-                    SET status = 'deleted', deletion_reason = %s, deleted_at = %s, updated_at = %s
+                    SET status = 'deleted', deletion_reason = %s, deleted_at = %s::timestamptz, updated_at = %s::timestamptz
                     WHERE id = %s
-                """, (reason, now, now, ticket_id))
+                """, (reason, now_iso, now_iso, ticket_id))
                 conn.commit()
             finally:
                 conn.close()
@@ -410,7 +411,6 @@ def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
             conn = _get_sqlite_connection()
             try:
                 cursor = conn.cursor()
-                now_iso = now.isoformat()
                 cursor.execute("""
                     UPDATE tickets
                     SET status = 'deleted', deletion_reason = ?, deleted_at = ?, updated_at = ?
