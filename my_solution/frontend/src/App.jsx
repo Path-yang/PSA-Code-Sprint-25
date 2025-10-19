@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { diagnoseAlert } from './api.js';
+import { diagnoseAlert, createTicket } from './api.js';
+import TicketList from './components/TicketList.jsx';
+import TicketDetail from './components/TicketDetail.jsx';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:\n\nRE: Email ALR-861600 | CMAU0000020 - Duplicate Container information received\n\nHi team,...`;
 
@@ -14,10 +16,16 @@ function Section({ title, children }) {
 }
 
 export default function App() {
+  // View state
+  const [currentView, setCurrentView] = useState('diagnose'); // 'diagnose' | 'tickets' | 'ticket-detail'
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+  // Diagnosis state
   const [alertText, setAlertText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [diagnosis, setDiagnosis] = useState(null);
+  const [ticketCreated, setTicketCreated] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -29,6 +37,8 @@ export default function App() {
     setLoading(true);
     setError('');
     setDiagnosis(null);
+    setTicketCreated(false);
+
     try {
       const result = await diagnoseAlert(alertText.trim());
       if (result.error) {
@@ -42,11 +52,77 @@ export default function App() {
     }
   };
 
+  const handleCreateTicket = async () => {
+    if (!diagnosis || !alertText) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const ticket = await createTicket(alertText, diagnosis);
+      setTicketCreated(true);
+      alert(`Ticket #${ticket.id} created successfully!`);
+    } catch (err) {
+      setError(err.message || 'Failed to create ticket');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewTicket = (ticketId) => {
+    setSelectedTicketId(ticketId);
+    setCurrentView('ticket-detail');
+  };
+
+  const handleBackToList = () => {
+    setCurrentView('tickets');
+    setSelectedTicketId(null);
+  };
+
+  const handleBackToDiagnose = () => {
+    setCurrentView('diagnose');
+  };
+
+  // Render different views
+  if (currentView === 'tickets') {
+    return (
+      <div className="app">
+        <TicketList
+          onSelectTicket={handleViewTicket}
+          onBackToDiagnose={handleBackToDiagnose}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === 'ticket-detail' && selectedTicketId) {
+    return (
+      <div className="app">
+        <TicketDetail
+          ticketId={selectedTicketId}
+          onBack={handleBackToList}
+          onTicketUpdated={() => {}}
+        />
+      </div>
+    );
+  }
+
+  // Default: Diagnose view
   return (
     <div className="app">
       <header>
-        <h1>PSA L2 Diagnostic Assistant</h1>
-        <p>Paste an alert and generate a GPT-backed resolution plan.</p>
+        <div className="header-content">
+          <div>
+            <h1>PSA L2 Diagnostic Assistant</h1>
+            <p>Paste an alert and generate a GPT-backed resolution plan.</p>
+          </div>
+          <button
+            onClick={() => setCurrentView('tickets')}
+            className="view-tickets-button"
+          >
+            📋 View Tickets
+          </button>
+        </div>
       </header>
 
       <main>
@@ -58,9 +134,24 @@ export default function App() {
             placeholder={placeholder}
             onChange={(event) => setAlertText(event.target.value)}
           />
-          <button type="submit" disabled={loading}>
-            {loading ? 'Running diagnostics…' : 'Run diagnostics'}
-          </button>
+          <div className="button-group">
+            <button type="submit" disabled={loading}>
+              {loading ? 'Running diagnostics…' : 'Run diagnostics'}
+            </button>
+            {diagnosis && !ticketCreated && (
+              <button
+                type="button"
+                onClick={handleCreateTicket}
+                disabled={loading}
+                className="create-ticket-button"
+              >
+                💾 Save as Ticket
+              </button>
+            )}
+            {ticketCreated && (
+              <span className="success-message">✓ Ticket created!</span>
+            )}
+          </div>
           {error && <p className="error">{error}</p>}
         </form>
 

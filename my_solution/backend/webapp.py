@@ -18,6 +18,7 @@ from flask_cors import CORS
 
 from app.config import AZURE_OPENAI_API_KEY
 from app.diagnostic_system import L2DiagnosticSystem
+from app import database
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -68,6 +69,91 @@ def diagnose():
             }
         )
     except Exception as exc:  # pragma: no cover - top-level safety
+        return jsonify({"error": str(exc)}), 500
+
+
+# ============================================================================
+# Ticket Management Endpoints
+# ============================================================================
+
+@app.post("/api/tickets")
+def create_ticket():
+    """Create a new ticket from diagnostic data."""
+    payload = request.get_json(silent=True) or {}
+    alert_text = payload.get("alertText", "").strip()
+    diagnosis_data = payload.get("diagnosis")
+    
+    if not alert_text or not diagnosis_data:
+        return jsonify({"error": "alertText and diagnosis are required"}), 400
+    
+    try:
+        ticket = database.create_ticket(alert_text, diagnosis_data)
+        return jsonify(ticket), 201
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.get("/api/tickets")
+def list_tickets():
+    """List tickets with optional filtering."""
+    status = request.args.get("status")  # 'active', 'closed', or None for all
+    limit = int(request.args.get("limit", 50))
+    offset = int(request.args.get("offset", 0))
+    
+    try:
+        tickets = database.list_tickets(status=status, limit=limit, offset=offset)
+        return jsonify(tickets)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.get("/api/tickets/<int:ticket_id>")
+def get_ticket(ticket_id):
+    """Get a specific ticket by ID."""
+    try:
+        ticket = database.get_ticket(ticket_id)
+        if ticket is None:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify(ticket)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.put("/api/tickets/<int:ticket_id>")
+def update_ticket(ticket_id):
+    """Update ticket fields."""
+    payload = request.get_json(silent=True) or {}
+    
+    try:
+        ticket = database.update_ticket(ticket_id, payload)
+        if ticket is None:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify(ticket)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.post("/api/tickets/<int:ticket_id>/close")
+def close_ticket(ticket_id):
+    """Close a ticket."""
+    try:
+        ticket = database.close_ticket(ticket_id)
+        if ticket is None:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify(ticket)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.delete("/api/tickets/<int:ticket_id>")
+def delete_ticket(ticket_id):
+    """Delete a ticket (for testing/cleanup)."""
+    try:
+        success = database.delete_ticket(ticket_id)
+        if not success:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify({"message": "Ticket deleted"}), 200
+    except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 
 
