@@ -151,9 +151,11 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     setError('');
     setShowCloseDialog(false);
     try {
-      await closeTicket(ticketId);
+      const updatedTicket = await closeTicket(ticketId);
+      setTicket(updatedTicket); // Update local state with closed ticket
       onTicketUpdated?.();
-      onBack();
+      setSaving(false);
+      // Stay on page to show the closed ticket
     } catch (err) {
       setError(err.message || 'Failed to close ticket');
       setSaving(false);
@@ -167,7 +169,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     try {
       await deleteTicket(ticketId);
       onTicketUpdated?.();
-      onBack();
+      onBack(); // Navigate back since ticket is deleted
     } catch (err) {
       setError(err.message || 'Failed to delete ticket');
       setSaving(false);
