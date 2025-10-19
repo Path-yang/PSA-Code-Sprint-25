@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Ticket,
@@ -224,7 +224,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
     localStorage.setItem('ticketViewMode', viewMode);
   }, [viewMode]);
 
-  const loadAllTickets = async () => {
+  const loadAllTickets = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -236,52 +236,55 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Filter tickets by active tab, search query, and additional filters
-  const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
-  const filteredTickets = ticketsForCurrentTab.filter(ticket => {
-    const parsedData = ticket.diagnosis_data?.parsed || {};
+  // Memoize filtered tickets for better performance
+  const filteredTickets = useMemo(() => {
+    const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
+    
+    return ticketsForCurrentTab.filter(ticket => {
+      const parsedData = ticket.diagnosis_data?.parsed || {};
 
-    // Search filter
-    const matchesSearch = searchQuery === '' ||
-      ticket.alert_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.id.toString().includes(searchQuery) ||
-      (parsedData.ticket_id || '').toLowerCase().includes(searchQuery.toLowerCase());
+      // Search filter
+      const matchesSearch = searchQuery === '' ||
+        ticket.alert_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ticket.id.toString().includes(searchQuery) ||
+        (parsedData.ticket_id || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Status filter (additional to active tab)
-    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+      // Status filter (additional to active tab)
+      const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
 
-    // Channel filter
-    const matchesChannel = channelFilter === 'all' || parsedData.channel === channelFilter;
+      // Channel filter
+      const matchesChannel = channelFilter === 'all' || parsedData.channel === channelFilter;
 
-    // Date filter
-    const matchesDate = (() => {
-      if (dateFilter === 'all') return true;
-      const ticketDate = new Date(ticket.created_at);
-      const now = new Date();
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      // Date filter
+      const matchesDate = (() => {
+        if (dateFilter === 'all') return true;
+        const ticketDate = new Date(ticket.created_at);
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      switch (dateFilter) {
-        case 'today': return ticketDate >= oneDayAgo;
-        case 'week': return ticketDate >= oneWeekAgo;
-        case 'month': return ticketDate >= oneMonthAgo;
-        default: return true;
-      }
-    })();
+        switch (dateFilter) {
+          case 'today': return ticketDate >= oneDayAgo;
+          case 'week': return ticketDate >= oneWeekAgo;
+          case 'month': return ticketDate >= oneMonthAgo;
+          default: return true;
+        }
+      })();
 
-    return matchesSearch && matchesStatus && matchesChannel && matchesDate;
-  });
+      return matchesSearch && matchesStatus && matchesChannel && matchesDate;
+    });
+  }, [allTickets, activeTab, searchQuery, statusFilter, channelFilter, dateFilter]);
 
   return (
     <div className="p-6 space-y-6">
       {/* Search and Filters */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
         className="flex gap-4"
       >
         <div className="relative flex-1">
