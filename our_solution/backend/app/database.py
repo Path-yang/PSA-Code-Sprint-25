@@ -463,7 +463,7 @@ def _parse_ticket(row: dict) -> dict:
             ticket['custom_fields'] = json.loads(ticket['custom_fields'])
     
     # Convert timestamps to ISO strings for JSON serialization
-    for key in ['created_at', 'closed_at', 'updated_at']:
+    for key in ['created_at', 'closed_at', 'updated_at', 'deleted_at']:
         if key in ticket and ticket[key]:
             if isinstance(ticket[key], datetime):
                 ticket[key] = ticket[key].isoformat()
