@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 96%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 96%;
     --card-foreground: 222.2 84% 4.9%;
@@ -212,62 +212,75 @@
 /* Glassmorphism utility classes */
 @layer utilities {
 
-  /* Subtle glass effect for cards and containers */
+  /* Enhanced glass effect for cards and containers */
   .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  }
-
-  /* Glass effect for sidebar/navigation */
-  .glass-nav {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  /* Glass effect for modals/overlays */
-  .glass-modal {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
   }
 
-  /* Lighter glass for metric cards */
-  .glass-metric {
+  /* Enhanced glass effect for sidebar/navigation */
+  .glass-nav {
     background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  /* Enhanced glass effect for modals/overlays */
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+  }
+
+  /* Enhanced glass for metric cards */
+  .glass-metric {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  /* Enhanced glass for headers/top bars */
+  .glass-header {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
 
 /* Dark mode glassmorphism adaptations */
 @layer utilities {
   .dark .glass-card {
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
   }
 
   .dark .glass-nav {
-    background: rgba(30, 41, 59, 0.8);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.6);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .dark .glass-modal {
-    background: rgba(30, 41, 59, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
   }
 
   .dark .glass-metric {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .dark .glass-header {
+    background: rgba(30, 41, 59, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   }
 }

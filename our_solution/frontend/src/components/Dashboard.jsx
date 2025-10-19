@@ -125,7 +125,7 @@ export default function Dashboard() {
 
             {/* Sidebar */}
             <motion.div
-                className={`glass-nav border-r-2 border-border flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'
+                className={`glass-nav border-r-[3px] border-border/80 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'
                     }`}
                 initial={false}
                 animate={{ width: sidebarCollapsed ? 64 : 256, transition: { duration: 0.3 } }}
@@ -219,7 +219,7 @@ export default function Dashboard() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar */}
-                <div className="bg-card border-b border-border px-6 py-4">
+                <div className="glass-header px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-semibold capitalize">
