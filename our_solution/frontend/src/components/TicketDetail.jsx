@@ -48,6 +48,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getTicket, updateTicket, closeTicket, deleteTicket, permanentDeleteTicket } from '../api.js';
+import EscalationDetails from './EscalationDetails';
 
 function formatDateTime(dateString) {
   if (!dateString) return 'N/A';
@@ -73,6 +74,7 @@ function getChannelIcon(channel) {
 export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onTicketUpdated }) {
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingAction, setLoadingAction] = useState('loading'); // 'loading', 'closing', 'deleting', 'permanent-deleting'
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -207,11 +209,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
+    
     try {
       const updatedTicket = await closeTicket(ticketId);
       console.log('Ticket closed successfully:', updatedTicket);
       if (updatedTicket) {
-        setTicket(updatedTicket); // Update with server response
         // Update cache
         const cachedTickets = sessionStorage.getItem('cachedTickets');
         if (cachedTickets) {
@@ -220,14 +222,16 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
         }
         onTicketUpdated?.();
+        
+        // Wait briefly to show success, then navigate back
+        setTimeout(() => {
+          onBack();
+        }, 500);
       }
     } catch (err) {
       console.error('Error closing ticket:', err);
       setError(err.message || 'Failed to close ticket');
-      // Rollback optimistic update on error
-      setTicket(ticket);
-    } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
@@ -260,10 +264,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
+    
     try {
       const updatedTicket = await deleteTicket(ticketId, finalReason);
       console.log('Ticket moved to deleted:', updatedTicket);
-      setTicket(updatedTicket);
+      
       // Update cache
       const cachedTickets = sessionStorage.getItem('cachedTickets');
       if (cachedTickets) {
@@ -271,17 +276,20 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         const updatedTickets = tickets.map(t => t.id === ticketId ? updatedTicket : t);
         sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
       }
+      
       setDeletionReason('');
       setDeletionReasonType('');
       setCustomDeletionReason('');
       onTicketUpdated?.();
-      setSaving(false);
+      
+      // Wait briefly to show success, then navigate back
+      setTimeout(() => {
+        onBack();
+      }, 500);
     } catch (err) {
       console.error('Error deleting ticket:', err);
       setError(err.message || 'Failed to delete ticket');
-      // Rollback optimistic update on error
-      setTicket(ticket);
-      setSaving(false);
+      setLoading(false);
     }
   };
 
@@ -306,15 +314,30 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
+    
     try {
       await permanentDeleteTicket(ticketId, deletePassword);
       console.log('Ticket permanently deleted');
+      
+      // Update cache to remove ticket
+      const cachedTickets = sessionStorage.getItem('cachedTickets');
+      if (cachedTickets) {
+        const tickets = JSON.parse(cachedTickets);
+        const updatedTickets = tickets.filter(t => t.id !== ticketId);
+        sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+      }
+      
       setDeletePassword('');
       onTicketUpdated?.();
+      
+      // Wait briefly to show success, then navigate back
+      setTimeout(() => {
+        onBack();
+      }, 500);
     } catch (err) {
       console.error('Error permanently deleting ticket:', err);
-      // Show error toast but user already navigated away
-      setSaving(false);
+      setError(err.message || 'Failed to permanently delete ticket');
+      setLoading(false);
     }
   };
 
@@ -352,12 +375,33 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const ticketDisplayId = useMemo(() => parsedData.ticket_id || `#${ticket?.ticket_number || ''}`, [parsedData.ticket_id, ticket?.ticket_number]);
 
   if (loading || (saving && !ticket)) {
+    const loadingMessages = {
+      'loading': {
+        title: 'Loading Ticket Details',
+        message: 'Please wait while we fetch the ticket information...'
+      },
+      'closing': {
+        title: 'Closing Ticket',
+        message: 'Updating ticket status and redirecting you back...'
+      },
+      'deleting': {
+        title: 'Deleting Ticket',
+        message: 'Moving ticket to deleted and redirecting you back...'
+      },
+      'permanent-deleting': {
+        title: 'Permanently Deleting Ticket',
+        message: 'Removing ticket permanently and redirecting you back...'
+      }
+    };
+
+    const { title, message } = loadingMessages[loadingAction] || loadingMessages.loading;
+
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Loading Ticket Details</h3>
-          <p className="text-sm text-muted-foreground">Please wait while we fetch the ticket information...</p>
+          <h3 className="text-lg font-semibold mb-2">{title}</h3>
+          <p className="text-sm text-muted-foreground">{message}</p>
         </div>
       </div>
     );
@@ -615,6 +659,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   {resolution.resolution_steps?.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between">
@@ -635,6 +680,55 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                           </li>
                         ))}
                       </ol>
+                    </div>
+                  )}
+
+                  {/* Escalation Details */}
+                  {resolution.escalate && (
+                    <EscalationDetails 
+                      module={parsed.module}
+                      escalateTo={resolution.escalate_to}
+                      escalateReason={resolution.escalate_reason}
+                    />
+                  )}
+
+                      {resolution.verification_steps?.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                            {resolution.time_breakdown?.verification_steps_time && (
+                              <Badge variant="outline" className="text-xs">
+                                {resolution.time_breakdown.verification_steps_time}
+                              </Badge>
+                            )}
+                          </div>
+                          <ul className="mt-2 space-y-1">
+                            {resolution.verification_steps.map((step, index) => (
+                              <li key={index} className="text-sm flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                                {step}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {resolution.sql_queries?.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                            {resolution.time_breakdown?.sql_commands_time && (
+                              <Badge variant="outline" className="text-xs">
+                                {resolution.time_breakdown.sql_commands_time}
+                              </Badge>
+                            )}
+                          </div>
+                          <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
+                            {resolution.sql_queries.join('\n\n')}
+                          </pre>
+                        </div>
+                      )}
+>>>>>>> 66613afbd1bde2a720ec54bba4fdbc0037dec410
                     </div>
                   )}
 
