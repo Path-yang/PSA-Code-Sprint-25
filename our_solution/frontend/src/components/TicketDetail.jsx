@@ -137,9 +137,36 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     setCustomFields(updated);
   };
 
-  if (loading) return <div className="loading">Loading ticket...</div>;
-  if (error && !ticket) return <div className="error">Error: {error}</div>;
-  if (!ticket) return <div className="error">Ticket not found</div>;
+  if (loading) {
+    return (
+      <div className="ticket-detail">
+        <button onClick={onBack} className="back-button">← Back to List</button>
+        <div className="loading">Loading ticket...</div>
+      </div>
+    );
+  }
+  
+  if (error && !ticket) {
+    return (
+      <div className="ticket-detail">
+        <button onClick={onBack} className="back-button">← Back to List</button>
+        <div className="error">
+          <h2>Error Loading Ticket</h2>
+          <p>{error}</p>
+          <p>This ticket may have been deleted or there was a database error.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!ticket) {
+    return (
+      <div className="ticket-detail">
+        <button onClick={onBack} className="back-button">← Back to List</button>
+        <div className="error">Ticket not found</div>
+      </div>
+    );
+  }
 
   const displayData = ticket.edited_diagnosis || ticket.diagnosis_data;
   const parsed = displayData.parsed || {};
@@ -153,7 +180,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
           ← Back to List
         </button>
         <div className="ticket-title">
-          <h1>Ticket #{ticket.id}</h1>
+          <h1>Ticket #{ticket.ticket_number || ticket.id}</h1>
           <span className={`status-badge ${ticket.status}`}>{ticket.status}</span>
         </div>
       </div>

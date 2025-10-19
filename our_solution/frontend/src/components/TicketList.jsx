@@ -101,7 +101,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
                 onClick={() => onSelectTicket(ticket.id)}
               >
                 <div className="ticket-card-header">
-                  <span className="ticket-id">#{ticket.id}</span>
+                  <span className="ticket-id">#{ticket.ticket_number || ticket.id}</span>
                   <span className={`status-badge ${ticket.status}`}>
                     {ticket.status}
                   </span>

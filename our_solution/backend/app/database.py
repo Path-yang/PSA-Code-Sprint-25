@@ -2,6 +2,7 @@
 Database operations for ticket management.
 Supports both SQLite (local dev) and Postgres/Neon (Vercel production).
 Thread-safe, auto-initializing.
+Production-ready with Singapore timezone and formatted ticket numbers.
 """
 
 import json
@@ -9,6 +10,10 @@ import os
 from datetime import datetime
 from typing import Optional, List, Dict
 from threading import Lock
+import pytz
+
+# Singapore timezone for accurate timestamps
+SGT = pytz.timezone('Asia/Singapore')
 
 # Detect database backend
 NEON_URL = os.environ.get('NEONSTORAGE_URL') or os.environ.get('DATABASE_URL')
@@ -67,6 +72,47 @@ def _get_sqlite_connection():
     return conn
 
 
+def _generate_ticket_number():
+    """Generate next ticket number in format 0000001, 0000002, etc."""
+    if USE_POSTGRES:
+        conn = _get_postgres_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT ticket_number FROM tickets ORDER BY id DESC LIMIT 1")
+            row = cursor.fetchone()
+            
+            if row and row[0]:
+                last_number = int(row[0])
+                next_number = last_number + 1
+            else:
+                next_number = 1
+            
+            return f"{next_number:07d}"
+        finally:
+            conn.close()
+    else:
+        conn = _get_sqlite_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT ticket_number FROM tickets ORDER BY id DESC LIMIT 1")
+            row = cursor.fetchone()
+            
+            if row and row['ticket_number']:
+                last_number = int(row['ticket_number'])
+                next_number = last_number + 1
+            else:
+                next_number = 1
+            
+            return f"{next_number:07d}"
+        finally:
+            conn.close()
+
+
+def _get_singapore_time():
+    """Get current time in Singapore timezone."""
+    return datetime.now(SGT)
+
+
 def _init_postgres_schema():
     """Initialize Postgres database schema (idempotent)."""
     try:
@@ -78,15 +124,16 @@ def _init_postgres_schema():
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS tickets (
                     id SERIAL PRIMARY KEY,
+                    ticket_number TEXT UNIQUE NOT NULL,
                     alert_text TEXT NOT NULL,
                     diagnosis_data JSONB NOT NULL,
                     edited_diagnosis JSONB,
                     status TEXT DEFAULT 'active',
                     notes TEXT,
                     custom_fields JSONB DEFAULT '{}',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    closed_at TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    closed_at TIMESTAMP WITH TIME ZONE,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             
@@ -96,6 +143,9 @@ def _init_postgres_schema():
             """)
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at DESC)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_tickets_number ON tickets(ticket_number)
             """)
             
             conn.commit()
@@ -116,59 +166,75 @@ if USE_POSTGRES:
 # ============================================================================
 
 def create_ticket(alert_text: str, diagnosis_data: dict) -> dict:
-    """Create a new ticket from diagnostic data."""
+    """Create a new ticket from diagnostic data with Singapore timezone."""
     with _db_lock:
+        ticket_number = _generate_ticket_number()
+        now = _get_singapore_time()
+        
         if USE_POSTGRES:
             conn = _get_postgres_connection()
             try:
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 cursor.execute("""
-                    INSERT INTO tickets (alert_text, diagnosis_data)
-                    VALUES (%s, %s)
+                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s)
                     RETURNING id
-                """, (alert_text, json.dumps(diagnosis_data)))
+                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now, now))
                 
                 ticket_id = cursor.fetchone()['id']
                 conn.commit()
                 return get_ticket(ticket_id)
+            except Exception as e:
+                print(f"❌ Error creating ticket: {e}")
+                raise
             finally:
                 conn.close()
         else:
             conn = _get_sqlite_connection()
             try:
                 cursor = conn.cursor()
+                now_iso = now.isoformat()
                 cursor.execute("""
-                    INSERT INTO tickets (alert_text, diagnosis_data)
-                    VALUES (?, ?)
-                """, (alert_text, json.dumps(diagnosis_data)))
+                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now_iso, now_iso))
                 
                 ticket_id = cursor.lastrowid
                 conn.commit()
                 return get_ticket(ticket_id)
+            except Exception as e:
+                print(f"❌ Error creating ticket: {e}")
+                raise
             finally:
                 conn.close()
 
 
 def get_ticket(ticket_id: int) -> Optional[dict]:
-    """Get a ticket by ID."""
-    if USE_POSTGRES:
-        conn = _get_postgres_connection()
-        try:
-            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            cursor.execute("SELECT * FROM tickets WHERE id = %s", (ticket_id,))
-            row = cursor.fetchone()
-            return _parse_ticket(dict(row)) if row else None
-        finally:
-            conn.close()
-    else:
-        conn = _get_sqlite_connection()
-        try:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
-            row = cursor.fetchone()
-            return _parse_ticket(dict(row)) if row else None
-        finally:
-            conn.close()
+    """Get a ticket by ID with error handling."""
+    try:
+        if USE_POSTGRES:
+            conn = _get_postgres_connection()
+            try:
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                cursor.execute("SELECT * FROM tickets WHERE id = %s", (ticket_id,))
+                row = cursor.fetchone()
+                return _parse_ticket(dict(row)) if row else None
+            finally:
+                conn.close()
+        else:
+            conn = _get_sqlite_connection()
+            try:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,))
+                row = cursor.fetchone()
+                return _parse_ticket(dict(row)) if row else None
+            finally:
+                conn.close()
+    except Exception as e:
+        print(f"❌ Error fetching ticket {ticket_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 def list_tickets(status: Optional[str] = None, limit: int = 50, offset: int = 0) -> List[dict]:
@@ -241,8 +307,8 @@ def update_ticket(ticket_id: int, updates: dict) -> Optional[dict]:
                 if key in fields_to_update and isinstance(fields_to_update[key], dict):
                     fields_to_update[key] = json.dumps(fields_to_update[key])
         
-        # Add updated_at timestamp
-        fields_to_update['updated_at'] = datetime.utcnow()
+        # Add updated_at timestamp (Singapore time)
+        fields_to_update['updated_at'] = _get_singapore_time()
         
         if USE_POSTGRES:
             conn = _get_postgres_connection()
@@ -283,9 +349,9 @@ def update_ticket(ticket_id: int, updates: dict) -> Optional[dict]:
 
 
 def close_ticket(ticket_id: int) -> Optional[dict]:
-    """Close a ticket by setting status and closed_at timestamp."""
+    """Close a ticket by setting status and closed_at timestamp (Singapore time)."""
     with _db_lock:
-        now = datetime.utcnow()
+        now = _get_singapore_time()
         
         if USE_POSTGRES:
             conn = _get_postgres_connection()

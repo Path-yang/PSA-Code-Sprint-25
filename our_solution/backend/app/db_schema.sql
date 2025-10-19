@@ -3,6 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS tickets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_number TEXT UNIQUE NOT NULL, -- 7-digit ticket number (0000001, 0000002, etc.)
     alert_text TEXT NOT NULL,
     diagnosis_data TEXT NOT NULL,  -- JSON string
     edited_diagnosis TEXT,          -- JSON string for user edits
@@ -16,4 +17,5 @@ CREATE TABLE IF NOT EXISTS tickets (
 
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tickets_number ON tickets(ticket_number);
 
