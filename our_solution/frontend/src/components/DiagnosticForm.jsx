@@ -51,12 +51,15 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
         try {
             const result = await diagnoseAlert(alertText.trim());
+            console.log('API Response:', result);
             if (result.error) {
                 throw new Error(result.error);
             }
             setDiagnosis(result);
         } catch (err) {
+            console.error('Diagnosis error:', err);
             setError(err.message || 'Diagnostics failed');
+            setDiagnosis(null);
         } finally {
             setLoading(false);
         }
@@ -178,7 +181,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
             {/* Diagnosis Results */}
             <AnimatePresence>
-                {diagnosis && (
+                {diagnosis && diagnosis.parsed && diagnosis.rootCause && diagnosis.resolution && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
