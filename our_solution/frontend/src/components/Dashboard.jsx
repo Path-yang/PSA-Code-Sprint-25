@@ -152,6 +152,7 @@ export default function Dashboard() {
                 return selectedTicketId ? (
                     <TicketDetail
                         ticketId={selectedTicketId}
+                        ticket={selectedTicket}
                         onBack={handleBackToTickets}
                         onTicketUpdated={() => toast.success('Ticket updated!')}
                     />
@@ -316,18 +317,6 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            {activeView === 'ticket-detail' && selectedTicket && (
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>Created: {formatDateTime(selectedTicket.created_at)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        <span>Updated: {formatDateTime(selectedTicket.updated_at)}</span>
-                                    </div>
-                                </div>
-                            )}
                             {activeView === 'diagnose' && diagnosis && !ticketCreated && (
                                 <HoverBorderGradient
                                     onClick={handleCreateTicket}
