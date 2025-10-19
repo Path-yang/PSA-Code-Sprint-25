@@ -13,7 +13,9 @@ import {
     ChevronRight,
     Moon,
     Sun,
-    ArrowLeft
+    ArrowLeft,
+    Calendar,
+    Clock
 } from 'lucide-react';
 import LandingPage from './LandingPage';
 import { Button } from './ui/button';
@@ -25,7 +27,7 @@ import { Label } from './ui/label';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { listTickets, createTicket } from '../api.js';
+import { listTickets, createTicket, getTicket } from '../api.js';
 import { TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
 import { HoverBorderGradient } from './ui/hover-border-gradient';
 
@@ -42,9 +44,22 @@ const sidebarItems = [
     { id: 'settings', label: 'Settings', icon: Settings, description: 'Configuration' },
 ];
 
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
 export default function Dashboard() {
     const [activeView, setActiveView] = useState('home');
     const [selectedTicketId, setSelectedTicketId] = useState(null);
+    const [selectedTicket, setSelectedTicket] = useState(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [diagnosis, setDiagnosis] = useState(null);
     const [ticketCreated, setTicketCreated] = useState(false);
@@ -83,14 +98,22 @@ export default function Dashboard() {
         }
     };
 
-    const handleTicketSelect = (ticketId) => {
+    const handleTicketSelect = async (ticketId) => {
         setSelectedTicketId(ticketId);
         setActiveView('ticket-detail');
+        try {
+            const ticket = await getTicket(ticketId);
+            setSelectedTicket(ticket);
+        } catch (error) {
+            console.error('Failed to fetch ticket:', error);
+            toast.error('Failed to load ticket details');
+        }
     };
 
     const handleBackToTickets = () => {
         setActiveView('tickets');
         setSelectedTicketId(null);
+        setSelectedTicket(null);
     };
 
     const handleBackToDiagnose = () => {
@@ -266,11 +289,22 @@ export default function Dashboard() {
                                 </Button>
                             )}
                             <div>
-                                <h2 className="text-xl font-semibold capitalize">
-                                    {activeView === 'home' ? 'Welcome' :
-                                        activeView === 'ticket-detail' ? `Ticket #${selectedTicketId}` :
-                                            activeView.replace('-', ' ')}
-                                </h2>
+                                <div className="flex items-center gap-3">
+                                    <h2 className="text-xl font-semibold capitalize">
+                                        {activeView === 'home' ? 'Welcome' :
+                                            activeView === 'ticket-detail' ? `Ticket #${selectedTicketId}` :
+                                                activeView.replace('-', ' ')}
+                                    </h2>
+                                    {activeView === 'ticket-detail' && (
+                                        <Badge
+                                            variant="default"
+                                            className="gap-1"
+                                        >
+                                            <AlertTriangle className="w-3 h-3" />
+                                            Active
+                                        </Badge>
+                                    )}
+                                </div>
                                 <p className="text-sm text-muted-foreground">
                                     {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
                                     {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
@@ -282,6 +316,18 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            {activeView === 'ticket-detail' && selectedTicket && (
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-1">
+                                        <Calendar className="w-4 h-4" />
+                                        <span>Created: {formatDateTime(selectedTicket.created_at)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="w-4 h-4" />
+                                        <span>Updated: {formatDateTime(selectedTicket.updated_at)}</span>
+                                    </div>
+                                </div>
+                            )}
                             {activeView === 'diagnose' && diagnosis && !ticketCreated && (
                                 <HoverBorderGradient
                                     onClick={handleCreateTicket}

@@ -32,6 +32,7 @@ import { Separator } from './ui/separator';
 import { Progress } from './ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Skeleton } from './ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -330,39 +331,6 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
-        <div className="flex items-center justify-end">
-          <Badge
-            variant={ticket.status === 'active' ? 'default' : 'secondary'}
-            className="gap-1"
-          >
-            {ticket.status === 'active' ? (
-              <AlertTriangle className="w-3 h-3" />
-            ) : (
-              <CheckCircle className="w-3 h-3" />
-            )}
-            {ticket.status}
-          </Badge>
-        </div>
-
-        <div className="flex gap-2">
-          {ticket.status === 'active' && (
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(!isEditing)}
-              className="gap-2"
-            >
-              {isEditing ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-              {isEditing ? 'Cancel' : 'Edit'}
-            </Button>
-          )}
-        </div>
-      </motion.div>
 
       {error && (
         <motion.div
@@ -388,46 +356,10 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Ticket Information */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Ticket Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium text-muted-foreground">Created</Label>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{formatDateTime(ticket.created_at)}</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium text-muted-foreground">Last Updated</Label>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">{formatDateTime(ticket.updated_at)}</span>
-                  </div>
-                </div>
-                {ticket.closed_at && (
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium text-muted-foreground">Closed</Label>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">{formatDateTime(ticket.closed_at)}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Parsed Information */}
           {parsed && Object.keys(parsed).length > 0 && (
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Tag className="w-5 h-5" />
@@ -435,49 +367,69 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {parsed.ticket_id && (
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
-                      <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
-                    </div>
-                  )}
-                  {parsed.module && (
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-muted-foreground">Module</Label>
-                      <Badge variant="outline">{parsed.module}</Badge>
-                    </div>
-                  )}
-                  {parsed.entity_id && (
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-muted-foreground">Entity</Label>
-                      <Badge variant="outline">{parsed.entity_id}</Badge>
-                    </div>
-                  )}
-                  {parsed.channel && (
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-muted-foreground">Channel</Label>
-                      <Badge variant="outline" className="gap-1">
-                        {getChannelIcon(parsed.channel)}
-                        {parsed.channel}
-                      </Badge>
-                    </div>
-                  )}
-                  {parsed.priority && (
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                      <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
-                        {parsed.priority}
-                      </Badge>
-                    </div>
-                  )}
+                <div className="border rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/4">Field</TableHead>
+                        <TableHead className="w-3/4">Value</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {parsed.ticket_id && (
+                        <TableRow>
+                          <TableCell className="font-medium">Ticket ID</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {parsed.module && (
+                        <TableRow>
+                          <TableCell className="font-medium">Module</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{parsed.module}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {parsed.entity_id && (
+                        <TableRow>
+                          <TableCell className="font-medium">Entity</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{parsed.entity_id}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {parsed.channel && (
+                        <TableRow>
+                          <TableCell className="font-medium">Channel</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="gap-1">
+                              {getChannelIcon(parsed.channel)}
+                              {parsed.channel}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {parsed.priority && (
+                        <TableRow>
+                          <TableCell className="font-medium">Priority</TableCell>
+                          <TableCell>
+                            <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                              {parsed.priority}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
           )}
 
           {/* Original Alert */}
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
