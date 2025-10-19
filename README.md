@@ -72,6 +72,75 @@ L2 Product Operations teams spend significant time triaging alerts, searching th
 - **SQLite locally** for easy development (no setup needed)
 - Beautiful, modern UI with status badges and responsive design
 
+### 6. Confidence Assessment 🎯
+Our system provides transparent confidence scoring to help you understand the reliability of each diagnosis and solution.
+
+#### How Confidence Scores Work
+
+The overall confidence score (0-100%) is calculated from **5 evidence factors**, each weighted by importance:
+
+| Factor | Weight | What It Measures |
+|--------|--------|------------------|
+| **Knowledge Base** | 40% | Whether documented procedures exist for this issue |
+| **Specific Identifiers** | 20% | Presence of error codes, entity IDs, and module information |
+| **Evidence Quality** | 20% | How thoroughly the AI analyzed the situation (number of supporting evidence points) |
+| **Similar Past Cases** | 15% | Availability of historical cases with similar patterns |
+| **Application Logs** | 5% | Relevant log entries found in the system |
+
+#### Scoring Logic
+
+**Knowledge Base (40% - Most Important)**
+- **100%**: Error code found in KB with documented resolution procedures
+- **85%**: Error code found in KB but no specific resolution
+- **70%**: Related KB articles found through module search with resolution procedures
+- **40%**: General module documentation available
+- **0%**: No relevant KB articles found
+
+**Specific Identifiers (20%)**
+- **100%**: Has error code + entity ID + module
+- **67%**: Has 2 out of 3 identifiers
+- **33%**: Has 1 out of 3 identifiers
+- **0%**: No identifiers found
+
+**Evidence Quality (20%)**
+- **100%**: AI found 4+ distinct pieces of supporting evidence
+- **75%**: AI found 3 pieces of evidence
+- **50%**: AI found 2 pieces of evidence
+- **25%**: AI found only 1 piece of evidence
+
+**Similar Past Cases (15%)**
+- **100%**: Exact match found in case history (90-100% relevance)
+- **80%**: Strong similarity (70-89% relevance)
+- **40%**: Related cases found through module search
+- **0%**: No similar cases found
+
+**Application Logs (5%)**
+- **100%**: 5+ relevant log entries found
+- **75%**: 3-4 log entries found
+- **50%**: 1-2 log entries found
+- **0%**: No log entries found
+
+#### Confidence Levels & Recommendations
+
+**70%+ (PROCEED)**: High confidence in both diagnosis and solution. Follow documented procedures carefully.
+
+**50-69% (PROCEED WITH CAUTION)**: Moderate confidence. Verify each step and monitor results closely.
+
+**30-49% (INVESTIGATE FURTHER)**: Limited evidence. Gather more information before proceeding.
+
+**<30% (ESCALATE)**: Insufficient evidence for confident diagnosis or resolution.
+
+#### Why This Approach?
+
+Our confidence scoring is designed for **test cases and documented issues**:
+
+- **KB documentation is prioritized** (40%) because documented procedures are the most reliable source
+- **Error codes matter most** (20%) because they precisely identify known issues
+- **Past cases are helpful but not essential** (15%) since test scenarios may be new
+- **Logs are nice-to-have** (5%) but not required when KB documentation is clear
+
+This ensures that even without historical data, the system can confidently diagnose and resolve documented issues using knowledge base procedures.
+
 ---
 
 ## 📊 Technology Stack
