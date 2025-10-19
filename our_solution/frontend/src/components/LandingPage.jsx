@@ -53,7 +53,7 @@ export default function LandingPage({ onNavigate }) {
                     <img
                         src="/PSA hero image.png"
                         alt="PSA Facility"
-                        className="w-full h-full object-cover blur-sm opacity-15"
+                        className="w-full h-full object-cover blur-[1px] opacity-30"
                     />
                     {/* Dark Overlay */}
                     <div className="absolute inset-0 bg-black/5 dark:bg-black/8"></div>

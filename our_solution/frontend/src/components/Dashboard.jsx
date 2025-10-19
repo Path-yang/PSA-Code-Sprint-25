@@ -268,9 +268,9 @@ export default function Dashboard() {
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-xl font-semibold capitalize">
                                         {activeView === 'home' ? 'Welcome' :
-                                            activeView === 'ticket-detail' ? 
-                                                (selectedTicket?.diagnosis_data?.parsed?.ticket_id 
-                                                    ? `Ticket ${selectedTicket.diagnosis_data.parsed.ticket_id}` 
+                                            activeView === 'ticket-detail' ?
+                                                (selectedTicket?.diagnosis_data?.parsed?.ticket_id
+                                                    ? `Ticket ${selectedTicket.diagnosis_data.parsed.ticket_id}`
                                                     : 'Ticket Details') :
                                                 activeView.replace('-', ' ')}
                                     </h2>

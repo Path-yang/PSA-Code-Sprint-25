@@ -109,17 +109,23 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
             {getChannelIcon(parsedData.channel)}
             <span>{parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-col items-end gap-1">
             {ticket.status === 'closed' ? (
               <>
-                <CheckCircle className="w-3 h-3" />
-                <span>{formatDate(ticket.closed_at)}</span>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  <span>Opened: {formatDate(ticket.created_at)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  <span>Closed: {formatDate(ticket.closed_at)}</span>
+                </div>
               </>
             ) : (
-              <>
+              <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 <span>{formatDate(ticket.created_at)}</span>
-              </>
+              </div>
             )}
           </div>
         </div>

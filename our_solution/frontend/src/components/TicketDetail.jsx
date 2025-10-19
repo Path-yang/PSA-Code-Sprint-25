@@ -142,7 +142,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   const handleSave = async () => {
     const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-    
+
     const editedDiagnosis = {
       ...diagnosis,
       rootCause: {
@@ -165,7 +165,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     };
     setTicket(optimisticTicket);
     setIsEditing(false); // Exit edit mode immediately
-    
+
     setSaving(true);
     setError('');
     try {
@@ -196,7 +196,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   const handleClose = async () => {
     setShowCloseDialog(false);
-    
+
     // Optimistic update - update UI immediately
     const optimisticTicket = {
       ...ticket,
@@ -204,7 +204,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       closed_at: new Date().toISOString()
     };
     setTicket(optimisticTicket);
-    
+
     setSaving(true);
     setError('');
     try {
@@ -248,7 +248,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowDeleteDialog(false);
-    
+
     // Optimistic update - update UI immediately
     const optimisticTicket = {
       ...ticket,
@@ -257,7 +257,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       deleted_at: new Date().toISOString()
     };
     setTicket(optimisticTicket);
-    
+
     setSaving(true);
     setError('');
     try {
@@ -292,10 +292,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowPermanentDeleteDialog(false);
-    
+
     // Optimistic navigation - go back immediately for instant feel
     onBack();
-    
+
     // Update cache to remove ticket
     const cachedTickets = sessionStorage.getItem('cachedTickets');
     if (cachedTickets) {
@@ -303,7 +303,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       const updatedTickets = tickets.filter(t => t.id !== ticketId);
       sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
     }
-    
+
     setSaving(true);
     setError('');
     try {
@@ -334,7 +334,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   // IMPORTANT: useMemo hooks MUST be called before any conditional returns
   // to satisfy React's Rules of Hooks
-  const displayData = useMemo(() => 
+  const displayData = useMemo(() =>
     ticket?.edited_diagnosis || ticket?.diagnosis_data || {},
     [ticket?.edited_diagnosis, ticket?.diagnosis_data]
   );
@@ -342,11 +342,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const parsed = useMemo(() => displayData?.parsed || {}, [displayData]);
   const rootCause = useMemo(() => displayData?.rootCause || {}, [displayData]);
   const resolution = useMemo(() => displayData?.resolution || {}, [displayData]);
-  const confidenceAssessment = useMemo(() => 
-    displayData?.confidence_assessment || displayData?.confidenceAssessment || null, 
+  const confidenceAssessment = useMemo(() =>
+    displayData?.confidence_assessment || displayData?.confidenceAssessment || null,
     [displayData]
   );
-  
+
   // Ticket display data - must be here before conditional returns
   const parsedData = useMemo(() => ticket?.diagnosis_data?.parsed || {}, [ticket?.diagnosis_data?.parsed]);
   const ticketDisplayId = useMemo(() => parsedData.ticket_id || `#${ticket?.ticket_number || ''}`, [parsedData.ticket_id, ticket?.ticket_number]);
@@ -499,9 +499,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                             {parsed.priority && (
                               <TableCell>
                                 <Badge variant={
-                                  parsed.priority === 'High' ? 'destructive' : 
-                                  parsed.priority === 'Medium' ? 'warning' : 
-                                  'success'
+                                  parsed.priority === 'High' ? 'destructive' :
+                                    parsed.priority === 'Medium' ? 'warning' :
+                                      'success'
                                 }>
                                   {parsed.priority}
                                 </Badge>
@@ -516,361 +516,361 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               )}
 
             </div>
-        </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="root-cause" className="space-y-6 mt-6">
-              {/* Root Cause Analysis */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5" />
-                    Root Cause Analysis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-        {isEditing ? (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="root-cause">Root Cause</Label>
-                        <Textarea
-              id="root-cause"
-              value={editedRootCause}
-              onChange={(e) => setEditedRootCause(e.target.value)}
-                          className="min-h-[100px]"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="technical-details">Technical Details</Label>
-                        <Textarea
-              id="technical-details"
-              value={editedTechnicalDetails}
-              onChange={(e) => setEditedTechnicalDetails(e.target.value)}
-                          className="min-h-[100px]"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
-                        <p className="mt-1 text-sm leading-relaxed">{rootCause.root_cause}</p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
-                        <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                          {rootCause.technical_details}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+          {/* Root Cause Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Root Cause Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="root-cause">Root Cause</Label>
+                    <Textarea
+                      id="root-cause"
+                      value={editedRootCause}
+                      onChange={(e) => setEditedRootCause(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="technical-details">Technical Details</Label>
+                    <Textarea
+                      id="technical-details"
+                      value={editedTechnicalDetails}
+                      onChange={(e) => setEditedTechnicalDetails(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
+                    <p className="mt-1 text-sm leading-relaxed">{rootCause.root_cause}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                      {rootCause.technical_details}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="resolution" className="space-y-6 mt-6">
-              {/* Resolution Plan */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" />
-                    Resolution Plan
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-        {isEditing ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
-                      <Textarea
-              id="resolution-steps"
-              value={editedResolutionSteps}
-              onChange={(e) => setEditedResolutionSteps(e.target.value)}
-              rows="6"
-            />
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {resolution.estimated_time && (
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Clock className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm">{resolution.estimated_time}</span>
-                            </div>
-                          </div>
-                        )}
-                        <div>
-                          <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
-                          <div className="mt-1">
-                            {resolution.escalate ? (
-                              <Badge variant="destructive" className="gap-1">
-                                <AlertTriangle className="w-3 h-3" />
-                                Yes → {resolution.escalate_to || 'L3 team'}
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary">No</Badge>
-                            )}
-                          </div>
+          {/* Resolution Plan */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Resolution Plan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isEditing ? (
+                <div className="space-y-2">
+                  <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
+                  <Textarea
+                    id="resolution-steps"
+                    value={editedResolutionSteps}
+                    onChange={(e) => setEditedResolutionSteps(e.target.value)}
+                    rows="6"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {resolution.estimated_time && (
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">{resolution.estimated_time}</span>
                         </div>
                       </div>
+                    )}
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
+                      <div className="mt-1">
+                        {resolution.escalate ? (
+                          <Badge variant="destructive" className="gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            Yes → {resolution.escalate_to || 'L3 team'}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">No</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-                      {resolution.resolution_steps?.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
-                            {resolution.time_breakdown?.resolution_steps_time && (
-                              <Badge variant="outline" className="text-xs">
-                                {resolution.time_breakdown.resolution_steps_time}
-                              </Badge>
-                            )}
-                          </div>
-                          <ol className="mt-2 space-y-2">
-                            {resolution.resolution_steps.map((step, index) => (
-                              <li key={index} className="text-sm flex items-start gap-3">
-                                <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
-                                  {index + 1}
-                                </span>
-                                <span className="leading-relaxed">{step}</span>
-                              </li>
-                  ))}
-                </ol>
-                        </div>
-                      )}
-
-                      {resolution.verification_steps?.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
-                            {resolution.time_breakdown?.verification_steps_time && (
-                              <Badge variant="outline" className="text-xs">
-                                {resolution.time_breakdown.verification_steps_time}
-                              </Badge>
-                            )}
-                          </div>
-                          <ul className="mt-2 space-y-1">
-                            {resolution.verification_steps.map((step, index) => (
-                              <li key={index} className="text-sm flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                                {step}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {resolution.sql_queries?.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
-                            {resolution.time_breakdown?.sql_commands_time && (
-                              <Badge variant="outline" className="text-xs">
-                                {resolution.time_breakdown.sql_commands_time}
-                              </Badge>
-                            )}
-                          </div>
-                          <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
-                            {resolution.sql_queries.join('\n\n')}
-                          </pre>
-                        </div>
-                      )}
+                  {resolution.resolution_steps?.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                        {resolution.time_breakdown?.resolution_steps_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.resolution_steps_time}
+                          </Badge>
+                        )}
+                      </div>
+                      <ol className="mt-2 space-y-2">
+                        {resolution.resolution_steps.map((step, index) => (
+                          <li key={index} className="text-sm flex items-start gap-3">
+                            <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                              {index + 1}
+                            </span>
+                            <span className="leading-relaxed">{step}</span>
+                          </li>
+                        ))}
+                      </ol>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+
+                  {resolution.verification_steps?.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                        {resolution.time_breakdown?.verification_steps_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.verification_steps_time}
+                          </Badge>
+                        )}
+                      </div>
+                      <ul className="mt-2 space-y-1">
+                        {resolution.verification_steps.map((step, index) => (
+                          <li key={index} className="text-sm flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                            {step}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {resolution.sql_queries?.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                        {resolution.time_breakdown?.sql_commands_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.sql_commands_time}
+                          </Badge>
+                        )}
+                      </div>
+                      <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
+                        {resolution.sql_queries.join('\n\n')}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="confidence" className="space-y-6 mt-6">
-              {/* Confidence Assessment */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="w-5 h-5" />
-                    Confidence Assessment
-                  </CardTitle>
-                  <CardDescription>
-                    Evidence-based confidence analysis for diagnosis and resolution
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {confidenceAssessment ? (
-                    <div className="space-y-6">
-                      {/* Overall Score */}
-                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                        <div>
-                          <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                          <p className="text-3xl font-bold mt-1">{confidenceAssessment.overall_score}%</p>
-                        </div>
-                        <div className="text-right">
-                          <Badge
-                            variant={
-                              confidenceAssessment.overall_score >= 70 ? "default" :
-                                confidenceAssessment.overall_score >= 50 ? "secondary" :
-                                  "destructive"
-                            }
-                            className="text-sm"
-                          >
-                            {confidenceAssessment.interpretation.recommendation}
-                          </Badge>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {confidenceAssessment.interpretation.recommendation_detail}
-                          </p>
-                        </div>
-                      </div>
+          {/* Confidence Assessment */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Confidence Assessment
+              </CardTitle>
+              <CardDescription>
+                Evidence-based confidence analysis for diagnosis and resolution
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {confidenceAssessment ? (
+                <div className="space-y-6">
+                  {/* Overall Score */}
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
+                      <p className="text-3xl font-bold mt-1">{confidenceAssessment.overall_score}%</p>
+                    </div>
+                    <div className="text-right">
+                      <Badge
+                        variant={
+                          confidenceAssessment.overall_score >= 70 ? "default" :
+                            confidenceAssessment.overall_score >= 50 ? "secondary" :
+                              "destructive"
+                        }
+                        className="text-sm"
+                      >
+                        {confidenceAssessment.interpretation.recommendation}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {confidenceAssessment.interpretation.recommendation_detail}
+                      </p>
+                    </div>
+                  </div>
 
-                      <Separator />
+                  <Separator />
 
-                      {/* Evidence Breakdown */}
-                      <div>
-                        <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
-                        <div className="space-y-4">
-                          {/* Log Evidence */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Application Logs</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {confidenceAssessment.breakdown.log_evidence?.percentage || 0}%
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {confidenceAssessment.breakdown.log_evidence?.status || 'none'}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Progress
-                              value={confidenceAssessment.breakdown.log_evidence.percentage}
-                              className="h-2"
-                            />
-                          </div>
-
-                          {/* Past Cases */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Similar Past Cases</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {confidenceAssessment.breakdown.past_cases?.percentage || 0}%
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {confidenceAssessment.breakdown.past_cases?.status || 'none'}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Progress
-                              value={confidenceAssessment.breakdown.past_cases.percentage}
-                              className="h-2"
-                            />
-                          </div>
-
-                          {/* Knowledge Base */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Knowledge Base</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {confidenceAssessment.breakdown.knowledge_base?.percentage || 0}%
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {confidenceAssessment.breakdown.knowledge_base?.status || 'none'}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Progress
-                              value={confidenceAssessment.breakdown.knowledge_base.percentage}
-                              className="h-2"
-                            />
-                          </div>
-
-                          {/* Identifiers */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Specific Identifiers</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {confidenceAssessment.breakdown.identifiers?.percentage || 0}%
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {confidenceAssessment.breakdown.identifiers?.status || 'none'}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Progress
-                              value={confidenceAssessment.breakdown.identifiers.percentage}
-                              className="h-2"
-                            />
-                          </div>
-
-                          {/* Evidence Quality */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">Evidence Quality</Label>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {confidenceAssessment.breakdown.evidence_quality?.percentage || 0}%
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {confidenceAssessment.breakdown.evidence_quality?.status || 'none'}
-                                </Badge>
-                              </div>
-                            </div>
-                            <Progress
-                              value={confidenceAssessment.breakdown.evidence_quality.percentage}
-                              className="h-2"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      {/* Interpretation */}
-                      <div className="space-y-4">
-                        <Label className="text-base font-semibold block">Interpretation</Label>
-
-                        {/* Diagnosis Confidence */}
-                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Diagnosis Confidence</Label>
-                            <Badge
-                              variant={
-                                confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                  confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                                    "destructive"
-                              }
-                            >
-                              {confidenceAssessment.interpretation.diagnosis_confidence}
+                  {/* Evidence Breakdown */}
+                  <div>
+                    <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                    <div className="space-y-4">
+                      {/* Log Evidence */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Application Logs</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {confidenceAssessment.breakdown.log_evidence?.percentage || 0}%
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {confidenceAssessment.breakdown.log_evidence?.status || 'none'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {confidenceAssessment.interpretation.diagnosis_explanation}
-                          </p>
                         </div>
+                        <Progress
+                          value={confidenceAssessment.breakdown.log_evidence.percentage}
+                          className="h-2"
+                        />
+                      </div>
 
-                        {/* Solution Confidence */}
-                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Solution Confidence</Label>
-                            <Badge
-                              variant={
-                                confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                  confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                                    "destructive"
-                              }
-                            >
-                              {confidenceAssessment.interpretation.solution_confidence}
+                      {/* Past Cases */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Similar Past Cases</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {confidenceAssessment.breakdown.past_cases?.percentage || 0}%
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {confidenceAssessment.breakdown.past_cases?.status || 'none'}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {confidenceAssessment.interpretation.solution_explanation}
-                          </p>
                         </div>
+                        <Progress
+                          value={confidenceAssessment.breakdown.past_cases.percentage}
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Knowledge Base */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Knowledge Base</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {confidenceAssessment.breakdown.knowledge_base?.percentage || 0}%
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {confidenceAssessment.breakdown.knowledge_base?.status || 'none'}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress
+                          value={confidenceAssessment.breakdown.knowledge_base.percentage}
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Identifiers */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Specific Identifiers</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {confidenceAssessment.breakdown.identifiers?.percentage || 0}%
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {confidenceAssessment.breakdown.identifiers?.status || 'none'}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress
+                          value={confidenceAssessment.breakdown.identifiers.percentage}
+                          className="h-2"
+                        />
+                      </div>
+
+                      {/* Evidence Quality */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Evidence Quality</Label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {confidenceAssessment.breakdown.evidence_quality?.percentage || 0}%
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {confidenceAssessment.breakdown.evidence_quality?.status || 'none'}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Progress
+                          value={confidenceAssessment.breakdown.evidence_quality.percentage}
+                          className="h-2"
+                        />
                       </div>
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No confidence assessment available.</p>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+
+                  <Separator />
+
+                  {/* Interpretation */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold block">Interpretation</Label>
+
+                    {/* Diagnosis Confidence */}
+                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Diagnosis Confidence</Label>
+                        <Badge
+                          variant={
+                            confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                              confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                "destructive"
+                          }
+                        >
+                          {confidenceAssessment.interpretation.diagnosis_confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {confidenceAssessment.interpretation.diagnosis_explanation}
+                      </p>
+                    </div>
+
+                    {/* Solution Confidence */}
+                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Solution Confidence</Label>
+                        <Badge
+                          variant={
+                            confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                              confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                "destructive"
+                          }
+                        >
+                          {confidenceAssessment.interpretation.solution_confidence}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {confidenceAssessment.interpretation.solution_explanation}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No confidence assessment available.</p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="full-report" className="space-y-6 mt-6">
@@ -893,75 +893,75 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6 mt-6">
-      {/* Notes */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Notes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add notes about this ticket..."
-          rows="4"
-        />
-                </CardContent>
-              </Card>
+          {/* Notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add notes about this ticket..."
+                rows="4"
+              />
+            </CardContent>
+          </Card>
 
-      {/* Custom Fields */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="w-5 h-5" />
-                    Custom Fields
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-        {Object.keys(customFields).length > 0 && (
-                    <div className="space-y-2">
-            {Object.entries(customFields).map(([key, value]) => (
-                        <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
-                          <div className="flex items-center gap-2">
-                            <Tag className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium">{key}:</span>
-                            <span className="text-sm text-muted-foreground">{value}</span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                  onClick={() => removeCustomField(key)}
-                            className="text-destructive hover:text-destructive"
-                >
-                            <Minus className="w-4 h-4" />
-                          </Button>
+          {/* Custom Fields */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Custom Fields
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.keys(customFields).length > 0 && (
+                <div className="space-y-2">
+                  {Object.entries(customFields).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-sm text-muted-foreground">{value}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCustomField(key)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Field name"
+                  value={newFieldKey}
+                  onChange={(e) => setNewFieldKey(e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  placeholder="Field value"
+                  value={newFieldValue}
+                  onChange={(e) => setNewFieldValue(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={addCustomField} size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add
+                </Button>
               </div>
-            ))}
-          </div>
-        )}
-
-                  <div className="flex gap-2">
-                    <Input
-            placeholder="Field name"
-            value={newFieldKey}
-            onChange={(e) => setNewFieldKey(e.target.value)}
-                      className="flex-1"
-          />
-                    <Input
-            placeholder="Field value"
-            value={newFieldValue}
-            onChange={(e) => setNewFieldValue(e.target.value)}
-                      className="flex-1"
-          />
-                    <Button onClick={addCustomField} size="sm" className="gap-2">
-                      <Plus className="w-4 h-4" />
-                      Add
-                    </Button>
-        </div>
-                </CardContent>
-              </Card>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -969,53 +969,53 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       <div className="flex gap-3 pt-6 border-t">
         {isEditing ? (
           <>
-              <Button onClick={handleSave} disabled={saving} className="gap-2">
-                <Save className="w-4 h-4" />
+            <Button onClick={handleSave} disabled={saving} className="gap-2">
+              <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-              <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
+            </Button>
+            <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
               Cancel
-              </Button>
+            </Button>
           </>
         ) : (
           <>
-              {/* Edit Diagnosis Button - Only on Diagnosis Tab */}
-              {ticket.status === 'active' && activeTab === 'root-cause' && (
-                <Button onClick={() => setIsEditing(true)} className="gap-2">
-                  <Edit className="w-4 h-4" />
-                  Edit Diagnosis
-                </Button>
-              )}
+            {/* Edit Diagnosis Button - Only on Diagnosis Tab */}
+            {ticket.status === 'active' && activeTab === 'root-cause' && (
+              <Button onClick={() => setIsEditing(true)} className="gap-2">
+                <Edit className="w-4 h-4" />
+                Edit Diagnosis
+              </Button>
+            )}
 
-              {/* Save Notes Button - Only on Notes Tab */}
-              {ticket.status === 'active' && activeTab === 'notes' && (
-                <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Notes'}
-                </Button>
-              )}
+            {/* Save Notes Button - Only on Notes Tab */}
+            {ticket.status === 'active' && activeTab === 'notes' && (
+              <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save Notes'}
+              </Button>
+            )}
 
-              {/* Close Ticket Button - Always visible for active tickets */}
-              {ticket.status === 'active' && (
-                <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">
-                  <CheckCircle className="w-4 h-4" />
-                  Close Ticket
-                </Button>
-              )}
+            {/* Close Ticket Button - Always visible for active tickets */}
+            {ticket.status === 'active' && (
+              <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">
+                <CheckCircle className="w-4 h-4" />
+                Close Ticket
+              </Button>
+            )}
 
-              {/* Delete Buttons - Always visible */}
-              {ticket.status !== 'deleted' && (
-                <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
-                  <Trash2 className="w-4 h-4" />
-                  Move to Deleted
-                </Button>
-              )}
-              {ticket.status === 'deleted' && (
-                <Button onClick={() => setShowPermanentDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
-                  <Trash2 className="w-4 h-4" />
-                  Permanent Delete
-                </Button>
-              )}
+            {/* Delete Buttons - Always visible */}
+            {ticket.status !== 'deleted' && (
+              <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                <Trash2 className="w-4 h-4" />
+                Move to Deleted
+              </Button>
+            )}
+            {ticket.status === 'deleted' && (
+              <Button onClick={() => setShowPermanentDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                <Trash2 className="w-4 h-4" />
+                Permanent Delete
+              </Button>
+            )}
           </>
         )}
       </div>
@@ -1023,122 +1023,128 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       {/* Ticket Dates - Bottom Right - Outside Container */}
       {ticket && (
         <div className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
-            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>Created: {formatDateTime(ticket.created_at)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+            </div>
+            {ticket.status === 'closed' && ticket.closed_at && (
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>Created: {formatDateTime(ticket.created_at)}</span>
+                <CheckCircle className="w-4 h-4" />
+                <span>Closed: {formatDateTime(ticket.closed_at)}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
-              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Close Ticket Confirmation Dialog */}
-        <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Close this ticket?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will mark the ticket as resolved and move it to closed tickets. You can still view it later in the tickets list.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleClose}>Close Ticket</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Close this ticket?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark the ticket as resolved and move it to closed tickets. You can still view it later in the tickets list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClose}>Close Ticket</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-        {/* Delete Ticket Confirmation Dialog */}
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Move ticket to deleted?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will move the ticket to deleted tickets. Please provide a reason for deletion.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4 space-y-4">
+      {/* Delete Ticket Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Move ticket to deleted?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will move the ticket to deleted tickets. Please provide a reason for deletion.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <Label htmlFor="deletion-reason-type">Reason for deletion *</Label>
+              <Select value={deletionReasonType} onValueChange={setDeletionReasonType}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Duplicate ticket">Duplicate ticket</SelectItem>
+                  <SelectItem value="Created by mistake">Created by mistake</SelectItem>
+                  <SelectItem value="Issue not reproducible">Issue not reproducible</SelectItem>
+                  <SelectItem value="Resolved through other means">Resolved through other means</SelectItem>
+                  <SelectItem value="Invalid alert">Invalid alert</SelectItem>
+                  <SelectItem value="Spam or test ticket">Spam or test ticket</SelectItem>
+                  <SelectItem value="Others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {deletionReasonType === 'Others' && (
               <div>
-                <Label htmlFor="deletion-reason-type">Reason for deletion *</Label>
-                <Select value={deletionReasonType} onValueChange={setDeletionReasonType}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Select a reason" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Duplicate ticket">Duplicate ticket</SelectItem>
-                    <SelectItem value="Created by mistake">Created by mistake</SelectItem>
-                    <SelectItem value="Issue not reproducible">Issue not reproducible</SelectItem>
-                    <SelectItem value="Resolved through other means">Resolved through other means</SelectItem>
-                    <SelectItem value="Invalid alert">Invalid alert</SelectItem>
-                    <SelectItem value="Spam or test ticket">Spam or test ticket</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="custom-reason">Please specify *</Label>
+                <Textarea
+                  id="custom-reason"
+                  value={customDeletionReason}
+                  onChange={(e) => setCustomDeletionReason(e.target.value)}
+                  placeholder="Enter your reason for deletion..."
+                  className="mt-2"
+                  rows={3}
+                />
               </div>
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeletionReasonType('');
+              setCustomDeletionReason('');
+            }}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Move to Deleted
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-              {deletionReasonType === 'Others' && (
-                <div>
-                  <Label htmlFor="custom-reason">Please specify *</Label>
-                  <Textarea
-                    id="custom-reason"
-                    value={customDeletionReason}
-                    onChange={(e) => setCustomDeletionReason(e.target.value)}
-                    placeholder="Enter your reason for deletion..."
-                    className="mt-2"
-                    rows={3}
-                  />
-                </div>
-              )}
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => {
-                setDeletionReasonType('');
-                setCustomDeletionReason('');
-              }}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Move to Deleted
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Permanent Delete Dialog (for deleted tickets only) */}
-        <AlertDialog open={showPermanentDeleteDialog} onOpenChange={setShowPermanentDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Permanently delete this ticket?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. The ticket and all its data will be permanently removed from the database.
-                <br /><br />
-                <strong>Please enter the supervisor password to proceed.</strong>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4">
-              <Label htmlFor="delete-password">Password *</Label>
-              <Input
-                id="delete-password"
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder="Enter password"
-                className="mt-2"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                Please get the password from your supervisor if you don't have it.
-              </p>
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setDeletePassword('')}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handlePermanentDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Permanently Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      {/* Permanent Delete Dialog (for deleted tickets only) */}
+      <AlertDialog open={showPermanentDeleteDialog} onOpenChange={setShowPermanentDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this ticket?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The ticket and all its data will be permanently removed from the database.
+              <br /><br />
+              <strong>Please enter the supervisor password to proceed.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Label htmlFor="delete-password">Password *</Label>
+            <Input
+              id="delete-password"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Enter password"
+              className="mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Please get the password from your supervisor if you don't have it.
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletePassword('')}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePermanentDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Permanently Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
