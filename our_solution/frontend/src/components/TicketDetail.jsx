@@ -351,756 +351,769 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   };
 
   return (
-    <div className="p-6 space-y-6">
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
-        >
-          <div className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="w-4 h-4" />
-            {error}
+    <>
+      {/* Resizable Navbar - Outside Container */}
+      <Navbar>
+        <NavBody>
+          <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2">
+            {tabItems.map((item, idx) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabClick(item.id)}
+                className={`relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors ${activeTab === item.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-gray-100 dark:hover:bg-neutral-800'
+                  }`}
+              >
+                {item.name}
+              </button>
+            ))}
           </div>
-        </motion.div>
-      )}
-
-      {/* Main Content */}
-      <div className="w-full">
-        <Navbar>
-          <NavBody>
-            <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2">
-              {tabItems.map((item, idx) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleTabClick(item.id)}
-                  className={`relative px-4 py-2 text-neutral-600 dark:text-neutral-300 rounded-full transition-colors ${activeTab === item.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-gray-100 dark:hover:bg-neutral-800'
-                    }`}
-                >
-                  {item.name}
-                </button>
-              ))}
+        </NavBody>
+        <MobileNav>
+          <MobileNavHeader>
+            <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+              {tabItems.find(item => item.id === activeTab)?.name}
             </div>
-          </NavBody>
-          <MobileNav>
-            <MobileNavHeader>
-              <div className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                {tabItems.find(item => item.id === activeTab)?.name}
-              </div>
-              <MobileNavToggle
-                isOpen={isMobileMenuOpen}
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              />
-            </MobileNavHeader>
-            <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
-              {tabItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleTabClick(item.id)}
-                  className={`w-full text-left px-4 py-2 rounded-md transition-colors ${activeTab === item.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                    }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </MobileNavMenu>
-          </MobileNav>
-        </Navbar>
+            <MobileNavToggle
+              isOpen={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            />
+          </MobileNavHeader>
+          <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+            {tabItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabClick(item.id)}
+                className={`w-full text-left px-4 py-2 rounded-md transition-colors ${activeTab === item.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }`}
+              >
+                {item.name}
+              </button>
+            ))}
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
 
-        {activeTab === 'overview' && (
-          <div className="space-y-6 mt-6">
+      {/* Main Content Container */}
+      <div className="p-6 space-y-6">
 
-            {/* Parsed Information */}
-            {parsed && Object.keys(parsed).length > 0 && (
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+          >
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-4 h-4" />
+              {error}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Content Area */}
+        <div className="w-full">
+          {activeTab === 'overview' && (
+            <div className="space-y-6 mt-6">
+
+              {/* Parsed Information */}
+              {parsed && Object.keys(parsed).length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Tag className="w-5 h-5" />
+                      Parsed Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="border rounded-md">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            {parsed.ticket_id && <TableHead>Ticket ID</TableHead>}
+                            {parsed.module && <TableHead>Module</TableHead>}
+                            {parsed.entity_id && <TableHead>Entity</TableHead>}
+                            {parsed.channel && <TableHead>Channel</TableHead>}
+                            {parsed.priority && <TableHead>Priority</TableHead>}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            {parsed.ticket_id && (
+                              <TableCell>
+                                <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
+                              </TableCell>
+                            )}
+                            {parsed.module && (
+                              <TableCell>
+                                <Badge variant="outline">{parsed.module}</Badge>
+                              </TableCell>
+                            )}
+                            {parsed.entity_id && (
+                              <TableCell>
+                                <Badge variant="outline">{parsed.entity_id}</Badge>
+                              </TableCell>
+                            )}
+                            {parsed.channel && (
+                              <TableCell>
+                                <Badge variant="outline" className="gap-1">
+                                  {getChannelIcon(parsed.channel)}
+                                  {parsed.channel}
+                                </Badge>
+                              </TableCell>
+                            )}
+                            {parsed.priority && (
+                              <TableCell>
+                                <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                                  {parsed.priority}
+                                </Badge>
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Original Alert */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Tag className="w-5 h-5" />
-                    Parsed Information
+                    <AlertTriangle className="w-5 h-5" />
+                    Original Alert
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="border rounded-md">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {parsed.ticket_id && <TableHead>Ticket ID</TableHead>}
-                          {parsed.module && <TableHead>Module</TableHead>}
-                          {parsed.entity_id && <TableHead>Entity</TableHead>}
-                          {parsed.channel && <TableHead>Channel</TableHead>}
-                          {parsed.priority && <TableHead>Priority</TableHead>}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          {parsed.ticket_id && (
-                            <TableCell>
-                              <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
-                            </TableCell>
-                          )}
-                          {parsed.module && (
-                            <TableCell>
-                              <Badge variant="outline">{parsed.module}</Badge>
-                            </TableCell>
-                          )}
-                          {parsed.entity_id && (
-                            <TableCell>
-                              <Badge variant="outline">{parsed.entity_id}</Badge>
-                            </TableCell>
-                          )}
-                          {parsed.channel && (
-                            <TableCell>
-                              <Badge variant="outline" className="gap-1">
-                                {getChannelIcon(parsed.channel)}
-                                {parsed.channel}
+                  <pre className="text-sm bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap font-mono">
+                    {ticket.alert_text}
+                  </pre>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'diagnosis' && (
+            <div className="space-y-6 mt-6">
+              {/* Root Cause Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" />
+                    Root Cause Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isEditing ? (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="root-cause">Root Cause</Label>
+                        <Textarea
+                          id="root-cause"
+                          value={editedRootCause}
+                          onChange={(e) => setEditedRootCause(e.target.value)}
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="technical-details">Technical Details</Label>
+                        <Textarea
+                          id="technical-details"
+                          value={editedTechnicalDetails}
+                          onChange={(e) => setEditedTechnicalDetails(e.target.value)}
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
+                        <p className="mt-1 text-sm leading-relaxed">{rootCause.root_cause}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
+                        <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                          {rootCause.technical_details}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'resolution' && (
+            <div className="space-y-6 mt-6">
+              {/* Resolution Plan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Resolution Plan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
+                      <Textarea
+                        id="resolution-steps"
+                        value={editedResolutionSteps}
+                        onChange={(e) => setEditedResolutionSteps(e.target.value)}
+                        rows="6"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {resolution.estimated_time && (
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm">{resolution.estimated_time}</span>
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
+                          <div className="mt-1">
+                            {resolution.escalate ? (
+                              <Badge variant="destructive" className="gap-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                Yes → {resolution.escalate_to || 'L3 team'}
                               </Badge>
-                            </TableCell>
-                          )}
-                          {parsed.priority && (
-                            <TableCell>
-                              <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
-                                {parsed.priority}
+                            ) : (
+                              <Badge variant="secondary">No</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {resolution.resolution_steps?.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                            {resolution.time_breakdown?.resolution_steps_time && (
+                              <Badge variant="outline" className="text-xs">
+                                {resolution.time_breakdown.resolution_steps_time}
                               </Badge>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      </TableBody>
-                    </Table>
+                            )}
+                          </div>
+                          <ol className="mt-2 space-y-2">
+                            {resolution.resolution_steps.map((step, index) => (
+                              <li key={index} className="text-sm flex items-start gap-3">
+                                <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                                  {index + 1}
+                                </span>
+                                <span className="leading-relaxed">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {resolution.verification_steps?.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                            {resolution.time_breakdown?.verification_steps_time && (
+                              <Badge variant="outline" className="text-xs">
+                                {resolution.time_breakdown.verification_steps_time}
+                              </Badge>
+                            )}
+                          </div>
+                          <ul className="mt-2 space-y-1">
+                            {resolution.verification_steps.map((step, index) => (
+                              <li key={index} className="text-sm flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                                {step}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {resolution.sql_queries?.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                            {resolution.time_breakdown?.sql_commands_time && (
+                              <Badge variant="outline" className="text-xs">
+                                {resolution.time_breakdown.sql_commands_time}
+                              </Badge>
+                            )}
+                          </div>
+                          <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
+                            {resolution.sql_queries.join('\n\n')}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'confidence' && (
+            <div className="space-y-6 mt-6">
+              {/* Confidence Assessment */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Confidence Assessment
+                  </CardTitle>
+                  <CardDescription>
+                    Evidence-based confidence analysis for diagnosis and resolution
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {ticket.confidence_assessment ? (
+                    <div className="space-y-6">
+                      {/* Overall Score */}
+                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                        <div>
+                          <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
+                          <p className="text-3xl font-bold mt-1">{ticket.confidence_assessment.overall_score}%</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge
+                            variant={
+                              ticket.confidence_assessment.overall_score >= 70 ? "default" :
+                                ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
+                                  "destructive"
+                            }
+                            className="text-sm"
+                          >
+                            {ticket.confidence_assessment.interpretation.recommendation}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {ticket.confidence_assessment.interpretation.recommendation_detail}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Evidence Breakdown */}
+                      <div>
+                        <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                        <div className="space-y-4">
+                          {/* Log Evidence */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Application Logs</Label>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0}%
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {ticket.confidence_assessment.breakdown.log_evidence?.status || 'none'}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Progress
+                              value={ticket.confidence_assessment.breakdown.log_evidence.percentage}
+                              className="h-2"
+                            />
+                          </div>
+
+                          {/* Past Cases */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Similar Past Cases</Label>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {ticket.confidence_assessment.breakdown.past_cases?.percentage || 0}%
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {ticket.confidence_assessment.breakdown.past_cases?.status || 'none'}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Progress
+                              value={ticket.confidence_assessment.breakdown.past_cases.percentage}
+                              className="h-2"
+                            />
+                          </div>
+
+                          {/* Knowledge Base */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Knowledge Base</Label>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0}%
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {ticket.confidence_assessment.breakdown.knowledge_base?.status || 'none'}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Progress
+                              value={ticket.confidence_assessment.breakdown.knowledge_base.percentage}
+                              className="h-2"
+                            />
+                          </div>
+
+                          {/* Identifiers */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Specific Identifiers</Label>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {ticket.confidence_assessment.breakdown.identifiers?.percentage || 0}%
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {ticket.confidence_assessment.breakdown.identifiers?.status || 'none'}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Progress
+                              value={ticket.confidence_assessment.breakdown.identifiers.percentage}
+                              className="h-2"
+                            />
+                          </div>
+
+                          {/* Evidence Quality */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">Evidence Quality</Label>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">
+                                  {ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0}%
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {ticket.confidence_assessment.breakdown.evidence_quality?.status || 'none'}
+                                </Badge>
+                              </div>
+                            </div>
+                            <Progress
+                              value={ticket.confidence_assessment.breakdown.evidence_quality.percentage}
+                              className="h-2"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Interpretation */}
+                      <div className="space-y-4">
+                        <Label className="text-base font-semibold block">Interpretation</Label>
+
+                        {/* Diagnosis Confidence */}
+                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Diagnosis Confidence</Label>
+                            <Badge
+                              variant={
+                                ticket.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                                  ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                    "destructive"
+                              }
+                            >
+                              {ticket.confidence_assessment.interpretation.diagnosis_confidence}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {ticket.confidence_assessment.interpretation.diagnosis_explanation}
+                          </p>
+                        </div>
+
+                        {/* Solution Confidence */}
+                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Solution Confidence</Label>
+                            <Badge
+                              variant={
+                                ticket.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                                  ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                    "destructive"
+                              }
+                            >
+                              {ticket.confidence_assessment.interpretation.solution_confidence}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {ticket.confidence_assessment.interpretation.solution_explanation}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No confidence assessment available.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'notes' && (
+            <div className="space-y-6 mt-6">
+              {/* Notes */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Notes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Add notes about this ticket..."
+                    rows="4"
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Custom Fields */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Custom Fields
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {Object.keys(customFields).length > 0 && (
+                    <div className="space-y-2">
+                      {Object.entries(customFields).map(([key, value]) => (
+                        <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                          <div className="flex items-center gap-2">
+                            <Tag className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">{key}:</span>
+                            <span className="text-sm text-muted-foreground">{value}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCustomField(key)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Field name"
+                      value={newFieldKey}
+                      onChange={(e) => setNewFieldKey(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Field value"
+                      value={newFieldValue}
+                      onChange={(e) => setNewFieldValue(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={addCustomField} size="sm" className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            </div>
+          )}
+        </div>
 
-            {/* Original Alert */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Original Alert
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-sm bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap font-mono">
-                  {ticket.alert_text}
-                </pre>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'diagnosis' && (
-          <div className="space-y-6 mt-6">
-            {/* Root Cause Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Root Cause Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isEditing ? (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="root-cause">Root Cause</Label>
-                      <Textarea
-                        id="root-cause"
-                        value={editedRootCause}
-                        onChange={(e) => setEditedRootCause(e.target.value)}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="technical-details">Technical Details</Label>
-                      <Textarea
-                        id="technical-details"
-                        value={editedTechnicalDetails}
-                        onChange={(e) => setEditedTechnicalDetails(e.target.value)}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
-                      <p className="mt-1 text-sm leading-relaxed">{rootCause.root_cause}</p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
-                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                        {rootCause.technical_details}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'resolution' && (
-          <div className="space-y-6 mt-6">
-            {/* Resolution Plan */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Resolution Plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isEditing ? (
-                  <div className="space-y-2">
-                    <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
-                    <Textarea
-                      id="resolution-steps"
-                      value={editedResolutionSteps}
-                      onChange={(e) => setEditedResolutionSteps(e.target.value)}
-                      rows="6"
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {resolution.estimated_time && (
-                        <div>
-                          <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm">{resolution.estimated_time}</span>
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
-                        <div className="mt-1">
-                          {resolution.escalate ? (
-                            <Badge variant="destructive" className="gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              Yes → {resolution.escalate_to || 'L3 team'}
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary">No</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {resolution.resolution_steps?.length > 0 && (
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
-                          {resolution.time_breakdown?.resolution_steps_time && (
-                            <Badge variant="outline" className="text-xs">
-                              {resolution.time_breakdown.resolution_steps_time}
-                            </Badge>
-                          )}
-                        </div>
-                        <ol className="mt-2 space-y-2">
-                          {resolution.resolution_steps.map((step, index) => (
-                            <li key={index} className="text-sm flex items-start gap-3">
-                              <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
-                                {index + 1}
-                              </span>
-                              <span className="leading-relaxed">{step}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                    )}
-
-                    {resolution.verification_steps?.length > 0 && (
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
-                          {resolution.time_breakdown?.verification_steps_time && (
-                            <Badge variant="outline" className="text-xs">
-                              {resolution.time_breakdown.verification_steps_time}
-                            </Badge>
-                          )}
-                        </div>
-                        <ul className="mt-2 space-y-1">
-                          {resolution.verification_steps.map((step, index) => (
-                            <li key={index} className="text-sm flex items-start gap-2">
-                              <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                              {step}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {resolution.sql_queries?.length > 0 && (
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
-                          {resolution.time_breakdown?.sql_commands_time && (
-                            <Badge variant="outline" className="text-xs">
-                              {resolution.time_breakdown.sql_commands_time}
-                            </Badge>
-                          )}
-                        </div>
-                        <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
-                          {resolution.sql_queries.join('\n\n')}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'confidence' && (
-          <div className="space-y-6 mt-6">
-            {/* Confidence Assessment */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Confidence Assessment
-                </CardTitle>
-                <CardDescription>
-                  Evidence-based confidence analysis for diagnosis and resolution
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {ticket.confidence_assessment ? (
-                  <div className="space-y-6">
-                    {/* Overall Score */}
-                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                        <p className="text-3xl font-bold mt-1">{ticket.confidence_assessment.overall_score}%</p>
-                      </div>
-                      <div className="text-right">
-                        <Badge
-                          variant={
-                            ticket.confidence_assessment.overall_score >= 70 ? "default" :
-                              ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
-                                "destructive"
-                          }
-                          className="text-sm"
-                        >
-                          {ticket.confidence_assessment.interpretation.recommendation}
-                        </Badge>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {ticket.confidence_assessment.interpretation.recommendation_detail}
-                        </p>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Evidence Breakdown */}
-                    <div>
-                      <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
-                      <div className="space-y-4">
-                        {/* Log Evidence */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Application Logs</Label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0}%
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ticket.confidence_assessment.breakdown.log_evidence?.status || 'none'}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Progress
-                            value={ticket.confidence_assessment.breakdown.log_evidence.percentage}
-                            className="h-2"
-                          />
-                        </div>
-
-                        {/* Past Cases */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Similar Past Cases</Label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {ticket.confidence_assessment.breakdown.past_cases?.percentage || 0}%
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ticket.confidence_assessment.breakdown.past_cases?.status || 'none'}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Progress
-                            value={ticket.confidence_assessment.breakdown.past_cases.percentage}
-                            className="h-2"
-                          />
-                        </div>
-
-                        {/* Knowledge Base */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Knowledge Base</Label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0}%
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ticket.confidence_assessment.breakdown.knowledge_base?.status || 'none'}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Progress
-                            value={ticket.confidence_assessment.breakdown.knowledge_base.percentage}
-                            className="h-2"
-                          />
-                        </div>
-
-                        {/* Identifiers */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Specific Identifiers</Label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {ticket.confidence_assessment.breakdown.identifiers?.percentage || 0}%
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ticket.confidence_assessment.breakdown.identifiers?.status || 'none'}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Progress
-                            value={ticket.confidence_assessment.breakdown.identifiers.percentage}
-                            className="h-2"
-                          />
-                        </div>
-
-                        {/* Evidence Quality */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Evidence Quality</Label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0}%
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ticket.confidence_assessment.breakdown.evidence_quality?.status || 'none'}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Progress
-                            value={ticket.confidence_assessment.breakdown.evidence_quality.percentage}
-                            className="h-2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Interpretation */}
-                    <div className="space-y-4">
-                      <Label className="text-base font-semibold block">Interpretation</Label>
-
-                      {/* Diagnosis Confidence */}
-                      <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Diagnosis Confidence</Label>
-                          <Badge
-                            variant={
-                              ticket.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                                  "destructive"
-                            }
-                          >
-                            {ticket.confidence_assessment.interpretation.diagnosis_confidence}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {ticket.confidence_assessment.interpretation.diagnosis_explanation}
-                        </p>
-                      </div>
-
-                      {/* Solution Confidence */}
-                      <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">Solution Confidence</Label>
-                          <Badge
-                            variant={
-                              ticket.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                                  "destructive"
-                            }
-                          >
-                            {ticket.confidence_assessment.interpretation.solution_confidence}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {ticket.confidence_assessment.interpretation.solution_explanation}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No confidence assessment available.</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'notes' && (
-          <div className="space-y-6 mt-6">
-            {/* Notes */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add notes about this ticket..."
-                  rows="4"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Custom Fields */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Custom Fields
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Object.keys(customFields).length > 0 && (
-                  <div className="space-y-2">
-                    {Object.entries(customFields).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
-                        <div className="flex items-center gap-2">
-                          <Tag className="w-4 h-4 text-muted-foreground" />
-                          <span className="font-medium">{key}:</span>
-                          <span className="text-sm text-muted-foreground">{value}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCustomField(key)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Field name"
-                    value={newFieldKey}
-                    onChange={(e) => setNewFieldKey(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    placeholder="Field value"
-                    value={newFieldValue}
-                    onChange={(e) => setNewFieldValue(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button onClick={addCustomField} size="sm" className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex gap-3 pt-6 border-t"
-      >
-        {isEditing ? (
-          <>
-            <Button onClick={handleSave} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-            <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            {ticket.status === 'active' && (
-              <>
+        {/* Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex gap-3 pt-6 border-t"
+        >
+          {isEditing ? (
+            <>
+              <Button onClick={handleSave} disabled={saving} className="gap-2">
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+              <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              {/* Edit Diagnosis Button - Only on Diagnosis Tab */}
+              {ticket.status === 'active' && activeTab === 'diagnosis' && (
                 <Button onClick={() => setIsEditing(true)} className="gap-2">
                   <Edit className="w-4 h-4" />
                   Edit Diagnosis
                 </Button>
+              )}
+
+              {/* Save Notes Button - Only on Notes Tab */}
+              {ticket.status === 'active' && activeTab === 'notes' && (
                 <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Notes'}
                 </Button>
+              )}
+
+              {/* Close Ticket Button - Always visible for active tickets */}
+              {ticket.status === 'active' && (
                 <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">
                   <CheckCircle className="w-4 h-4" />
                   Close Ticket
                 </Button>
-              </>
-            )}
-            {ticket.status !== 'deleted' && (
-              <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
-                <Trash2 className="w-4 h-4" />
-                Move to Deleted
-              </Button>
-            )}
-            {ticket.status === 'deleted' && (
-              <Button onClick={() => setShowPermanentDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
-                <Trash2 className="w-4 h-4" />
-                Permanent Delete
-              </Button>
-            )}
-          </>
-        )}
-      </motion.div>
+              )}
 
-      {/* Ticket Dates - Bottom Right */}
-      {ticket && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg"
-        >
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>Created: {formatDateTime(ticket.created_at)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>Updated: {formatDateTime(ticket.updated_at)}</span>
-            </div>
-          </div>
+              {/* Delete Buttons - Always visible */}
+              {ticket.status !== 'deleted' && (
+                <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  Move to Deleted
+                </Button>
+              )}
+              {ticket.status === 'deleted' && (
+                <Button onClick={() => setShowPermanentDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  Permanent Delete
+                </Button>
+              )}
+            </>
+          )}
         </motion.div>
-      )}
 
-      {/* Close Ticket Confirmation Dialog */}
-      <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Close this ticket?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will mark the ticket as resolved and move it to closed tickets. You can still view it later in the tickets list.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClose}>Close Ticket</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete Ticket Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Move ticket to deleted?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will move the ticket to deleted tickets. Please provide a reason for deletion.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4 space-y-4">
-            <div>
-              <Label htmlFor="deletion-reason-type">Reason for deletion *</Label>
-              <Select value={deletionReasonType} onValueChange={setDeletionReasonType}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select a reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Duplicate ticket">Duplicate ticket</SelectItem>
-                  <SelectItem value="Created by mistake">Created by mistake</SelectItem>
-                  <SelectItem value="Issue not reproducible">Issue not reproducible</SelectItem>
-                  <SelectItem value="Resolved through other means">Resolved through other means</SelectItem>
-                  <SelectItem value="Invalid alert">Invalid alert</SelectItem>
-                  <SelectItem value="Spam or test ticket">Spam or test ticket</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {deletionReasonType === 'Others' && (
-              <div>
-                <Label htmlFor="custom-reason">Please specify *</Label>
-                <Textarea
-                  id="custom-reason"
-                  value={customDeletionReason}
-                  onChange={(e) => setCustomDeletionReason(e.target.value)}
-                  placeholder="Enter your reason for deletion..."
-                  className="mt-2"
-                  rows={3}
-                />
+        {/* Ticket Dates - Bottom Right - Outside Container */}
+        {ticket && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg"
+          >
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>Created: {formatDateTime(ticket.created_at)}</span>
               </div>
-            )}
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              setDeletionReasonType('');
-              setCustomDeletionReason('');
-            }}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Move to Deleted
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-      {/* Permanent Delete Dialog (for deleted tickets only) */}
-      <AlertDialog open={showPermanentDeleteDialog} onOpenChange={setShowPermanentDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Permanently delete this ticket?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The ticket and all its data will be permanently removed from the database.
-              <br /><br />
-              <strong>Please enter the supervisor password to proceed.</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4">
-            <Label htmlFor="delete-password">Password *</Label>
-            <Input
-              id="delete-password"
-              type="password"
-              value={deletePassword}
-              onChange={(e) => setDeletePassword(e.target.value)}
-              placeholder="Enter password"
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              Please get the password from your supervisor if you don't have it.
-            </p>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeletePassword('')}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePermanentDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Permanently Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Close Ticket Confirmation Dialog */}
+        <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Close this ticket?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will mark the ticket as resolved and move it to closed tickets. You can still view it later in the tickets list.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleClose}>Close Ticket</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Ticket Confirmation Dialog */}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Move ticket to deleted?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will move the ticket to deleted tickets. Please provide a reason for deletion.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4 space-y-4">
+              <div>
+                <Label htmlFor="deletion-reason-type">Reason for deletion *</Label>
+                <Select value={deletionReasonType} onValueChange={setDeletionReasonType}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Duplicate ticket">Duplicate ticket</SelectItem>
+                    <SelectItem value="Created by mistake">Created by mistake</SelectItem>
+                    <SelectItem value="Issue not reproducible">Issue not reproducible</SelectItem>
+                    <SelectItem value="Resolved through other means">Resolved through other means</SelectItem>
+                    <SelectItem value="Invalid alert">Invalid alert</SelectItem>
+                    <SelectItem value="Spam or test ticket">Spam or test ticket</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {deletionReasonType === 'Others' && (
+                <div>
+                  <Label htmlFor="custom-reason">Please specify *</Label>
+                  <Textarea
+                    id="custom-reason"
+                    value={customDeletionReason}
+                    onChange={(e) => setCustomDeletionReason(e.target.value)}
+                    placeholder="Enter your reason for deletion..."
+                    className="mt-2"
+                    rows={3}
+                  />
+                </div>
+              )}
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setDeletionReasonType('');
+                setCustomDeletionReason('');
+              }}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Move to Deleted
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Permanent Delete Dialog (for deleted tickets only) */}
+        <AlertDialog open={showPermanentDeleteDialog} onOpenChange={setShowPermanentDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Permanently delete this ticket?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. The ticket and all its data will be permanently removed from the database.
+                <br /><br />
+                <strong>Please enter the supervisor password to proceed.</strong>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <Label htmlFor="delete-password">Password *</Label>
+              <Input
+                id="delete-password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Enter password"
+                className="mt-2"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Please get the password from your supervisor if you don't have it.
+              </p>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeletePassword('')}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handlePermanentDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Permanently Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </>
   );
 }
