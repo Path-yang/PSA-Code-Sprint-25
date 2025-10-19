@@ -23,10 +23,11 @@ Your ticketing system is complete and includes:
 - **Beautiful modern UI** with status badges and responsive design
 
 ### Database
-- **Location**: `my_solution/backend/tickets.db`
-- **Pre-seeded tickets** for judges to see immediately
+- **Location**: `my_solution/backend/tickets.db` (local dev)
+- **Vercel**: Automatically copied to `/tmp/tickets.db` (writable location)
+- **Pre-seeded tickets** restored on every Vercel cold start
 - **Committed to repo** so judges can download and run locally
-- **Works identically** on Vercel and local development
+- **Important**: Vercel tickets reset on cold starts (serverless behavior), but demo tickets always available
 
 ---
 
@@ -111,10 +112,17 @@ Visit `http://localhost:5173` and test ticketing system.
 
 ✅ **Zero setup** - Judges can download and run immediately  
 ✅ **Database included** in repo with demo tickets  
-✅ **Works identically** on Vercel and locally  
+✅ **Works on Vercel** - Automatically handles read-only filesystem  
 ✅ **Self-contained** - No cloud credentials needed  
 ✅ **Portable** - Single `.db` file with all data  
 ✅ **Production-ready** - Full ACID compliance
+
+### Vercel Behavior Note
+On Vercel, the database is copied to `/tmp/tickets.db` on each cold start:
+- **Demo tickets always available** - Restored from committed database file
+- **New tickets persist** during warm function instances (~15 minutes)
+- **Cold start resets** tickets (expected serverless behavior)
+- **For persistent storage**, consider Vercel Postgres (but SQLite is perfect for hackathon demos!)
 
 ### Judges Can:
 1. **Test the live site** at your Vercel URL

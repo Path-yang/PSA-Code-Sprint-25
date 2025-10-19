@@ -6,13 +6,38 @@ Thread-safe, auto-initializing, works on local and Vercel.
 import sqlite3
 import json
 import os
+import shutil
 from datetime import datetime
 from typing import Optional, List, Dict
 from threading import Lock
 
-# Database file location
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "tickets.db")
-SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "db_schema.sql")
+# Database file locations
+_current_dir = os.path.dirname(__file__)
+_source_db = os.path.join(_current_dir, "..", "tickets.db")
+SCHEMA_PATH = os.path.join(_current_dir, "db_schema.sql")
+
+# Detect Vercel environment and use /tmp for writable storage
+def _get_db_path():
+    """Get the appropriate database path for the environment."""
+    # Check if we're on Vercel (read-only filesystem except /tmp)
+    if os.environ.get('VERCEL') or not os.access(os.path.dirname(_source_db), os.W_OK):
+        # Use /tmp on Vercel
+        tmp_db = '/tmp/tickets.db'
+        
+        # Copy source database to /tmp if it doesn't exist or is empty
+        if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) == 0:
+            if os.path.exists(_source_db):
+                print(f"Copying database from {_source_db} to {tmp_db}")
+                shutil.copy2(_source_db, tmp_db)
+            else:
+                print(f"Source database not found, will create new at {tmp_db}")
+        
+        return tmp_db
+    else:
+        # Local development - use the source database directly
+        return _source_db
+
+DB_PATH = _get_db_path()
 
 # Thread lock for database operations
 _db_lock = Lock()
