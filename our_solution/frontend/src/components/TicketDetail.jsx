@@ -346,6 +346,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     displayData?.confidence_assessment || displayData?.confidenceAssessment || null, 
     [displayData]
   );
+  
+  // Ticket display data - must be here before conditional returns
+  const parsedData = useMemo(() => ticket?.diagnosis_data?.parsed || {}, [ticket?.diagnosis_data?.parsed]);
+  const ticketDisplayId = useMemo(() => parsedData.ticket_id || `#${ticket?.ticket_number || ''}`, [parsedData.ticket_id, ticket?.ticket_number]);
 
   if (loading || (saving && !ticket)) {
     return (
@@ -410,9 +414,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </div>
     );
   }
-
-  const parsedData = useMemo(() => ticket?.diagnosis_data?.parsed || {}, [ticket?.diagnosis_data?.parsed]);
-  const ticketDisplayId = useMemo(() => parsedData.ticket_id || `#${ticket?.ticket_number || ''}`, [parsedData.ticket_id, ticket?.ticket_number]);
 
   return (
     <div className="p-6 space-y-6">
