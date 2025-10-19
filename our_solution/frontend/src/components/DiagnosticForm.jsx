@@ -20,6 +20,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button as MovingBorderButton } from './ui/moving-border';
+import { HoverBorderGradient } from './ui/hover-border-gradient';
 import { Button as StatefulButton } from './ui/stateful-button';
 import { diagnoseAlert, createTicket } from '../api.js';
 
@@ -105,20 +106,19 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                 >
-                                    <MovingBorderButton
+                                    <HoverBorderGradient
                                         onClick={handleCreateTicket}
                                         disabled={loading}
-                                        duration={2000}
-                                        borderRadius="0.5rem"
+                                        duration={1}
+                                        clockwise={true}
                                         containerClassName="h-10 w-auto"
-                                        className="bg-primary text-primary-foreground border-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        borderClassName="bg-[radial-gradient(hsl(var(--primary))_40%,transparent_60%)]"
+                                        className="bg-primary text-primary-foreground hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <div className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4" />
                                             Save as Ticket
                                         </div>
-                                    </MovingBorderButton>
+                                    </HoverBorderGradient>
                                 </motion.div>
                             )}
                             {ticketCreated && (
