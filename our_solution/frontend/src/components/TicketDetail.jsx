@@ -127,6 +127,18 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
   }, [ticketId, propTicket, loadTicket]);
 
+  // Set document title based on ticket ID
+  useEffect(() => {
+    if (ticket) {
+      const parsedData = ticket.diagnosis_data?.parsed || {};
+      const ticketDisplayId = parsedData.ticket_id || `#${ticket.ticket_number}`;
+      document.title = `Ticket ${ticketDisplayId} - PSA Diagnostic Assistant`;
+    }
+    return () => {
+      document.title = 'PSA Diagnostic Assistant';
+    };
+  }, [ticket]);
+
   const handleSave = async () => {
     const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
     
@@ -399,6 +411,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     );
   }
 
+  const parsedData = useMemo(() => ticket?.diagnosis_data?.parsed || {}, [ticket?.diagnosis_data?.parsed]);
+  const ticketDisplayId = useMemo(() => parsedData.ticket_id || `#${ticket?.ticket_number || ''}`, [parsedData.ticket_id, ticket?.ticket_number]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -410,12 +425,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           </Button>
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              Ticket #{ticket.ticket_number}
+              Ticket {ticketDisplayId}
               <Badge variant={ticket.status === 'active' ? 'default' : ticket.status === 'closed' ? 'secondary' : 'destructive'}>
                 {ticket.status}
               </Badge>
             </h1>
-            <p className="text-sm text-muted-foreground">View and edit ticket details</p>
           </div>
         </div>
       </div>
