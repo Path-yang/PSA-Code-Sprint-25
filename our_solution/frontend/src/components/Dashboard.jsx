@@ -11,8 +11,6 @@ import {
     Zap,
     ChevronLeft,
     ChevronRight,
-    Moon,
-    Sun,
     ArrowLeft,
     Calendar,
     Clock
@@ -22,8 +20,6 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -63,19 +59,12 @@ export default function Dashboard() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [diagnosis, setDiagnosis] = useState(null);
     const [ticketCreated, setTicketCreated] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        // Check localStorage for saved preference
-        const saved = localStorage.getItem('darkMode');
-        return saved ? JSON.parse(saved) : false;
-    });
 
-    // Apply dark mode on component mount
+    // Force light mode - always remove dark class
     useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.classList.remove('dark');
+        // Clear any saved dark mode preference
+        localStorage.removeItem('darkMode');
     }, []);
 
     const handleViewChange = (view) => {
@@ -121,21 +110,6 @@ export default function Dashboard() {
         setSelectedTicketId(null);
     };
 
-    const toggleDarkMode = () => {
-        const newDarkMode = !isDarkMode;
-        setIsDarkMode(newDarkMode);
-
-        // Save to localStorage
-        localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-
-        // Apply dark mode class to document
-        if (newDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    };
-
     const renderContent = () => {
         switch (activeView) {
             case 'home':
@@ -160,7 +134,7 @@ export default function Dashboard() {
             case 'analytics':
                 return <AnalyticsView />;
             case 'settings':
-                return <SettingsView isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />;
+                return <SettingsView />;
             default:
                 return <LandingPage onNavigate={setActiveView} />;
         }
@@ -635,7 +609,7 @@ function AnalyticsView() {
     );
 }
 
-function SettingsView({ isDarkMode, onToggleDarkMode }) {
+function SettingsView() {
     return (
         <div className="p-6 space-y-6">
             <Card>
@@ -647,32 +621,11 @@ function SettingsView({ isDarkMode, onToggleDarkMode }) {
                     <CardDescription>Configure your diagnostic assistant</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    {/* Dark Mode Toggle */}
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label htmlFor="dark-mode" className="text-base font-medium">
-                                Dark Mode
-                            </Label>
-                            <p className="text-sm text-muted-foreground">
-                                Switch between light and dark themes
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Sun className="w-4 h-4 text-muted-foreground" />
-                            <Switch
-                                id="dark-mode"
-                                checked={isDarkMode}
-                                onCheckedChange={onToggleDarkMode}
-                            />
-                            <Moon className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                    </div>
-
-                    {/* Additional Settings Placeholder */}
-                    <div className="pt-4 border-t">
-                        <h3 className="text-sm font-medium mb-2">Additional Settings</h3>
+                    {/* Settings Placeholder */}
+                    <div>
+                        <h3 className="text-sm font-medium mb-2">Application Settings</h3>
                         <p className="text-sm text-muted-foreground">
-                            More configuration options will be available soon.
+                            Configuration options will be available soon.
                         </p>
                     </div>
                 </CardContent>
