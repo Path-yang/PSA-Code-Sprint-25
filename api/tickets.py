@@ -1,4 +1,6 @@
-"""Vercel serverless function for ticket management."""
+"""Vercel serverless function for ticket management.
+Updated: 2025-10-19 - Added deletion_reason and deleted_at column support
+"""
 
 from http.server import BaseHTTPRequestHandler
 import json
