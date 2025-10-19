@@ -61,7 +61,18 @@ class KnowledgeBaseSearcher:
 
     def search_by_module(self, module: str) -> List[Dict]:
         """Get all articles for a specific module (CNTR, VSL, EDI, API)."""
-        return [article for article in self.articles if article["module"].upper() == module.upper()]
+        # Map common module names to KB prefixes
+        module_map = {
+            'container': 'CNTR',
+            'vessel': 'VSL',
+            'edi': 'EDI',
+            'api': 'API'
+        }
+        
+        # Try to map the module name, otherwise use as-is
+        target_module = module_map.get(module.lower(), module.upper())
+        
+        return [article for article in self.articles if article["module"].upper() == target_module]
 
     def get_article_by_title(self, title: str) -> Dict:
         """Get a specific article by title."""
