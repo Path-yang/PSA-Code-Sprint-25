@@ -80,7 +80,7 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
 
   return (
     <Card
-      className="glass-card cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
+      className="bg-background/50 backdrop-blur-sm border border-border/50 cursor-pointer hover:bg-muted/30 hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
       onClick={() => onSelectTicket(ticket.id)}
     >
       <CardHeader className="pb-3 space-y-2">
@@ -92,9 +92,9 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
         </div>
         <CardTitle className="text-sm font-medium line-clamp-2">
           <Badge variant={
-            priority === 'High' ? 'destructive' : 
-            priority === 'Medium' ? 'warning' : 
-            'success'
+            priority === 'High' ? 'destructive' :
+              priority === 'Medium' ? 'warning' :
+                'success'
           }>
             {priority}
           </Badge>
@@ -104,8 +104,24 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="text-xs text-muted-foreground">
-          {parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            {getChannelIcon(parsedData.channel)}
+            <span>{parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {ticket.status === 'closed' ? (
+              <>
+                <CheckCircle className="w-3 h-3" />
+                <span>{formatDate(ticket.closed_at)}</span>
+              </>
+            ) : (
+              <>
+                <Calendar className="w-3 h-3" />
+                <span>{formatDate(ticket.created_at)}</span>
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -146,9 +162,9 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
         <div className="max-w-md">
           <div className="font-medium">
             <Badge variant={
-              priority === 'High' ? 'destructive' : 
-              priority === 'Medium' ? 'warning' : 
-              'success'
+              priority === 'High' ? 'destructive' :
+                priority === 'Medium' ? 'warning' :
+                  'success'
             }>
               {priority}
             </Badge>
@@ -276,7 +292,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
         // Invalid cache, ignore and fetch normally
       }
     }
-    
+
     // No cache, fetch with loading spinner
     loadAllTickets(true);
   }, [loadAllTickets]);
