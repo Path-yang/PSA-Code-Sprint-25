@@ -134,24 +134,30 @@ export default function Dashboard() {
                 <div className="p-6 border-b border-border">
                     <button
                         onClick={() => setActiveView('home')}
-                        className="flex items-center gap-3 w-full hover:opacity-80 transition-opacity"
+                        className="flex items-center justify-center w-full hover:opacity-80 transition-opacity"
                     >
-                        <div className="w-8 h-8 flex items-center justify-center">
-                            <img 
-                                src="/PSA-Logo.png" 
-                                alt="PSA Logo" 
-                                className="w-8 h-8 object-contain"
-                            />
-                        </div>
-                        {!sidebarCollapsed && (
+                        {sidebarCollapsed ? (
+                            <div className="w-8 h-8 flex items-center justify-center">
+                                <img 
+                                    src="/PSA-Logo.png" 
+                                    alt="PSA Logo" 
+                                    className="w-8 h-8 object-contain"
+                                />
+                            </div>
+                        ) : (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
-                                className="flex flex-col"
+                                className="flex flex-col items-center w-full"
                             >
-                                <h1 className="text-lg font-semibold whitespace-nowrap text-left">L2 Diagnostic Assistant</h1>
+                                <img 
+                                    src="/PSA-Logo.png" 
+                                    alt="PSA Logo" 
+                                    className="h-12 w-auto object-contain"
+                                />
+                                <p className="text-xs text-muted-foreground mt-2">L2 Diagnostic Assistant</p>
                             </motion.div>
                         )}
                     </button>
