@@ -13,7 +13,8 @@ import {
     ChevronRight,
     ArrowLeft,
     Calendar,
-    Clock
+    Clock,
+    Loader2
 } from 'lucide-react';
 import LandingPage from './LandingPage';
 import { Button } from './ui/button';
@@ -59,6 +60,7 @@ export default function Dashboard() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [diagnosis, setDiagnosis] = useState(null);
     const [ticketCreated, setTicketCreated] = useState(false);
+    const [isSavingTicket, setIsSavingTicket] = useState(false);
 
     // Force light mode - always remove dark class
     useEffect(() => {
@@ -73,8 +75,9 @@ export default function Dashboard() {
     };
 
     const handleCreateTicket = async () => {
-        if (!diagnosis) return;
+        if (!diagnosis || isSavingTicket) return;
 
+        setIsSavingTicket(true);
         try {
             // Get the alert text from the diagnosis or use a default
             const alertText = diagnosis.parsed?.alert_type || 'Diagnostic Alert';
@@ -84,6 +87,8 @@ export default function Dashboard() {
         } catch (error) {
             toast.error('Failed to create ticket');
             console.error('Ticket creation error:', error);
+        } finally {
+            setIsSavingTicket(false);
         }
     };
 
@@ -297,15 +302,19 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2">
                             {activeView === 'diagnose' && diagnosis && !ticketCreated && (
                                 <HoverBorderGradient
-                                    onClick={handleCreateTicket}
+                                    onClick={isSavingTicket ? undefined : handleCreateTicket}
                                     duration={1}
                                     clockwise={true}
                                     containerClassName="h-10 w-auto"
-                                    className="bg-primary text-primary-foreground"
+                                    className={`bg-primary text-primary-foreground ${isSavingTicket ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4" />
-                                        Save as Ticket
+                                        {isSavingTicket ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <CheckCircle className="w-4 h-4" />
+                                        )}
+                                        {isSavingTicket ? 'Saving...' : 'Save as Ticket'}
                                     </div>
                                 </HoverBorderGradient>
                             )}
