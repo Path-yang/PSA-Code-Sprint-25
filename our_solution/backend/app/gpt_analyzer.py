@@ -122,6 +122,11 @@ class GPTAnalyzer:
         
         Uses actual data objects to calculate accurate confidence percentages.
         """
+        print(f"DEBUG generate_confidence_assessment called:")
+        print(f"  - log_evidence: {len(log_evidence) if log_evidence else 0} items")
+        print(f"  - similar_cases: {len(similar_cases) if similar_cases else 0} items")
+        print(f"  - kb_articles: {len(kb_articles) if kb_articles else 0} items")
+        
         # Calculate individual component percentages
         log_percentage = 0
         case_percentage = 0
@@ -145,32 +150,40 @@ class GPTAnalyzer:
         if similar_cases and len(similar_cases) > 0:
             # Use the best match's relevance score
             best_relevance = similar_cases[0].get('relevance_score', 0)
+            print(f"  DEBUG: best_relevance for cases = {best_relevance}")
             if best_relevance > 0:
                 case_percentage = int(best_relevance * 100)  # Convert 0.0-1.0 to 0-100%
+                print(f"  DEBUG: case_percentage set to {case_percentage}% (keyword match)")
             else:
                 # Fallback case: has cases but no relevance score (module-based search)
                 # GPT is still using these, so give moderate confidence
                 case_percentage = 40
+                print(f"  DEBUG: case_percentage set to 40% (module fallback)")
         
         # Factor 3: Knowledge Base (0-100%)
         if kb_articles and len(kb_articles) > 0:
             # Check if this is a keyword match (has relevance_score) or module fallback (no relevance_score)
             best_kb_relevance = kb_articles[0].get('relevance_score', 0)
+            print(f"  DEBUG: best_kb_relevance = {best_kb_relevance}")
             
             # Check if KB has resolution procedures
             has_resolution = any('Resolution' in article.get('content', '') or 'Verification' in article.get('content', '') 
                                for article in kb_articles[:3])
+            print(f"  DEBUG: has_resolution = {has_resolution}")
             
             if best_kb_relevance > 0:
                 # Keyword match - use actual relevance score
                 kb_percentage = int(best_kb_relevance * 100)
+                print(f"  DEBUG: kb_percentage set to {kb_percentage}% (keyword match)")
             elif has_resolution:
                 # Module fallback with resolution procedures - moderate confidence
                 # GPT IS using this content, so it should be reflected
                 kb_percentage = 50
+                print(f"  DEBUG: kb_percentage set to 50% (module fallback with resolution)")
             else:
                 # Module fallback without specific resolution - lower confidence
                 kb_percentage = 30
+                print(f"  DEBUG: kb_percentage set to 30% (module fallback without resolution)")
         
         # Factor 4: Specific Identifiers (0-100%)
         identifiers_found = 0

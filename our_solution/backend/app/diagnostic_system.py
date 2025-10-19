@@ -95,6 +95,7 @@ class L2DiagnosticSystem:
             print(f"   ✓ Found {len(similar_cases)} similar past cases")
             if similar_cases:
                 print(f"   ✓ Best match: {similar_cases[0].get('relevance_score', 0):.0%} relevance")
+            print(f"   DEBUG: similar_cases has {len(similar_cases)} items")
 
         # Step 3: Search logs (targeted based on case hints if available)
         if verbose:
@@ -121,6 +122,8 @@ class L2DiagnosticSystem:
 
         if verbose:
             print(f"   ✓ Found {len(kb_articles)} relevant KB articles")
+            if kb_articles:
+                print(f"   DEBUG: First KB article has relevance_score: {kb_articles[0].get('relevance_score', 'NONE')}")
 
         # Step 5: Root cause analysis using GPT
         if verbose:
@@ -187,6 +190,16 @@ class L2DiagnosticSystem:
         if verbose:
             print("📊 Step 8: Generating confidence assessment...")
 
+        if verbose:
+            print(f"   DEBUG: Passing to confidence assessment:")
+            print(f"     - log_evidence: {len(log_evidence)} items")
+            print(f"     - similar_cases: {len(similar_cases)} items")
+            print(f"     - kb_articles: {len(kb_articles)} items")
+            if similar_cases:
+                print(f"     - First case relevance: {similar_cases[0].get('relevance_score', 'NONE')}")
+            if kb_articles:
+                print(f"     - First KB relevance: {kb_articles[0].get('relevance_score', 'NONE')}")
+        
         confidence_assessment = self.gpt_analyzer.generate_confidence_assessment(
             log_evidence=log_evidence,
             similar_cases=similar_cases,
