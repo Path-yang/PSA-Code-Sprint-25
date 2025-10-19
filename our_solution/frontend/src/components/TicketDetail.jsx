@@ -314,14 +314,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     );
   }
 
-  const displayData = useMemo(() => 
-    ticket.edited_diagnosis || ticket.diagnosis_data, 
+  const displayData = useMemo(() =>
+    ticket.edited_diagnosis || ticket.diagnosis_data,
     [ticket.edited_diagnosis, ticket.diagnosis_data]
   );
-  
+
   const parsed = useMemo(() => displayData?.parsed || {}, [displayData]);
   const rootCause = useMemo(() => displayData?.rootCause || {}, [displayData]);
   const resolution = useMemo(() => displayData?.resolution || {}, [displayData]);
+  const confidenceAssessment = useMemo(() => displayData?.confidence_assessment || displayData?.confidenceAssessment || null, [displayData]);
 
   return (
     <div className="p-6 space-y-6">
@@ -621,27 +622,27 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {ticket.confidence_assessment ? (
+                  {confidenceAssessment ? (
                     <div className="space-y-6">
                       {/* Overall Score */}
                       <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                         <div>
                           <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                          <p className="text-3xl font-bold mt-1">{ticket.confidence_assessment.overall_score}%</p>
+                          <p className="text-3xl font-bold mt-1">{confidenceAssessment.overall_score}%</p>
                         </div>
                         <div className="text-right">
                           <Badge
                             variant={
-                              ticket.confidence_assessment.overall_score >= 70 ? "default" :
-                                ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
+                              confidenceAssessment.overall_score >= 70 ? "default" :
+                                confidenceAssessment.overall_score >= 50 ? "secondary" :
                                   "destructive"
                             }
                             className="text-sm"
                           >
-                            {ticket.confidence_assessment.interpretation.recommendation}
+                            {confidenceAssessment.interpretation.recommendation}
                           </Badge>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {ticket.confidence_assessment.interpretation.recommendation_detail}
+                            {confidenceAssessment.interpretation.recommendation_detail}
                           </p>
                         </div>
                       </div>
@@ -658,15 +659,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                               <Label className="text-sm font-medium">Application Logs</Label>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0}%
+                                  {confidenceAssessment.breakdown.log_evidence?.percentage || 0}%
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {ticket.confidence_assessment.breakdown.log_evidence?.status || 'none'}
+                                  {confidenceAssessment.breakdown.log_evidence?.status || 'none'}
                                 </Badge>
                               </div>
                             </div>
                             <Progress
-                              value={ticket.confidence_assessment.breakdown.log_evidence.percentage}
+                              value={confidenceAssessment.breakdown.log_evidence.percentage}
                               className="h-2"
                             />
                           </div>
@@ -677,15 +678,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                               <Label className="text-sm font-medium">Similar Past Cases</Label>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {ticket.confidence_assessment.breakdown.past_cases?.percentage || 0}%
+                                  {confidenceAssessment.breakdown.past_cases?.percentage || 0}%
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {ticket.confidence_assessment.breakdown.past_cases?.status || 'none'}
+                                  {confidenceAssessment.breakdown.past_cases?.status || 'none'}
                                 </Badge>
                               </div>
                             </div>
                             <Progress
-                              value={ticket.confidence_assessment.breakdown.past_cases.percentage}
+                              value={confidenceAssessment.breakdown.past_cases.percentage}
                               className="h-2"
                             />
                           </div>
@@ -696,15 +697,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                               <Label className="text-sm font-medium">Knowledge Base</Label>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0}%
+                                  {confidenceAssessment.breakdown.knowledge_base?.percentage || 0}%
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {ticket.confidence_assessment.breakdown.knowledge_base?.status || 'none'}
+                                  {confidenceAssessment.breakdown.knowledge_base?.status || 'none'}
                                 </Badge>
                               </div>
                             </div>
                             <Progress
-                              value={ticket.confidence_assessment.breakdown.knowledge_base.percentage}
+                              value={confidenceAssessment.breakdown.knowledge_base.percentage}
                               className="h-2"
                             />
                           </div>
@@ -715,15 +716,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                               <Label className="text-sm font-medium">Specific Identifiers</Label>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {ticket.confidence_assessment.breakdown.identifiers?.percentage || 0}%
+                                  {confidenceAssessment.breakdown.identifiers?.percentage || 0}%
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {ticket.confidence_assessment.breakdown.identifiers?.status || 'none'}
+                                  {confidenceAssessment.breakdown.identifiers?.status || 'none'}
                                 </Badge>
                               </div>
                             </div>
                             <Progress
-                              value={ticket.confidence_assessment.breakdown.identifiers.percentage}
+                              value={confidenceAssessment.breakdown.identifiers.percentage}
                               className="h-2"
                             />
                           </div>
@@ -734,15 +735,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                               <Label className="text-sm font-medium">Evidence Quality</Label>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0}%
+                                  {confidenceAssessment.breakdown.evidence_quality?.percentage || 0}%
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {ticket.confidence_assessment.breakdown.evidence_quality?.status || 'none'}
+                                  {confidenceAssessment.breakdown.evidence_quality?.status || 'none'}
                                 </Badge>
                               </div>
                             </div>
                             <Progress
-                              value={ticket.confidence_assessment.breakdown.evidence_quality.percentage}
+                              value={confidenceAssessment.breakdown.evidence_quality.percentage}
                               className="h-2"
                             />
                           </div>
@@ -761,16 +762,16 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                             <Label className="text-sm font-medium">Diagnosis Confidence</Label>
                             <Badge
                               variant={
-                                ticket.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                  ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                                  confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
                                     "destructive"
                               }
                             >
-                              {ticket.confidence_assessment.interpretation.diagnosis_confidence}
+                              {confidenceAssessment.interpretation.diagnosis_confidence}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {ticket.confidence_assessment.interpretation.diagnosis_explanation}
+                            {confidenceAssessment.interpretation.diagnosis_explanation}
                           </p>
                         </div>
 
@@ -780,16 +781,16 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                             <Label className="text-sm font-medium">Solution Confidence</Label>
                             <Badge
                               variant={
-                                ticket.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                  ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                                  confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
                                     "destructive"
                               }
                             >
-                              {ticket.confidence_assessment.interpretation.solution_confidence}
+                              {confidenceAssessment.interpretation.solution_confidence}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {ticket.confidence_assessment.interpretation.solution_explanation}
+                            {confidenceAssessment.interpretation.solution_explanation}
                           </p>
                         </div>
                       </div>
