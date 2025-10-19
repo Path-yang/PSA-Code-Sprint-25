@@ -66,21 +66,22 @@ function getChannelIcon(channel) {
 
 export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [activeTab, setActiveTab] = useState('active');
-  const [tickets, setTickets] = useState([]);
+  const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    loadTickets();
-  }, [activeTab]);
+    loadAllTickets();
+  }, []);
 
-  const loadTickets = async () => {
+  const loadAllTickets = async () => {
     setLoading(true);
     setError('');
     try {
-      const fetchedTickets = await listTickets(activeTab);
-      setTickets(fetchedTickets);
+      // Load all tickets (no status filter)
+      const fetchedTickets = await listTickets();
+      setAllTickets(fetchedTickets);
     } catch (err) {
       setError(err.message || 'Failed to load tickets');
     } finally {
@@ -88,7 +89,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
     }
   };
 
-  const filteredTickets = tickets.filter(ticket =>
+  // Filter tickets by active tab and search query
+  const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
+  const filteredTickets = ticketsForCurrentTab.filter(ticket =>
     ticket.alert_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
     ticket.id.toString().includes(searchQuery) ||
     (ticket.diagnosis_data?.parsed?.ticket_id || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -125,14 +128,14 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
             <AlertCircle className="w-4 h-4" />
             Active Tickets
             <Badge variant="secondary" className="ml-2">
-              {tickets.filter(t => t.status === 'active').length}
+              {allTickets.filter(t => t.status === 'active').length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="closed" className="gap-2">
             <CheckCircle className="w-4 h-4" />
             Closed Tickets
             <Badge variant="secondary" className="ml-2">
-              {tickets.filter(t => t.status === 'closed').length}
+              {allTickets.filter(t => t.status === 'closed').length}
             </Badge>
           </TabsTrigger>
         </TabsList>

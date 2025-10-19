@@ -2,6 +2,7 @@
   "name": "psa-diagnostic-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "cross-env ROLLUP_SKIP_NODE_NATIVE=true vite build",
