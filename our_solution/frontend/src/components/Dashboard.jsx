@@ -197,7 +197,8 @@ export default function Dashboard() {
                 <nav className="flex-1 p-4 space-y-1">
                     {sidebarItems.map((item, index) => {
                         const Icon = item.icon;
-                        const isActive = activeView === item.id;
+                        // Highlight 'tickets' nav when viewing ticket detail
+                        const isActive = activeView === item.id || (activeView === 'ticket-detail' && item.id === 'tickets');
 
                         return (
                             <div key={item.id}>
