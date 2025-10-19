@@ -19,7 +19,8 @@ import { Separator } from './ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { MovingBorder } from './ui/moving-border';
+import { Button as MovingBorderButton } from './ui/moving-border';
+import { Button as StatefulButton } from './ui/stateful-button';
 import { diagnoseAlert, createTicket } from '../api.js';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:
@@ -104,19 +105,20 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                 >
-                                    <MovingBorder
+                                    <MovingBorderButton
+                                        onClick={handleCreateTicket}
+                                        disabled={loading}
                                         duration={2000}
-                                        className="bg-primary text-primary-foreground"
+                                        borderRadius="0.5rem"
+                                        containerClassName="h-10 w-auto"
+                                        className="bg-primary text-primary-foreground border-primary/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        borderClassName="bg-[radial-gradient(hsl(var(--primary))_40%,transparent_60%)]"
                                     >
-                                        <button
-                                            onClick={handleCreateTicket}
-                                            disabled={loading}
-                                            className="group relative inline-flex h-10 items-center justify-center gap-2 px-6 font-medium transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
+                                        <div className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4" />
                                             Save as Ticket
-                                        </button>
-                                    </MovingBorder>
+                                        </div>
+                                    </MovingBorderButton>
                                 </motion.div>
                             )}
                             {ticketCreated && (
@@ -145,19 +147,17 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 />
                             </div>
 
-                            <Button type="submit" disabled={loading} className="w-full">
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Running diagnostics...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Zap className="w-4 h-4 mr-2" />
-                                        Run Diagnostics
-                                    </>
-                                )}
-                            </Button>
+                            <StatefulButton
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                                onClick={handleSubmit}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Zap className="w-4 h-4" />
+                                    Run Diagnostics
+                                </div>
+                            </StatefulButton>
 
                             {error && (
                                 <motion.div
