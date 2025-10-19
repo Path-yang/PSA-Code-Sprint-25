@@ -94,6 +94,7 @@ export default function Dashboard() {
 
     const handleTicketSelect = async (ticketId) => {
         setSelectedTicketId(ticketId);
+        setSelectedTicket(null); // Clear old ticket data to prevent showing wrong ID during loading
         setActiveView('ticket-detail');
         try {
             const ticket = await getTicket(ticketId);
@@ -267,7 +268,10 @@ export default function Dashboard() {
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-xl font-semibold capitalize">
                                         {activeView === 'home' ? 'Welcome' :
-                                            activeView === 'ticket-detail' ? `Ticket ${selectedTicket?.diagnosis_data?.parsed?.ticket_id || `#${selectedTicket?.ticket_number || selectedTicketId}`}` :
+                                            activeView === 'ticket-detail' ? 
+                                                (selectedTicket?.diagnosis_data?.parsed?.ticket_id 
+                                                    ? `Ticket ${selectedTicket.diagnosis_data.parsed.ticket_id}` 
+                                                    : 'Ticket Details') :
                                                 activeView.replace('-', ' ')}
                                     </h2>
                                     {activeView === 'ticket-detail' && selectedTicket && (
