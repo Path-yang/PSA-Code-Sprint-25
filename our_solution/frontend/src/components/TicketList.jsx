@@ -71,65 +71,40 @@ function getChannelIcon(channel) {
   }
 }
 
-function renderTicketCard(ticket, index, onSelectTicket) {
+const TicketCard = memo(({ ticket, onSelectTicket }) => {
   const parsedData = ticket.diagnosis_data?.parsed || {};
   const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
 
   return (
-    <div key={ticket.id} className="h-full">
-      <Card
-        className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col"
-        onClick={() => onSelectTicket(ticket.id)}
-      >
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Ticket className="w-4 h-4 text-foreground" />
-              <span className="font-mono text-sm font-medium">#{ticket.id}</span>
-            </div>
-            <Badge
-              variant={ticket.status === 'active' ? 'default' : 'secondary'}
-              className="gap-1"
-            >
-              {ticket.status === 'active' ? (
-                <AlertCircle className="w-3 h-3" />
-              ) : (
-                <CheckCircle className="w-3 h-3" />
-              )}
-              {ticket.status}
-            </Badge>
-          </div>
-          <CardTitle className="text-sm font-medium line-clamp-2 min-h-[2.5rem]">
-            {parsedData.alert_type || 'Unknown Alert'}
-          </CardTitle>
-          <CardDescription className="text-xs line-clamp-2 min-h-[2rem]">
-            {alertSummary}...
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0 flex-1">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {getChannelIcon(parsedData.channel)}
-              <span>{parsedData.channel || 'Unknown'}</span>
-              <span>•</span>
-              <Clock className="w-3 h-3" />
-              <span>{formatDuration(ticket.created_at, ticket.closed_at)}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="w-3 h-3" />
-              <span>Opened: {formatDate(ticket.created_at)}</span>
-            </div>
-            {ticket.status === 'closed' && ticket.closed_at && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <CheckCircle className="w-3 h-3" />
-                <span>Closed: {formatDate(ticket.closed_at)}</span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card
+      className="glass-card cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
+      onClick={() => onSelectTicket(ticket.id)}
+    >
+      <CardHeader className="pb-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-sm font-medium">#{ticket.id}</span>
+          <Badge variant={ticket.status === 'active' ? 'default' : 'secondary'}>
+            {ticket.status}
+          </Badge>
+        </div>
+        <CardTitle className="text-sm font-medium line-clamp-2">
+          {parsedData.alert_type || 'Unknown Alert'}
+        </CardTitle>
+        <CardDescription className="text-xs line-clamp-2">
+          {alertSummary}...
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="text-xs text-muted-foreground">
+          {parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}
+        </div>
+      </CardContent>
+    </Card>
   );
+});
+
+function renderTicketCard(ticket, index, onSelectTicket) {
+  return <TicketCard key={ticket.id} ticket={ticket} onSelectTicket={onSelectTicket} />;
 }
 
 function renderTicketTableRow(ticket, index, onSelectTicket) {
@@ -227,28 +202,47 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
-
-  useEffect(() => {
-    loadAllTickets();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('ticketViewMode', viewMode);
-  }, [viewMode]);
-
-  const loadAllTickets = useCallback(async () => {
-    setLoading(true);
+  const loadAllTickets = useCallback(async (showLoadingSpinner = true) => {
+    if (showLoadingSpinner) {
+      setLoading(true);
+    }
     setError('');
     try {
       // Load all tickets (no status filter)
       const fetchedTickets = await listTickets();
       setAllTickets(fetchedTickets);
+      // Cache for next time
+      sessionStorage.setItem('cachedTickets', JSON.stringify(fetchedTickets));
     } catch (err) {
       setError(err.message || 'Failed to load tickets');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Cache tickets in sessionStorage for instant loading
+  useEffect(() => {
+    // Try to load from cache immediately
+    const cachedTickets = sessionStorage.getItem('cachedTickets');
+    if (cachedTickets) {
+      try {
+        const parsed = JSON.parse(cachedTickets);
+        setAllTickets(parsed);
+        // Don't show loading spinner since we have cached data
+        loadAllTickets(false);
+        return;
+      } catch (e) {
+        // Invalid cache, ignore and fetch normally
+      }
+    }
+    
+    // No cache, fetch with loading spinner
+    loadAllTickets(true);
+  }, [loadAllTickets]);
+
+  useEffect(() => {
+    localStorage.setItem('ticketViewMode', viewMode);
+  }, [viewMode]);
 
   // Memoize filtered tickets for better performance
   const filteredTickets = useMemo(() => {
