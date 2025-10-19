@@ -328,7 +328,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                         </Card>
 
                         {/* Confidence Assessment */}
-                        {diagnosis.confidenceAssessment && (
+                        {diagnosis.confidenceAssessment && diagnosis.confidenceAssessment.overall_score !== undefined && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -356,10 +356,10 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                     }
                                                     className="text-sm"
                                                 >
-                                                    {diagnosis.confidenceAssessment.interpretation.recommendation}
+                                                    {diagnosis.confidenceAssessment.interpretation?.recommendation || 'N/A'}
                                                 </Badge>
                                                 <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                                                    {diagnosis.confidenceAssessment.interpretation.recommendation_detail}
+                                                    {diagnosis.confidenceAssessment.interpretation?.recommendation_detail || ''}
                                                 </p>
                                             </div>
                                         </div>
@@ -367,6 +367,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                         <Separator />
 
                                         {/* Evidence Breakdown */}
+                                        {diagnosis.confidenceAssessment.breakdown && (
                                         <div>
                                             <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
                                             <div className="space-y-4">
@@ -471,10 +472,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                 </div>
                                             </div>
                                         </div>
+                                        )}
 
                                         <Separator />
 
                                         {/* Interpretation */}
+                                        {diagnosis.confidenceAssessment.interpretation && (
                                         <div className="space-y-4">
                                             <Label className="text-base font-semibold block">Interpretation</Label>
                                             
@@ -516,6 +519,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                 </p>
                                             </div>
                                         </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
