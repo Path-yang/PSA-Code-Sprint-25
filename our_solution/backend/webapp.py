@@ -17,17 +17,17 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from app.config import AZURE_OPENAI_API_KEY
-from app.diagnostic_system import L2DiagnosticSystem
+from app.diagnostic_system_optimized import L2DiagnosticSystemOptimized
 from app import database
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-_system: Optional[L2DiagnosticSystem] = None
+_system: Optional[L2DiagnosticSystemOptimized] = None
 
 
-def get_system() -> L2DiagnosticSystem:
-    """Lazily instantiate the diagnostic system."""
+def get_system() -> L2DiagnosticSystemOptimized:
+    """Lazily instantiate the optimized diagnostic system."""
     global _system
     if AZURE_OPENAI_API_KEY is None:
         raise RuntimeError(
@@ -36,7 +36,7 @@ def get_system() -> L2DiagnosticSystem:
         )
 
     if _system is None:
-        _system = L2DiagnosticSystem()
+        _system = L2DiagnosticSystemOptimized()
     return _system
 
 
