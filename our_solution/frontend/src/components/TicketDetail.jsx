@@ -1,4 +1,35 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowLeft,
+  Edit,
+  Save,
+  X,
+  Trash2,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  Calendar,
+  User,
+  Tag,
+  Phone,
+  Mail,
+  MessageSquare,
+  FileText,
+  Settings,
+  Plus,
+  Minus
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Textarea } from './ui/textarea';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Separator } from './ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import { Skeleton } from './ui/skeleton';
 import { getTicket, updateTicket, closeTicket, deleteTicket } from '../api.js';
 
 function formatDateTime(dateString) {
@@ -11,6 +42,15 @@ function formatDateTime(dateString) {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function getChannelIcon(channel) {
+  switch (channel) {
+    case 'Email': return <Mail className="w-4 h-4" />;
+    case 'SMS': return <MessageSquare className="w-4 h-4" />;
+    case 'Phone': return <Phone className="w-4 h-4" />;
+    default: return <FileText className="w-4 h-4" />;
+  }
 }
 
 export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
@@ -39,7 +79,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     try {
       const fetchedTicket = await getTicket(ticketId);
       setTicket(fetchedTicket);
-      
+
       // Initialize edit fields
       const diagnosis = fetchedTicket.edited_diagnosis || fetchedTicket.diagnosis_data;
       setEditedRootCause(diagnosis.rootCause?.root_cause || '');
@@ -63,7 +103,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     setError('');
     try {
       const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-      
+
       const editedDiagnosis = {
         ...diagnosis,
         rootCause: {
@@ -85,7 +125,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
       setTicket(updated);
       setIsEditing(false);
-      if (onTicketUpdated) onTicketUpdated();
+      onTicketUpdated?.();
     } catch (err) {
       setError(err.message || 'Failed to save changes');
     } finally {
@@ -95,12 +135,12 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
   const handleClose = async () => {
     if (!confirm('Close this ticket? This will mark it as resolved.')) return;
-    
+
     setSaving(true);
     setError('');
     try {
       await closeTicket(ticketId);
-      if (onTicketUpdated) onTicketUpdated();
+      onTicketUpdated?.();
       onBack();
     } catch (err) {
       setError(err.message || 'Failed to close ticket');
@@ -110,12 +150,12 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
   const handleDelete = async () => {
     if (!confirm('Delete this ticket permanently? This cannot be undone.')) return;
-    
+
     setSaving(true);
     setError('');
     try {
       await deleteTicket(ticketId);
-      if (onTicketUpdated) onTicketUpdated();
+      onTicketUpdated?.();
       onBack();
     } catch (err) {
       setError(err.message || 'Failed to delete ticket');
@@ -139,31 +179,81 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
   if (loading) {
     return (
-      <div className="ticket-detail">
-        <button onClick={onBack} className="back-button">← Back to List</button>
-        <div className="loading">Loading ticket...</div>
-      </div>
-    );
-  }
-  
-  if (error && !ticket) {
-    return (
-      <div className="ticket-detail">
-        <button onClick={onBack} className="back-button">← Back to List</button>
-        <div className="error">
-          <h2>Error Loading Ticket</h2>
-          <p>{error}</p>
-          <p>This ticket may have been deleted or there was a database error.</p>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-24" />
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
   }
-  
+
+  if (error && !ticket) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onBack} className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to List
+          </Button>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Error Loading Ticket
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              This ticket may have been deleted or there was a database error.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   if (!ticket) {
     return (
-      <div className="ticket-detail">
-        <button onClick={onBack} className="back-button">← Back to List</button>
-        <div className="error">Ticket not found</div>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onBack} className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to List
+          </Button>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Ticket Not Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              The requested ticket could not be found. It may have been deleted or the ID is invalid.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -174,206 +264,445 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   const resolution = displayData.resolution || {};
 
   return (
-    <div className="ticket-detail">
-      <div className="ticket-detail-header">
-        <button onClick={onBack} className="back-button">
-          ← Back to List
-        </button>
-        <div className="ticket-title">
-          <h1>Ticket #{ticket.ticket_number || ticket.id}</h1>
-          <span className={`status-badge ${ticket.status}`}>{ticket.status}</span>
-        </div>
-      </div>
-
-      {error && <p className="error">{error}</p>}
-
-      {/* Ticket Info */}
-      <section className="card">
-        <h2>Ticket Information</h2>
-        <div className="info-grid">
-          <div className="info-item">
-            <strong>Created:</strong> {formatDateTime(ticket.created_at)}
-          </div>
-          <div className="info-item">
-            <strong>Last Updated:</strong> {formatDateTime(ticket.updated_at)}
-          </div>
-          {ticket.closed_at && (
-            <div className="info-item">
-              <strong>Closed:</strong> {formatDateTime(ticket.closed_at)}
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to List
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">Ticket #{ticket.id}</h1>
+              <Badge
+                variant={ticket.status === 'active' ? 'default' : 'secondary'}
+                className="gap-1"
+              >
+                {ticket.status === 'active' ? (
+                  <AlertTriangle className="w-3 h-3" />
+                ) : (
+                  <CheckCircle className="w-3 h-3" />
+                )}
+                {ticket.status}
+              </Badge>
             </div>
+            <p className="text-muted-foreground">View and manage ticket details</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          {ticket.status === 'active' && (
+            <Button
+              variant="outline"
+              onClick={() => setIsEditing(!isEditing)}
+              className="gap-2"
+            >
+              {isEditing ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+              {isEditing ? 'Cancel' : 'Edit'}
+            </Button>
           )}
         </div>
-      </section>
+      </motion.div>
 
-      {/* Alert Text */}
-      <section className="card">
-        <h2>Original Alert</h2>
-        <pre className="alert-text">{ticket.alert_text}</pre>
-      </section>
-
-      {/* Parsed Info */}
-      {parsed && Object.keys(parsed).length > 0 && (
-        <section className="card">
-          <h2>Parsed Information</h2>
-          <div className="info-grid">
-            {parsed.ticket_id && <div className="info-item"><strong>Ticket ID:</strong> {parsed.ticket_id}</div>}
-            {parsed.module && <div className="info-item"><strong>Module:</strong> {parsed.module}</div>}
-            {parsed.entity_id && <div className="info-item"><strong>Entity:</strong> {parsed.entity_id}</div>}
-            {parsed.channel && <div className="info-item"><strong>Channel:</strong> {parsed.channel}</div>}
-            {parsed.priority && <div className="info-item"><strong>Priority:</strong> {parsed.priority}</div>}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+        >
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="w-4 h-4" />
+            {error}
           </div>
-        </section>
+        </motion.div>
       )}
 
-      {/* Root Cause */}
-      <section className="card">
-        <div className="section-header">
-          <h2>Root Cause Analysis</h2>
-          {!isEditing && ticket.status === 'active' && (
-            <button onClick={() => setIsEditing(true)} className="edit-button">
-              Edit
-            </button>
-          )}
-        </div>
-        {isEditing ? (
-          <>
-            <label htmlFor="root-cause">Root Cause</label>
-            <textarea
-              id="root-cause"
-              value={editedRootCause}
-              onChange={(e) => setEditedRootCause(e.target.value)}
-            />
-            <label htmlFor="technical-details">Technical Details</label>
-            <textarea
-              id="technical-details"
-              value={editedTechnicalDetails}
-              onChange={(e) => setEditedTechnicalDetails(e.target.value)}
-            />
-          </>
-        ) : (
-          <>
-            <p><strong>Root Cause:</strong> {rootCause.root_cause}</p>
-            <p className="muted">{rootCause.technical_details}</p>
-            {rootCause.confidence && <p><strong>Confidence:</strong> {rootCause.confidence}%</p>}
-          </>
-        )}
-      </section>
+      {/* Main Content */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="diagnosis">Diagnosis</TabsTrigger>
+          <TabsTrigger value="resolution">Resolution</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
 
-      {/* Resolution */}
-      <section className="card">
-        <h2>Resolution Plan</h2>
-        {isEditing ? (
-          <>
-            <label htmlFor="resolution-steps">Resolution Steps (one per line)</label>
-            <textarea
-              id="resolution-steps"
-              value={editedResolutionSteps}
-              onChange={(e) => setEditedResolutionSteps(e.target.value)}
-              rows="6"
-            />
-          </>
-        ) : (
-          <>
-            {resolution.estimated_time && <p><strong>Estimated Time:</strong> {resolution.estimated_time}</p>}
-            {resolution.escalate && (
-              <p className="warning">
-                <strong>Escalation Required:</strong> {resolution.escalate_to || 'L3 Team'}
-              </p>
-            )}
-            {resolution.resolution_steps && resolution.resolution_steps.length > 0 && (
-              <>
-                <h3>Steps:</h3>
-                <ol>
-                  {resolution.resolution_steps.map((step, i) => (
-                    <li key={i}>{step}</li>
-                  ))}
-                </ol>
-              </>
-            )}
-          </>
-        )}
-      </section>
-
-      {/* Notes */}
-      <section className="card">
-        <h2>Notes</h2>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add notes about this ticket..."
-          rows="4"
-        />
-      </section>
-
-      {/* Custom Fields */}
-      <section className="card">
-        <h2>Custom Fields</h2>
-        {Object.keys(customFields).length > 0 && (
-          <div className="custom-fields-list">
-            {Object.entries(customFields).map(([key, value]) => (
-              <div key={key} className="custom-field-item">
-                <strong>{key}:</strong> {value}
-                <button
-                  onClick={() => removeCustomField(key)}
-                  className="remove-field-button"
-                  title="Remove field"
-                >
-                  ×
-                </button>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Ticket Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Ticket Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-muted-foreground">Created</Label>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{formatDateTime(ticket.created_at)}</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-muted-foreground">Last Updated</Label>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">{formatDateTime(ticket.updated_at)}</span>
+                  </div>
+                </div>
+                {ticket.closed_at && (
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium text-muted-foreground">Closed</Label>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">{formatDateTime(ticket.closed_at)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
-        <div className="custom-field-input">
-          <input
-            type="text"
-            placeholder="Field name"
-            value={newFieldKey}
-            onChange={(e) => setNewFieldKey(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Field value"
-            value={newFieldValue}
-            onChange={(e) => setNewFieldValue(e.target.value)}
-          />
-          <button onClick={addCustomField}>Add Field</button>
-        </div>
-      </section>
+            </CardContent>
+          </Card>
+
+          {/* Parsed Information */}
+          {parsed && Object.keys(parsed).length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tag className="w-5 h-5" />
+                  Parsed Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {parsed.ticket_id && (
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
+                      <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
+                    </div>
+                  )}
+                  {parsed.module && (
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-muted-foreground">Module</Label>
+                      <Badge variant="outline">{parsed.module}</Badge>
+                    </div>
+                  )}
+                  {parsed.entity_id && (
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-muted-foreground">Entity</Label>
+                      <Badge variant="outline">{parsed.entity_id}</Badge>
+                    </div>
+                  )}
+                  {parsed.channel && (
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-muted-foreground">Channel</Label>
+                      <Badge variant="outline" className="gap-1">
+                        {getChannelIcon(parsed.channel)}
+                        {parsed.channel}
+                      </Badge>
+                    </div>
+                  )}
+                  {parsed.priority && (
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                      <Badge variant={parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                        {parsed.priority}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Original Alert */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Original Alert
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="text-sm bg-muted p-4 rounded-md overflow-x-auto whitespace-pre-wrap font-mono">
+                {ticket.alert_text}
+              </pre>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnosis" className="space-y-6">
+          {/* Root Cause Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Root Cause Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="root-cause">Root Cause</Label>
+                    <Textarea
+                      id="root-cause"
+                      value={editedRootCause}
+                      onChange={(e) => setEditedRootCause(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="technical-details">Technical Details</Label>
+                    <Textarea
+                      id="technical-details"
+                      value={editedTechnicalDetails}
+                      onChange={(e) => setEditedTechnicalDetails(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
+                    <p className="mt-1 text-sm leading-relaxed">{rootCause.root_cause}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                      {rootCause.technical_details}
+                    </p>
+                  </div>
+                  {rootCause.confidence && (
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm font-medium">Confidence:</Label>
+                        <span className="text-sm font-medium">{rootCause.confidence}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="resolution" className="space-y-6">
+          {/* Resolution Plan */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                Resolution Plan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isEditing ? (
+                <div className="space-y-2">
+                  <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
+                  <Textarea
+                    id="resolution-steps"
+                    value={editedResolutionSteps}
+                    onChange={(e) => setEditedResolutionSteps(e.target.value)}
+                    rows="6"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {resolution.estimated_time && (
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">{resolution.estimated_time}</span>
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
+                      <div className="mt-1">
+                        {resolution.escalate ? (
+                          <Badge variant="destructive" className="gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            Yes → {resolution.escalate_to || 'L3 team'}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">No</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {resolution.resolution_steps?.length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                      <ol className="mt-2 space-y-2">
+                        {resolution.resolution_steps.map((step, index) => (
+                          <li key={index} className="text-sm flex items-start gap-3">
+                            <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                              {index + 1}
+                            </span>
+                            <span className="leading-relaxed">{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
+                  {resolution.verification_steps?.length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                      <ul className="mt-2 space-y-1">
+                        {resolution.verification_steps.map((step, index) => (
+                          <li key={index} className="text-sm flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                            {step}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {resolution.sql_queries?.length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                      <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
+                        {resolution.sql_queries.join('\n\n')}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notes" className="space-y-6">
+          {/* Notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add notes about this ticket..."
+                rows="4"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Custom Fields */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Custom Fields
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.keys(customFields).length > 0 && (
+                <div className="space-y-2">
+                  {Object.entries(customFields).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-sm text-muted-foreground">{value}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCustomField(key)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Field name"
+                  value={newFieldKey}
+                  onChange={(e) => setNewFieldKey(e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  placeholder="Field value"
+                  value={newFieldValue}
+                  onChange={(e) => setNewFieldValue(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={addCustomField} size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Actions */}
-      <div className="ticket-actions">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex gap-3 pt-6 border-t"
+      >
         {isEditing ? (
           <>
-            <button onClick={handleSave} disabled={saving} className="primary">
+            <Button onClick={handleSave} disabled={saving} className="gap-2">
+              <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button onClick={() => setIsEditing(false)} disabled={saving}>
+            </Button>
+            <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
               Cancel
-            </button>
+            </Button>
           </>
         ) : (
           <>
             {ticket.status === 'active' && (
               <>
-                <button onClick={() => setIsEditing(true)} className="primary">
+                <Button onClick={() => setIsEditing(true)} className="gap-2">
+                  <Edit className="w-4 h-4" />
                   Edit Diagnosis
-                </button>
-                <button onClick={handleSave} disabled={saving}>
+                </Button>
+                <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
+                  <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Notes'}
-                </button>
-                <button onClick={handleClose} disabled={saving} className="success">
+                </Button>
+                <Button onClick={handleClose} disabled={saving} variant="secondary" className="gap-2">
+                  <CheckCircle className="w-4 h-4" />
                   Close Ticket
-                </button>
+                </Button>
               </>
             )}
-            <button onClick={handleDelete} disabled={saving} className="danger">
+            <Button onClick={handleDelete} disabled={saving} variant="destructive" className="gap-2">
+              <Trash2 className="w-4 h-4" />
               Delete Ticket
-            </button>
+            </Button>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
-

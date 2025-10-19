@@ -1,506 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
 :root {
-  color-scheme: light;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #f5f6fa;
-  color: #0f172a;
-}
-
-body {
-  margin: 0;
-}
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-header {
-  background: linear-gradient(135deg, #012a4a, #1e90ff);
-  color: white;
-  padding: 2rem 3rem;
-  box-shadow: 0 12px 24px rgba(0, 41, 89, 0.2);
-}
-
-header h1 {
-  margin: 0 0 0.5rem;
-  font-size: 2rem;
-}
-
-header p {
-  margin: 0;
-  opacity: 0.85;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-}
-
-.view-tickets-button {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  white-space: nowrap;
-}
-
-.view-tickets-button:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-main {
-  flex: 1;
-  padding: 2rem 3rem 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 960px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-form.card {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-label {
-  font-weight: 600;
-}
-
-textarea {
-  width: 100%;
-  min-height: 200px;
-  border: 1px solid #cbd5f5;
-  border-radius: 8px;
-  padding: 1rem;
-  font-size: 0.95rem;
-  font-family: 'Fira Code', 'SFMono-Regular', Menlo, Consolas, monospace;
-  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.08);
-  resize: vertical;
-}
-
-button {
-  align-self: flex-start;
-  background: #1d4ed8;
-  border: none;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(29, 78, 216, 0.25);
-}
-
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.75rem;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-pre {
-  background: #0f172a;
-  color: #e2e8f0;
-  padding: 1.25rem;
-  border-radius: 8px;
-  overflow: auto;
-  font-size: 0.9rem;
-}
-
-.error {
-  color: #b91c1c;
-  font-weight: 600;
-}
-
-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 3rem;
-  font-size: 0.9rem;
-  color: #475569;
-}
-
-.muted {
-  opacity: 0.7;
-}
-
-/* Button styles */
-.button-group {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.create-ticket-button {
-  background: #059669;
-}
-
-.create-ticket-button:hover {
-  box-shadow: 0 8px 16px rgba(5, 150, 105, 0.25);
-}
-
-.success-message {
-  color: #059669;
-  font-weight: 600;
-}
-
-button.primary {
-  background: #1d4ed8;
-}
-
-button.success {
-  background: #059669;
-}
-
-button.danger {
-  background: #dc2626;
-}
-
-button.edit-button {
-  background: #f59e0b;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
-}
-
-.back-button {
-  background: transparent;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-.back-button:hover {
-  background: #f1f5f9;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Ticketing System Styles */
-.tickets-container {
-  padding: 2rem 3rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.tickets-header h1 {
-  font-size: 2rem;
-  margin: 1rem 0;
-  color: #0f172a;
-}
-
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin: 2rem 0;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.tab {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.tab:hover {
-  color: #1d4ed8;
-  transform: none;
-  box-shadow: none;
-}
-
-.tab.active {
-  color: #1d4ed8;
-  border-bottom-color: #1d4ed8;
-}
-
-.no-tickets {
-  text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 1.1rem;
-}
-
-.ticket-list {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-}
-
-.ticket-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
-}
-
-.ticket-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
-  border-color: #1d4ed8;
-}
-
-.ticket-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.ticket-id {
-  font-weight: 700;
-  color: #1d4ed8;
-  font-size: 1.1rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.status-badge.active {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.status-badge.closed {
-  background: #d1fae5;
-  color: #059669;
-}
-
-.ticket-summary {
-  color: #334155;
-  margin: 0.75rem 0;
-  line-height: 1.5;
-  font-size: 0.95rem;
-}
-
-.ticket-meta {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 1rem 0;
-}
-
-.meta-item {
-  font-size: 0.85rem;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.ticket-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-.ticket-time {
-  font-weight: 600;
-}
-
-/* Ticket Detail View */
-.ticket-detail {
-  padding: 2rem 3rem;
-  max-width: 960px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.ticket-detail-header {
-  margin-bottom: 1rem;
-}
-
-.ticket-title {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.ticket-title h1 {
-  margin: 0;
-  font-size: 2rem;
-  color: #0f172a;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.info-item {
-  padding: 0.5rem 0;
-}
-
-.alert-text {
-  background: #f8fafc;
-  color: #334155;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  white-space: pre-wrap;
-  font-family: inherit;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-textarea#root-cause,
-textarea#technical-details,
-textarea#resolution-steps {
-  width: 100%;
-  min-height: 100px;
-  margin-bottom: 1rem;
-}
-
-.warning {
-  background: #fef3c7;
-  color: #92400e;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #f59e0b;
-}
-
-.custom-fields-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.custom-field-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background: #f8fafc;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.remove-field-button {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  min-width: auto;
-}
-
-.custom-field-input {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.custom-field-input input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.95rem;
-}
-
-.custom-field-input button {
-  white-space: nowrap;
-}
-
-.ticket-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem 0;
-  flex-wrap: wrap;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-  font-size: 1.1rem;
-  color: #64748b;
-}
-
-@media (max-width: 768px) {
-  header,
-  main,
-  footer {
-    padding: 1.5rem;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 96%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 47.4% 11.2%;
+    --radius: 0.5rem;
   }
 
-  header h1 {
-    font-size: 1.6rem;
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 12%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 75.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
 
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animations for PSA Diagnostic Assistant */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
   }
 
-  .ticket-list {
-    grid-template-columns: 1fr;
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
   }
 
-  .tickets-container,
-  .ticket-detail {
-    padding: 1.5rem;
+  .animate-stagger>* {
+    animation: fade-in 0.3s ease-out;
+    animation-fill-mode: both;
   }
+
+  .animate-stagger>*:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .animate-stagger>*:nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  .animate-stagger>*:nth-child(3) {
+    animation-delay: 100ms;
+  }
+
+  .animate-stagger>*:nth-child(4) {
+    animation-delay: 150ms;
+  }
+
+  .animate-stagger>*:nth-child(5) {
+    animation-delay: 200ms;
+  }
+
+  .animate-stagger>*:nth-child(6) {
+    animation-delay: 250ms;
+  }
+}
+
+/* Custom styles for diagnostic assistant */
+.diagnostic-header {
+  background: linear-gradient(135deg, hsl(222.2 47.4% 11.2%), hsl(215.4 16.3% 46.9%));
+}
+
+/* Dark mode specific improvements */
+.dark .diagnostic-header {
+  background: linear-gradient(135deg, hsl(217.2 32.6% 17.5%), hsl(215 20.2% 25.1%));
+}
+
+.diagnostic-card {
+  @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.diagnostic-button {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+}
+
+.diagnostic-input {
+  @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.diagnostic-textarea {
+  @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Enhanced dark mode visibility */
+.dark .text-muted-foreground {
+  color: hsl(215 20.2% 75.1%);
+}
+
+.dark .bg-primary {
+  background-color: hsl(210 40% 98%);
+}
+
+.dark .text-primary-foreground {
+  color: hsl(222.2 47.4% 11.2%);
+}
+
+.dark .border-border {
+  border-color: hsl(217.2 32.6% 17.5%);
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Additional dark mode improvements for better visibility */
+.dark .bg-muted {
+  background-color: hsl(217.2 32.6% 17.5%);
+}
+
+.dark .text-muted-foreground {
+  color: hsl(215 20.2% 75.1%);
+}
+
+/* Ensure proper contrast for badges in dark mode */
+.dark .bg-secondary {
+  background-color: hsl(217.2 32.6% 17.5%);
+}
+
+.dark .text-secondary-foreground {
+  color: hsl(210 40% 98%);
+}
+
+/* Improve input visibility in dark mode */
+.dark .bg-input {
+  background-color: hsl(217.2 32.6% 17.5%);
+}
+
+.dark .border-input {
+  border-color: hsl(217.2 32.6% 17.5%);
+}
+
+/* Better focus states for dark mode */
+.dark .focus-visible:ring-ring {
+  --tw-ring-color: hsl(210 40% 98%);
+}
+
+/* Sidebar and navigation improvements for dark mode */
+.dark .bg-card {
+  background-color: hsl(222.2 84% 4.9%);
+}
+
+.dark .border-border {
+  border-color: hsl(217.2 32.6% 17.5%);
+}
+
+/* Ensure proper contrast for active states */
+.dark .bg-primary {
+  background-color: hsl(210 40% 98%);
+}
+
+.dark .text-primary-foreground {
+  color: hsl(222.2 47.4% 11.2%);
+}
+
+/* Ghost button hover states in dark mode */
+.dark .hover\:bg-accent:hover {
+  background-color: hsl(217.2 32.6% 17.5%);
+}
+
+.dark .hover\:text-accent-foreground:hover {
+  color: hsl(210 40% 98%);
 }
