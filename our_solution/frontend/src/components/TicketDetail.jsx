@@ -97,8 +97,20 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       const fetchedTicket = await getTicket(ticketId);
       setTicket(fetchedTicket);
 
-      // Initialize edit fields
-      const diagnosis = fetchedTicket.edited_diagnosis || fetchedTicket.diagnosis_data;
+      // Initialize edit fields lazily - only when needed
+      if (fetchedTicket.notes) setNotes(fetchedTicket.notes);
+      if (fetchedTicket.custom_fields) setCustomFields(fetchedTicket.custom_fields);
+    } catch (err) {
+      setError(err.message || 'Failed to load ticket');
+    } finally {
+      setLoading(false);
+    }
+  }, [ticketId]);
+
+  // Initialize edit fields only when entering edit mode
+  useEffect(() => {
+    if (isEditing && ticket) {
+      const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
       setEditedRootCause(diagnosis.rootCause?.root_cause || '');
       setEditedTechnicalDetails(diagnosis.rootCause?.technical_details || '');
       setEditedResolutionSteps(
@@ -106,14 +118,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           ? diagnosis.resolution.resolution_steps.join('\n')
           : ''
       );
-      setNotes(fetchedTicket.notes || '');
-      setCustomFields(fetchedTicket.custom_fields || {});
-    } catch (err) {
-      setError(err.message || 'Failed to load ticket');
-    } finally {
-      setLoading(false);
     }
-  }, [ticketId]);
+  }, [isEditing, ticket]);
 
   useEffect(() => {
     if (propTicket) {
@@ -129,7 +135,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     setError('');
     try {
       const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-
+      
       const editedDiagnosis = {
         ...diagnosis,
         rootCause: {
@@ -254,26 +260,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-24" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-4 w-48" />
-          </div>
+          <Skeleton className="h-8 w-64" />
         </div>
-        <div className="space-y-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-6 w-48" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -460,7 +450,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 </CardContent>
               </Card>
             </div>
-          </div>
+        </div>
         </TabsContent>
 
         <TabsContent value="diagnosis" className="space-y-6 mt-6">
@@ -473,23 +463,23 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {isEditing ? (
+        {isEditing ? (
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="root-cause">Root Cause</Label>
                         <Textarea
-                          id="root-cause"
-                          value={editedRootCause}
-                          onChange={(e) => setEditedRootCause(e.target.value)}
+              id="root-cause"
+              value={editedRootCause}
+              onChange={(e) => setEditedRootCause(e.target.value)}
                           className="min-h-[100px]"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="technical-details">Technical Details</Label>
                         <Textarea
-                          id="technical-details"
-                          value={editedTechnicalDetails}
-                          onChange={(e) => setEditedTechnicalDetails(e.target.value)}
+              id="technical-details"
+              value={editedTechnicalDetails}
+              onChange={(e) => setEditedTechnicalDetails(e.target.value)}
                           className="min-h-[100px]"
                         />
                       </div>
@@ -522,15 +512,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {isEditing ? (
+        {isEditing ? (
                     <div className="space-y-2">
                       <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
                       <Textarea
-                        id="resolution-steps"
-                        value={editedResolutionSteps}
-                        onChange={(e) => setEditedResolutionSteps(e.target.value)}
-                        rows="6"
-                      />
+              id="resolution-steps"
+              value={editedResolutionSteps}
+              onChange={(e) => setEditedResolutionSteps(e.target.value)}
+              rows="6"
+            />
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -577,8 +567,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                                 </span>
                                 <span className="leading-relaxed">{step}</span>
                               </li>
-                            ))}
-                          </ol>
+                  ))}
+                </ol>
                         </div>
                       )}
 
@@ -818,7 +808,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6 mt-6">
-              {/* Notes */}
+      {/* Notes */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -828,15 +818,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 </CardHeader>
                 <CardContent>
                   <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Add notes about this ticket..."
-                    rows="4"
-                  />
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Add notes about this ticket..."
+          rows="4"
+        />
                 </CardContent>
               </Card>
 
-              {/* Custom Fields */}
+      {/* Custom Fields */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -845,9 +835,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {Object.keys(customFields).length > 0 && (
+        {Object.keys(customFields).length > 0 && (
                     <div className="space-y-2">
-                      {Object.entries(customFields).map(([key, value]) => (
+            {Object.entries(customFields).map(([key, value]) => (
                         <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
                           <div className="flex items-center gap-2">
                             <Tag className="w-4 h-4 text-muted-foreground" />
@@ -857,34 +847,34 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeCustomField(key)}
+                  onClick={() => removeCustomField(key)}
                             className="text-destructive hover:text-destructive"
-                          >
+                >
                             <Minus className="w-4 h-4" />
                           </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              </div>
+            ))}
+          </div>
+        )}
 
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Field name"
-                      value={newFieldKey}
-                      onChange={(e) => setNewFieldKey(e.target.value)}
+            placeholder="Field name"
+            value={newFieldKey}
+            onChange={(e) => setNewFieldKey(e.target.value)}
                       className="flex-1"
-                    />
+          />
                     <Input
-                      placeholder="Field value"
-                      value={newFieldValue}
-                      onChange={(e) => setNewFieldValue(e.target.value)}
+            placeholder="Field value"
+            value={newFieldValue}
+            onChange={(e) => setNewFieldValue(e.target.value)}
                       className="flex-1"
-                    />
+          />
                     <Button onClick={addCustomField} size="sm" className="gap-2">
                       <Plus className="w-4 h-4" />
                       Add
                     </Button>
-                  </div>
+        </div>
                 </CardContent>
               </Card>
         </TabsContent>
@@ -892,18 +882,18 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
       {/* Actions */}
       <div className="flex gap-3 pt-6 border-t">
-          {isEditing ? (
-            <>
+        {isEditing ? (
+          <>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
                 <Save className="w-4 h-4" />
-                {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? 'Saving...' : 'Save Changes'}
               </Button>
               <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
-                Cancel
+              Cancel
               </Button>
-            </>
-          ) : (
-            <>
+          </>
+        ) : (
+          <>
               {/* Edit Diagnosis Button - Only on Diagnosis Tab */}
               {ticket.status === 'active' && activeTab === 'diagnosis' && (
                 <Button onClick={() => setIsEditing(true)} className="gap-2">
@@ -941,8 +931,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   Permanent Delete
                 </Button>
               )}
-            </>
-          )}
+          </>
+        )}
       </div>
 
       {/* Ticket Dates - Bottom Right - Outside Container */}

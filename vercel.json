@@ -5,11 +5,15 @@
   "outputDirectory": "our_solution/frontend/dist",
   "rewrites": [
     {
-      "source": "/api/tickets/:id",
+      "source": "/api/tickets/:id/permanent",
       "destination": "/api/tickets"
     },
     {
       "source": "/api/tickets/:id/close",
+      "destination": "/api/tickets"
+    },
+    {
+      "source": "/api/tickets/:id",
       "destination": "/api/tickets"
     },
     {
