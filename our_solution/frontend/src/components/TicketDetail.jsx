@@ -125,24 +125,34 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   }, [ticketId, propTicket, loadTicket]);
 
   const handleSave = async () => {
+    const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
+    
+    const editedDiagnosis = {
+      ...diagnosis,
+      rootCause: {
+        ...diagnosis.rootCause,
+        root_cause: editedRootCause,
+        technical_details: editedTechnicalDetails,
+      },
+      resolution: {
+        ...diagnosis.resolution,
+        resolution_steps: editedResolutionSteps.split('\n').filter(s => s.trim()),
+      },
+    };
+
+    // Optimistic update - update UI immediately
+    const optimisticTicket = {
+      ...ticket,
+      edited_diagnosis: editedDiagnosis,
+      notes,
+      custom_fields: customFields,
+    };
+    setTicket(optimisticTicket);
+    setIsEditing(false); // Exit edit mode immediately
+    
     setSaving(true);
     setError('');
     try {
-      const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-      
-      const editedDiagnosis = {
-        ...diagnosis,
-        rootCause: {
-          ...diagnosis.rootCause,
-          root_cause: editedRootCause,
-          technical_details: editedTechnicalDetails,
-        },
-        resolution: {
-          ...diagnosis.resolution,
-          resolution_steps: editedResolutionSteps.split('\n').filter(s => s.trim()),
-        },
-      };
-
       const updated = await updateTicket(ticketId, {
         edited_diagnosis: editedDiagnosis,
         notes,
@@ -150,10 +160,19 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       });
 
       setTicket(updated);
-      setIsEditing(false);
+      // Update cache
+      const cachedTickets = sessionStorage.getItem('cachedTickets');
+      if (cachedTickets) {
+        const tickets = JSON.parse(cachedTickets);
+        const updatedTickets = tickets.map(t => t.id === ticketId ? updated : t);
+        sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+      }
       onTicketUpdated?.();
     } catch (err) {
       setError(err.message || 'Failed to save changes');
+      // Rollback on error
+      setTicket(ticket);
+      setIsEditing(true);
     } finally {
       setSaving(false);
     }
@@ -161,18 +180,36 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   const handleClose = async () => {
     setShowCloseDialog(false);
+    
+    // Optimistic update - update UI immediately
+    const optimisticTicket = {
+      ...ticket,
+      status: 'closed',
+      closed_at: new Date().toISOString()
+    };
+    setTicket(optimisticTicket);
+    
     setSaving(true);
     setError('');
     try {
       const updatedTicket = await closeTicket(ticketId);
       console.log('Ticket closed successfully:', updatedTicket);
       if (updatedTicket) {
-        setTicket(updatedTicket); // Update local state with closed ticket
+        setTicket(updatedTicket); // Update with server response
+        // Update cache
+        const cachedTickets = sessionStorage.getItem('cachedTickets');
+        if (cachedTickets) {
+          const tickets = JSON.parse(cachedTickets);
+          const updatedTickets = tickets.map(t => t.id === ticketId ? updatedTicket : t);
+          sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+        }
         onTicketUpdated?.();
       }
     } catch (err) {
       console.error('Error closing ticket:', err);
       setError(err.message || 'Failed to close ticket');
+      // Rollback optimistic update on error
+      setTicket(ticket);
     } finally {
       setSaving(false);
     }
@@ -195,12 +232,29 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowDeleteDialog(false);
+    
+    // Optimistic update - update UI immediately
+    const optimisticTicket = {
+      ...ticket,
+      status: 'deleted',
+      deletion_reason: finalReason,
+      deleted_at: new Date().toISOString()
+    };
+    setTicket(optimisticTicket);
+    
     setSaving(true);
     setError('');
     try {
       const updatedTicket = await deleteTicket(ticketId, finalReason);
       console.log('Ticket moved to deleted:', updatedTicket);
       setTicket(updatedTicket);
+      // Update cache
+      const cachedTickets = sessionStorage.getItem('cachedTickets');
+      if (cachedTickets) {
+        const tickets = JSON.parse(cachedTickets);
+        const updatedTickets = tickets.map(t => t.id === ticketId ? updatedTicket : t);
+        sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+      }
       setDeletionReason('');
       setDeletionReasonType('');
       setCustomDeletionReason('');
@@ -209,6 +263,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     } catch (err) {
       console.error('Error deleting ticket:', err);
       setError(err.message || 'Failed to delete ticket');
+      // Rollback optimistic update on error
+      setTicket(ticket);
       setSaving(false);
     }
   };
@@ -220,6 +276,18 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowPermanentDeleteDialog(false);
+    
+    // Optimistic navigation - go back immediately for instant feel
+    onBack();
+    
+    // Update cache to remove ticket
+    const cachedTickets = sessionStorage.getItem('cachedTickets');
+    if (cachedTickets) {
+      const tickets = JSON.parse(cachedTickets);
+      const updatedTickets = tickets.filter(t => t.id !== ticketId);
+      sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+    }
+    
     setSaving(true);
     setError('');
     try {
@@ -227,10 +295,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       console.log('Ticket permanently deleted');
       setDeletePassword('');
       onTicketUpdated?.();
-      onBack();
     } catch (err) {
       console.error('Error permanently deleting ticket:', err);
-      setError(err.message || 'Failed to permanently delete ticket');
+      // Show error toast but user already navigated away
       setSaving(false);
     }
   };

@@ -202,6 +202,28 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
+  // Optimistic update handler for ticket status changes
+  const handleTicketUpdate = useCallback((ticketId, updates) => {
+    setAllTickets(prevTickets => {
+      const updatedTickets = prevTickets.map(ticket =>
+        ticket.id === ticketId ? { ...ticket, ...updates } : ticket
+      );
+      // Update cache immediately for instant feel
+      sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+      return updatedTickets;
+    });
+  }, []);
+
+  // Optimistic delete handler
+  const handleTicketDelete = useCallback((ticketId) => {
+    setAllTickets(prevTickets => {
+      const updatedTickets = prevTickets.filter(ticket => ticket.id !== ticketId);
+      // Update cache immediately
+      sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+      return updatedTickets;
+    });
+  }, []);
+
   const loadAllTickets = useCallback(async (showLoadingSpinner = true) => {
     if (showLoadingSpinner) {
       setLoading(true);
