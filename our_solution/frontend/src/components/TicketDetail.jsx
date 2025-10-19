@@ -622,7 +622,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                   )}
                 </CardContent>
               </Card>
-            </div>
         </TabsContent>
 
         <TabsContent value="confidence" className="space-y-6 mt-6">
