@@ -129,7 +129,7 @@ export async function closeTicket(ticketId) {
   return response.json();
 }
 
-export async function deleteTicket(ticketId) {
+export async function deleteTicket(ticketId, reason) {
   const endpoint = DEFAULT_BASE_URL 
     ? `${DEFAULT_BASE_URL}/api/tickets/${ticketId}` 
     : `/api/tickets/${ticketId}`;
@@ -139,11 +139,34 @@ export async function deleteTicket(ticketId) {
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ reason }),
   });
 
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
     const message = payload.error || `Failed to delete ticket: ${response.status}`;
+    throw new Error(message);
+  }
+
+  return response.json();
+}
+
+export async function permanentDeleteTicket(ticketId, password) {
+  const endpoint = DEFAULT_BASE_URL 
+    ? `${DEFAULT_BASE_URL}/api/tickets/${ticketId}/permanent` 
+    : `/api/tickets/${ticketId}/permanent`;
+
+  const response = await fetch(endpoint, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const message = payload.error || `Failed to permanently delete ticket: ${response.status}`;
     throw new Error(message);
   }
 

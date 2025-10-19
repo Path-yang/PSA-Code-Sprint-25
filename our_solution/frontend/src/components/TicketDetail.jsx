@@ -41,7 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './ui/alert-dialog';
-import { getTicket, updateTicket, closeTicket, deleteTicket } from '../api.js';
+import { getTicket, updateTicket, closeTicket, deleteTicket, permanentDeleteTicket } from '../api.js';
 
 function formatDateTime(dateString) {
   if (!dateString) return 'N/A';
@@ -72,6 +72,9 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showPermanentDeleteDialog, setShowPermanentDeleteDialog] = useState(false);
+  const [deletionReason, setDeletionReason] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
 
   // Editable fields
   const [editedRootCause, setEditedRootCause] = useState('');
@@ -166,17 +169,46 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
   };
 
   const handleDelete = async () => {
+    if (!deletionReason.trim()) {
+      setError('Please provide a reason for deletion');
+      return;
+    }
+    
     setShowDeleteDialog(false);
     setSaving(true);
     setError('');
     try {
-      await deleteTicket(ticketId);
-      console.log('Ticket deleted successfully');
+      const updatedTicket = await deleteTicket(ticketId, deletionReason);
+      console.log('Ticket moved to deleted:', updatedTicket);
+      setTicket(updatedTicket);
+      setDeletionReason('');
       onTicketUpdated?.();
-      onBack(); // Navigate back since ticket is deleted
+      setSaving(false);
     } catch (err) {
       console.error('Error deleting ticket:', err);
       setError(err.message || 'Failed to delete ticket');
+      setSaving(false);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (deletePassword !== '67') {
+      setError('Incorrect password');
+      return;
+    }
+    
+    setShowPermanentDeleteDialog(false);
+    setSaving(true);
+    setError('');
+    try {
+      await permanentDeleteTicket(ticketId, deletePassword);
+      console.log('Ticket permanently deleted');
+      setDeletePassword('');
+      onTicketUpdated?.();
+      onBack();
+    } catch (err) {
+      console.error('Error permanently deleting ticket:', err);
+      setError(err.message || 'Failed to permanently delete ticket');
       setSaving(false);
     }
   };
@@ -921,10 +953,18 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                 </Button>
               </>
             )}
-            <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
-              <Trash2 className="w-4 h-4" />
-              Delete Ticket
-            </Button>
+            {ticket.status !== 'deleted' && (
+              <Button onClick={() => setShowDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                <Trash2 className="w-4 h-4" />
+                Move to Deleted
+              </Button>
+            )}
+            {ticket.status === 'deleted' && (
+              <Button onClick={() => setShowPermanentDeleteDialog(true)} disabled={saving} variant="destructive" className="gap-2">
+                <Trash2 className="w-4 h-4" />
+                Permanent Delete
+              </Button>
+            )}
           </>
         )}
       </motion.div>
@@ -949,15 +989,60 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this ticket permanently?</AlertDialogTitle>
+            <AlertDialogTitle>Move ticket to deleted?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The ticket and all its data will be permanently deleted from the database.
+              This will move the ticket to deleted tickets. Please provide a reason for deletion.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="py-4">
+            <Label htmlFor="deletion-reason">Reason for deletion *</Label>
+            <Textarea
+              id="deletion-reason"
+              value={deletionReason}
+              onChange={(e) => setDeletionReason(e.target.value)}
+              placeholder="e.g., Duplicate ticket, Created by mistake, Issue not reproducible..."
+              className="mt-2"
+              rows={3}
+            />
+          </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeletionReason('')}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Permanently
+              Move to Deleted
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Permanent Delete Dialog (for deleted tickets only) */}
+      <AlertDialog open={showPermanentDeleteDialog} onOpenChange={setShowPermanentDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this ticket?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The ticket and all its data will be permanently removed from the database.
+              <br /><br />
+              <strong>Please enter the supervisor password to proceed.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Label htmlFor="delete-password">Password *</Label>
+            <Input
+              id="delete-password"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Enter password"
+              className="mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Please get the password from your supervisor if you don't have it.
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletePassword('')}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePermanentDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Permanently Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

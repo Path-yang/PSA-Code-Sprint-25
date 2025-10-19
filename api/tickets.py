@@ -161,25 +161,78 @@ class handler(BaseHTTPRequestHandler):
             self._send_json(500, {"error": str(exc)})
     
     def do_DELETE(self):
-        """Handle DELETE requests - delete ticket"""
+        """Handle DELETE requests - soft delete or permanent delete ticket"""
         if _db_error:
             self._send_json(500, {"error": "Database module failed to load", "details": _db_error})
             return
         
         try:
-            # /api/tickets/123
+            # Check if permanent delete: /api/tickets/123/permanent
+            if '/permanent' in self.path:
+                match = re.match(r'/api/tickets/(\d+)/permanent', self.path)
+                if not match:
+                    self._send_json(400, {"error": "Invalid permanent delete request"})
+                    return
+                
+                ticket_id = int(match.group(1))
+                
+                # Get password from request body
+                content_length = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+                
+                try:
+                    data = json.loads(body)
+                except Exception as e:
+                    self._send_json(400, {"error": f"Invalid JSON: {str(e)}"})
+                    return
+                
+                password = data.get("password", "").strip()
+                
+                # Verify password
+                if password != "67":
+                    self._send_json(403, {"error": "Incorrect password"})
+                    return
+                
+                # Permanent delete
+                success = database.permanent_delete_ticket(ticket_id)
+                
+                if not success:
+                    self._send_json(404, {"error": "Ticket not found"})
+                else:
+                    self._send_json(200, {"message": "Ticket permanently deleted"})
+                return
+            
+            # Soft delete: /api/tickets/123
             match = re.match(r'/api/tickets/(\d+)', self.path)
             if not match:
                 self._send_json(400, {"error": "Invalid delete request"})
                 return
             
             ticket_id = int(match.group(1))
-            success = database.delete_ticket(ticket_id)
             
-            if not success:
+            # Get deletion reason from request body
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+            
+            try:
+                data = json.loads(body)
+            except Exception as e:
+                self._send_json(400, {"error": f"Invalid JSON: {str(e)}"})
+                return
+            
+            reason = data.get("reason", "").strip()
+            
+            if not reason:
+                self._send_json(400, {"error": "Deletion reason is required"})
+                return
+            
+            # Soft delete
+            ticket = database.delete_ticket(ticket_id, reason)
+            
+            if ticket is None:
                 self._send_json(404, {"error": "Ticket not found"})
             else:
-                self._send_json(200, {"message": "Ticket deleted"})
+                self._send_json(200, ticket)
         
         except Exception as exc:
             print(f"ERROR in do_DELETE: {exc}")

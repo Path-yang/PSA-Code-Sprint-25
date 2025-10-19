@@ -131,6 +131,8 @@ def _init_postgres_schema():
                     status TEXT DEFAULT 'active',
                     notes TEXT,
                     custom_fields JSONB DEFAULT '{}',
+                    deletion_reason TEXT,
+                    deleted_at TIMESTAMP WITH TIME ZONE,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     closed_at TIMESTAMP WITH TIME ZONE,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -382,8 +384,42 @@ def close_ticket(ticket_id: int) -> Optional[dict]:
         return get_ticket(ticket_id)
 
 
-def delete_ticket(ticket_id: int) -> bool:
-    """Delete a ticket (for testing/cleanup)."""
+def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
+    """Soft delete a ticket (move to deleted status with reason)."""
+    with _db_lock:
+        now = _get_singapore_time()
+        
+        if USE_POSTGRES:
+            conn = _get_postgres_connection()
+            try:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE tickets
+                    SET status = 'deleted', deletion_reason = %s, deleted_at = %s, updated_at = %s
+                    WHERE id = %s
+                """, (reason, now, now, ticket_id))
+                conn.commit()
+            finally:
+                conn.close()
+        else:
+            conn = _get_sqlite_connection()
+            try:
+                cursor = conn.cursor()
+                now_iso = now.isoformat()
+                cursor.execute("""
+                    UPDATE tickets
+                    SET status = 'deleted', deletion_reason = ?, deleted_at = ?, updated_at = ?
+                    WHERE id = ?
+                """, (reason, now_iso, now_iso, ticket_id))
+                conn.commit()
+            finally:
+                conn.close()
+        
+        return get_ticket(ticket_id)
+
+
+def permanent_delete_ticket(ticket_id: int) -> bool:
+    """Permanently delete a ticket from database (hard delete)."""
     with _db_lock:
         if USE_POSTGRES:
             conn = _get_postgres_connection()
