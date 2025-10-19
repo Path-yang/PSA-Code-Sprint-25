@@ -158,12 +158,13 @@ export default function Dashboard() {
                         className="flex items-center justify-center w-full hover:opacity-80 transition-opacity"
                     >
                         {sidebarCollapsed ? (
-                            <div className="w-full flex items-center justify-center">
+                            <div className="w-full flex flex-col items-center justify-center">
                                 <img
                                     src="/PSA-Logo.png"
                                     alt="PSA Logo"
-                                    className="h-12 w-12 object-contain"
+                                    className="h-10 w-10 object-contain"
                                 />
+                                <p className="text-xs font-bold mt-1">PSA</p>
                             </div>
                         ) : (
                             <motion.div
@@ -173,11 +174,14 @@ export default function Dashboard() {
                                 transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
                                 className="flex flex-col items-center w-full"
                             >
-                                <img
-                                    src="/PSA-Logo.png"
-                                    alt="PSA Logo"
-                                    className="h-12 w-auto object-contain"
-                                />
+                                <div className="flex items-center gap-3">
+                                    <img
+                                        src="/PSA-Logo.png"
+                                        alt="PSA Logo"
+                                        className="h-12 w-auto object-contain"
+                                    />
+                                    <span className="text-2xl font-bold">PSA</span>
+                                </div>
                                 <p className="text-xs text-muted-foreground mt-2">L2 Diagnostic Assistant</p>
                             </motion.div>
                         )}

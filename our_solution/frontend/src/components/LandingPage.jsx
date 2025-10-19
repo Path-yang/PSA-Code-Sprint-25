@@ -56,25 +56,26 @@ export default function LandingPage({ onNavigate }) {
                         className="text-center space-y-8"
                     >
                         {/* Logo and Badge */}
-                        <div className="flex justify-center">
+                        <div className="flex flex-col items-center gap-4">
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                className="mb-4"
+                                className="flex items-center gap-4"
                             >
                                 <img
                                     src="/PSA-Logo.png"
                                     alt="PSA Logo"
-                                    className="h-16 w-auto object-contain"
+                                    className="h-20 w-auto object-contain"
                                 />
+                                <span className="text-5xl font-bold">PSA</span>
                             </motion.div>
+                            
+                            <Badge variant="secondary" className="gap-2">
+                                <Sparkles className="w-4 h-4" />
+                                L2 Diagnostic Assistant
+                            </Badge>
                         </div>
-
-                        <Badge variant="secondary" className="gap-2 mb-4">
-                            <Sparkles className="w-4 h-4" />
-                            L2 Diagnostic Assistant
-                        </Badge>
 
                         {/* Text Flip Animation */}
                         <div className="space-y-4">
