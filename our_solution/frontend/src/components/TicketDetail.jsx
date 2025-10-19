@@ -947,7 +947,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Notes'}
                 </Button>
-                <Button onClick={() => setShowCloseDialog(true)} disabled={saving} variant="secondary" className="gap-2">
+                <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">
                   <CheckCircle className="w-4 h-4" />
                   Close Ticket
                 </Button>
