@@ -93,7 +93,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
             >
-                <Card>
+                <Card className="glass-card">
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <div>
@@ -373,11 +373,11 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                 <p className="text-3xl font-bold mt-1">{diagnosis.confidenceAssessment.overall_score}%</p>
                                             </div>
                                             <div className="text-right">
-                                                <Badge 
+                                                <Badge
                                                     variant={
                                                         diagnosis.confidenceAssessment.overall_score >= 70 ? "default" :
-                                                        diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
-                                                        "destructive"
+                                                            diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
+                                                                "destructive"
                                                     }
                                                     className="text-sm"
                                                 >
@@ -393,6 +393,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
                                         {/* Evidence Breakdown */}
                                         {diagnosis.confidenceAssessment.breakdown && (
+<<<<<<< Updated upstream
                                         <div>
                                             <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
                                             <div className="space-y-4">
@@ -407,8 +408,31 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                             <Badge variant="outline" className="text-xs">
                                                                 {diagnosis.confidenceAssessment.breakdown.log_evidence?.status || 'none'}
                                                             </Badge>
+=======
+                                            <div>
+                                                <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                                                <div className="space-y-4">
+                                                    {/* Log Evidence */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <Label className="text-sm font-medium">Application Logs</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {diagnosis.confidenceAssessment.breakdown.log_evidence.score}/
+                                                                    {diagnosis.confidenceAssessment.breakdown.log_evidence.max_score} pts
+                                                                </span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {diagnosis.confidenceAssessment.breakdown.log_evidence.status}
+                                                                </Badge>
+                                                            </div>
+>>>>>>> Stashed changes
                                                         </div>
+                                                        <Progress
+                                                            value={diagnosis.confidenceAssessment.breakdown.log_evidence.percentage}
+                                                            className="h-2"
+                                                        />
                                                     </div>
+<<<<<<< Updated upstream
                                                     <Progress 
                                                         value={diagnosis.confidenceAssessment.breakdown.log_evidence?.percentage || 0} 
                                                         className="h-2"
@@ -426,8 +450,29 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                             <Badge variant="outline" className="text-xs">
                                                                 {diagnosis.confidenceAssessment.breakdown.past_cases?.status || 'none'}
                                                             </Badge>
+=======
+
+                                                    {/* Past Cases */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <Label className="text-sm font-medium">Similar Past Cases</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {diagnosis.confidenceAssessment.breakdown.past_cases.score}/
+                                                                    {diagnosis.confidenceAssessment.breakdown.past_cases.max_score} pts
+                                                                </span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {diagnosis.confidenceAssessment.breakdown.past_cases.status}
+                                                                </Badge>
+                                                            </div>
+>>>>>>> Stashed changes
                                                         </div>
+                                                        <Progress
+                                                            value={diagnosis.confidenceAssessment.breakdown.past_cases.percentage}
+                                                            className="h-2"
+                                                        />
                                                     </div>
+<<<<<<< Updated upstream
                                                     <Progress 
                                                         value={diagnosis.confidenceAssessment.breakdown.past_cases?.percentage || 0} 
                                                         className="h-2"
@@ -445,8 +490,29 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                             <Badge variant="outline" className="text-xs">
                                                                 {diagnosis.confidenceAssessment.breakdown.knowledge_base?.status || 'none'}
                                                             </Badge>
+=======
+
+                                                    {/* Knowledge Base */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <Label className="text-sm font-medium">Knowledge Base</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {diagnosis.confidenceAssessment.breakdown.knowledge_base.score}/
+                                                                    {diagnosis.confidenceAssessment.breakdown.knowledge_base.max_score} pts
+                                                                </span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {diagnosis.confidenceAssessment.breakdown.knowledge_base.status}
+                                                                </Badge>
+                                                            </div>
+>>>>>>> Stashed changes
                                                         </div>
+                                                        <Progress
+                                                            value={diagnosis.confidenceAssessment.breakdown.knowledge_base.percentage}
+                                                            className="h-2"
+                                                        />
                                                     </div>
+<<<<<<< Updated upstream
                                                     <Progress 
                                                         value={diagnosis.confidenceAssessment.breakdown.knowledge_base?.percentage || 0} 
                                                         className="h-2"
@@ -464,8 +530,29 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                             <Badge variant="outline" className="text-xs">
                                                                 {diagnosis.confidenceAssessment.breakdown.identifiers?.status || 'none'}
                                                             </Badge>
+=======
+
+                                                    {/* Identifiers */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <Label className="text-sm font-medium">Specific Identifiers</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {diagnosis.confidenceAssessment.breakdown.identifiers.score}/
+                                                                    {diagnosis.confidenceAssessment.breakdown.identifiers.max_score} pts
+                                                                </span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {diagnosis.confidenceAssessment.breakdown.identifiers.status}
+                                                                </Badge>
+                                                            </div>
+>>>>>>> Stashed changes
                                                         </div>
+                                                        <Progress
+                                                            value={diagnosis.confidenceAssessment.breakdown.identifiers.percentage}
+                                                            className="h-2"
+                                                        />
                                                     </div>
+<<<<<<< Updated upstream
                                                     <Progress 
                                                         value={diagnosis.confidenceAssessment.breakdown.identifiers?.percentage || 0} 
                                                         className="h-2"
@@ -483,62 +570,84 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                                             <Badge variant="outline" className="text-xs">
                                                                 {diagnosis.confidenceAssessment.breakdown.evidence_quality?.status || 'none'}
                                                             </Badge>
+=======
+
+                                                    {/* Evidence Quality */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <Label className="text-sm font-medium">Evidence Quality</Label>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {diagnosis.confidenceAssessment.breakdown.evidence_quality.score}/
+                                                                    {diagnosis.confidenceAssessment.breakdown.evidence_quality.max_score} pts
+                                                                </span>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    {diagnosis.confidenceAssessment.breakdown.evidence_quality.status}
+                                                                </Badge>
+                                                            </div>
+>>>>>>> Stashed changes
                                                         </div>
+                                                        <Progress
+                                                            value={diagnosis.confidenceAssessment.breakdown.evidence_quality.percentage}
+                                                            className="h-2"
+                                                        />
                                                     </div>
+<<<<<<< Updated upstream
                                                     <Progress 
                                                         value={diagnosis.confidenceAssessment.breakdown.evidence_quality?.percentage || 0} 
                                                         className="h-2"
                                                     />
+=======
+>>>>>>> Stashed changes
                                                 </div>
                                             </div>
-                                        </div>
                                         )}
 
                                         <Separator />
 
                                         {/* Interpretation */}
                                         {diagnosis.confidenceAssessment.interpretation && (
-                                        <div className="space-y-4">
-                                            <Label className="text-base font-semibold block">Interpretation</Label>
-                                            
-                                            {/* Diagnosis Confidence */}
-                                            <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                                                <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-medium">Diagnosis Confidence</Label>
-                                                    <Badge 
-                                                        variant={
-                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                                                            "destructive"
-                                                        }
-                                                    >
-                                                        {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
-                                                    </Badge>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {diagnosis.confidenceAssessment.interpretation.diagnosis_explanation}
-                                                </p>
-                                            </div>
+                                            <div className="space-y-4">
+                                                <Label className="text-base font-semibold block">Interpretation</Label>
 
-                                            {/* Solution Confidence */}
-                                            <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                                                <div className="flex items-center justify-between">
-                                                    <Label className="text-sm font-medium">Solution Confidence</Label>
-                                                    <Badge 
-                                                        variant={
-                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                                                            "destructive"
-                                                        }
-                                                    >
-                                                        {diagnosis.confidenceAssessment.interpretation.solution_confidence}
-                                                    </Badge>
+                                                {/* Diagnosis Confidence */}
+                                                <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <Label className="text-sm font-medium">Diagnosis Confidence</Label>
+                                                        <Badge
+                                                            variant={
+                                                                diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                                                                    diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                                                        "destructive"
+                                                            }
+                                                        >
+                                                            {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {diagnosis.confidenceAssessment.interpretation.diagnosis_explanation}
+                                                    </p>
                                                 </div>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {diagnosis.confidenceAssessment.interpretation.solution_explanation}
-                                                </p>
+
+                                                {/* Solution Confidence */}
+                                                <div className="p-4 bg-muted/30 rounded-lg space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <Label className="text-sm font-medium">Solution Confidence</Label>
+                                                        <Badge
+                                                            variant={
+                                                                diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                                                                    diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                                                        "destructive"
+                                                            }
+                                                        >
+                                                            {diagnosis.confidenceAssessment.interpretation.solution_confidence}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {diagnosis.confidenceAssessment.interpretation.solution_explanation}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
                                         )}
                                     </div>
                                 </CardContent>

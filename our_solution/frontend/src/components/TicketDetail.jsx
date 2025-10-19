@@ -340,7 +340,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Ticket Information */}
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
@@ -626,11 +626,11 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                       <p className="text-3xl font-bold mt-1">{ticket.confidence_assessment.overall_score}%</p>
                     </div>
                     <div className="text-right">
-                      <Badge 
+                      <Badge
                         variant={
                           ticket.confidence_assessment.overall_score >= 70 ? "default" :
-                          ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
-                          "destructive"
+                            ticket.confidence_assessment.overall_score >= 50 ? "secondary" :
+                              "destructive"
                         }
                         className="text-sm"
                       >
@@ -661,8 +661,13 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
+<<<<<<< Updated upstream
                         <Progress 
                           value={ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0} 
+=======
+                        <Progress
+                          value={ticket.confidence_assessment.breakdown.log_evidence.percentage}
+>>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -680,8 +685,13 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
+<<<<<<< Updated upstream
                         <Progress 
                           value={ticket.confidence_assessment.breakdown.past_cases?.percentage || 0} 
+=======
+                        <Progress
+                          value={ticket.confidence_assessment.breakdown.past_cases.percentage}
+>>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -699,8 +709,13 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
+<<<<<<< Updated upstream
                         <Progress 
                           value={ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0} 
+=======
+                        <Progress
+                          value={ticket.confidence_assessment.breakdown.knowledge_base.percentage}
+>>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -718,8 +733,13 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
+<<<<<<< Updated upstream
                         <Progress 
                           value={ticket.confidence_assessment.breakdown.identifiers?.percentage || 0} 
+=======
+                        <Progress
+                          value={ticket.confidence_assessment.breakdown.identifiers.percentage}
+>>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -737,8 +757,13 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </Badge>
                           </div>
                         </div>
+<<<<<<< Updated upstream
                         <Progress 
                           value={ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0} 
+=======
+                        <Progress
+                          value={ticket.confidence_assessment.breakdown.evidence_quality.percentage}
+>>>>>>> Stashed changes
                           className="h-2"
                         />
                       </div>
@@ -750,16 +775,16 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                   {/* Interpretation */}
                   <div className="space-y-4">
                     <Label className="text-base font-semibold block">Interpretation</Label>
-                    
+
                     {/* Diagnosis Confidence */}
                     <div className="p-4 bg-muted/30 rounded-lg space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Diagnosis Confidence</Label>
-                        <Badge 
+                        <Badge
                           variant={
                             ticket.confidence_assessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                            ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                            "destructive"
+                              ticket.confidence_assessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                "destructive"
                           }
                         >
                           {ticket.confidence_assessment.interpretation.diagnosis_confidence}
@@ -774,11 +799,11 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                     <div className="p-4 bg-muted/30 rounded-lg space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Solution Confidence</Label>
-                        <Badge 
+                        <Badge
                           variant={
                             ticket.confidence_assessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                            ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                            "destructive"
+                              ticket.confidence_assessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                "destructive"
                           }
                         >
                           {ticket.confidence_assessment.interpretation.solution_confidence}

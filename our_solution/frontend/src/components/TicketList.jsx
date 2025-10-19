@@ -84,7 +84,7 @@ function renderTicketCard(ticket, index, onSelectTicket) {
       className="h-full"
     >
       <Card
-        className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/50 h-full flex flex-col"
+        className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col"
         onClick={() => onSelectTicket(ticket.id)}
       >
         <CardHeader className="pb-3">

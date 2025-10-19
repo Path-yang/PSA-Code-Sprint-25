@@ -14,6 +14,7 @@ import {
     Moon,
     Sun
 } from 'lucide-react';
+import LandingPage from './LandingPage';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -32,6 +33,7 @@ import TicketList from './TicketList';
 import TicketDetail from './TicketDetail';
 
 const sidebarItems = [
+    { id: 'home', label: 'Home', icon: Home, description: 'Landing page' },
     { id: 'diagnose', label: 'Diagnose', icon: Zap, description: 'Run diagnostics' },
     { id: 'tickets', label: 'Tickets', icon: Ticket, description: 'Manage tickets' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, description: 'View insights' },
@@ -39,7 +41,7 @@ const sidebarItems = [
 ];
 
 export default function Dashboard() {
-    const [activeView, setActiveView] = useState('diagnose');
+    const [activeView, setActiveView] = useState('home');
     const [selectedTicketId, setSelectedTicketId] = useState(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -94,6 +96,8 @@ export default function Dashboard() {
 
     const renderContent = () => {
         switch (activeView) {
+            case 'home':
+                return <LandingPage onNavigate={setActiveView} />;
             case 'diagnose':
                 return <DiagnosticForm onTicketCreated={() => toast.success('Ticket created successfully!')} />;
             case 'tickets':
@@ -111,7 +115,7 @@ export default function Dashboard() {
             case 'settings':
                 return <SettingsView isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />;
             default:
-                return <DiagnosticForm onTicketCreated={() => toast.success('Ticket created successfully!')} />;
+                return <LandingPage onNavigate={setActiveView} />;
         }
     };
 
@@ -121,14 +125,17 @@ export default function Dashboard() {
 
             {/* Sidebar */}
             <motion.div
-                className={`bg-card border-r border-border flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'
+                className={`glass-nav border-r-2 border-border flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'
                     }`}
                 initial={false}
                 animate={{ width: sidebarCollapsed ? 64 : 256, transition: { duration: 0.3 } }}
             >
                 {/* Header */}
                 <div className="p-6 border-b border-border">
-                    <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setActiveView('home')}
+                        className="flex items-center gap-3 w-full hover:opacity-80 transition-opacity"
+                    >
                         <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
                             <Activity className="w-5 h-5 text-foreground" />
                         </div>
@@ -140,43 +147,44 @@ export default function Dashboard() {
                                 transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
                                 className="flex flex-col"
                             >
-                                <h1 className="text-lg font-semibold whitespace-nowrap">PSA Diagnostic</h1>
+                                <h1 className="text-lg font-semibold whitespace-nowrap text-left">PSA Diagnostic</h1>
                             </motion.div>
                         )}
-                    </div>
+                    </button>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-2">
-                    {sidebarItems.map((item) => {
+                <nav className="flex-1 p-4 space-y-1">
+                    {sidebarItems.map((item, index) => {
                         const Icon = item.icon;
                         const isActive = activeView === item.id;
 
                         return (
-                            <Button
-                                key={item.id}
-                                variant={isActive ? "default" : "ghost"}
-                                className={`w-full justify-start gap-3 ${sidebarCollapsed ? 'px-2' : 'px-3'}`}
-                                onClick={() => handleViewChange(item.id)}
-                            >
-                                <Icon className="w-4 h-4 flex-shrink-0" />
-                                {!sidebarCollapsed && (
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
-                                        className="flex flex-col items-start"
-                                    >
-                                        <span className={`text-sm font-medium ${isActive ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                            {item.label}
-                                        </span>
-                                        <span className={`text-xs ${isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                                            {item.description}
-                                        </span>
-                                    </motion.div>
+                            <div key={item.id}>
+                                <Button
+                                    variant={isActive ? "default" : "ghost"}
+                                    className={`w-full justify-start gap-3 ${sidebarCollapsed ? 'px-2' : 'px-3'}`}
+                                    onClick={() => handleViewChange(item.id)}
+                                >
+                                    <Icon className="w-4 h-4 flex-shrink-0" />
+                                    {!sidebarCollapsed && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
+                                            className="flex flex-col items-start"
+                                        >
+                                            <span className={`text-sm font-medium ${isActive ? 'text-primary-foreground' : 'text-foreground'}`}>
+                                                {item.label}
+                                            </span>
+                                        </motion.div>
+                                    )}
+                                </Button>
+                                {index < sidebarItems.length - 1 && (
+                                    <div className="h-px bg-border mx-2 my-2" />
                                 )}
-                            </Button>
+                            </div>
                         );
                     })}
                 </nav>
@@ -214,8 +222,11 @@ export default function Dashboard() {
                 <div className="bg-card border-b border-border px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold capitalize">{activeView.replace('-', ' ')}</h2>
+                            <h2 className="text-xl font-semibold capitalize">
+                                {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
+                            </h2>
                             <p className="text-sm text-muted-foreground">
+                                {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
                                 {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
                                 {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
                                 {activeView === 'ticket-detail' && 'View and edit ticket details'}
@@ -412,7 +423,7 @@ function AnalyticsView() {
         <div className="p-6 space-y-6">
             {/* Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
+                <Card className="glass-metric">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
                     </CardHeader>
@@ -431,7 +442,7 @@ function AnalyticsView() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-metric">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Resolved</CardTitle>
                     </CardHeader>
@@ -443,7 +454,7 @@ function AnalyticsView() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="glass-metric">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
                     </CardHeader>
@@ -466,7 +477,7 @@ function AnalyticsView() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Ticket Trends Chart */}
-                <Card>
+                <Card className="glass-card">
                     <CardHeader>
                         <CardTitle className="text-lg">Ticket Trends (7 Days)</CardTitle>
                         <CardDescription>Active vs closed tickets over time</CardDescription>
@@ -501,7 +512,7 @@ function AnalyticsView() {
                 </Card>
 
                 {/* Resolution Times Chart */}
-                <Card>
+                <Card className="glass-card">
                     <CardHeader>
                         <CardTitle className="text-lg">Resolution Times</CardTitle>
                         <CardDescription>Average resolution time per day</CardDescription>
