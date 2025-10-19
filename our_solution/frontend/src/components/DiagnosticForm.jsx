@@ -25,6 +25,7 @@ import { Button as MovingBorderButton } from './ui/moving-border';
 import { Button as StatefulButton } from './ui/stateful-button';
 import { diagnoseAlert } from '../api.js';
 import EscalationDetails from './EscalationDetails';
+import QueueStatusIndicator from './QueueStatusIndicator';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:
 
@@ -38,6 +39,7 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
     const [error, setError] = useState('');
     const [diagnosis, setDiagnosis] = useState(null);
     const [ticketCreated, setTicketCreated] = useState(false);
+    const [requestId, setRequestId] = useState(null);
     const [greeting, setGreeting] = useState('');
     const [showResults, setShowResults] = useState(false);
 
@@ -68,6 +70,7 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
         setDiagnosis(null);
         setShowResults(false); // Reset results visibility
         setTicketCreated(false);
+        setRequestId(null); // Reset request ID
 
         try {
             const result = await diagnoseAlert(alertText.trim());
@@ -75,6 +78,12 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
             if (result.error) {
                 throw new Error(result.error);
             }
+            
+            // Capture request ID for queue tracking
+            if (result.request_id) {
+                setRequestId(result.request_id);
+            }
+            
             setDiagnosis(result);
             onDiagnosisChange?.(result);
             setShowResults(true);
@@ -194,6 +203,18 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                         </CardContent>
                     </Card>
                 </motion.div>
+
+                {/* Queue Status Indicator */}
+                {loading && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <QueueStatusIndicator requestId={requestId} />
+                    </motion.div>
+                )}
 
                 {/* Diagnosis Results */}
                 <AnimatePresence>

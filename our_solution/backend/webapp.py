@@ -19,6 +19,8 @@ from flask_cors import CORS
 from app.config import AZURE_OPENAI_API_KEY
 from app.diagnostic_system_optimized import L2DiagnosticSystemOptimized
 from app import database
+from app.request_queue import queue_manager
+import time
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -48,17 +50,45 @@ def healthcheck():
 
 @app.post("/api/diagnose")
 def diagnose():
-    """Run diagnostics for the supplied alert text."""
+    """Run diagnostics with queue management."""
     payload = request.get_json(silent=True) or {}
     alert_text = (payload.get("alertText") or "").strip()
 
     if not alert_text:
         return jsonify({"error": "alertText is required"}), 400
 
+    # Create request and add to queue
+    request_id = queue_manager.create_request(alert_text)
+    
     try:
+        # Wait for our turn to process
+        max_wait = 300  # 5 minutes max wait
+        wait_interval = 0.5  # Check every 0.5 seconds
+        elapsed = 0
+        
+        while not queue_manager.can_process_now(request_id) and elapsed < max_wait:
+            time.sleep(wait_interval)
+            elapsed += wait_interval
+        
+        if elapsed >= max_wait:
+            queue_manager.fail_request(request_id, "Request timeout - queue too long")
+            return jsonify({"error": "Request timeout - please try again"}), 408
+        
+        # Start processing
+        if not queue_manager.start_processing(request_id):
+            queue_manager.fail_request(request_id, "Failed to start processing")
+            return jsonify({"error": "Failed to start processing"}), 500
+        
+        # Run diagnostic
         diagnostic = get_system().diagnose(alert_text, verbose=False)
+        
+        # Mark as completed
+        queue_manager.complete_request(request_id, diagnostic)
+        
+        # Return result with queue metadata
         return jsonify(
             {
+                "request_id": request_id,
                 "parsed": diagnostic["parsed"],
                 "rootCause": diagnostic["root_cause"],
                 "resolution": diagnostic["resolution"],
@@ -66,10 +96,32 @@ def diagnose():
                 "logEvidence": diagnostic["log_evidence"],
                 "knowledgeBase": diagnostic["kb_articles"],
                 "similarCases": diagnostic["similar_cases"],
+                "confidenceAssessment": diagnostic.get("confidence_assessment"),
+                "queue_info": queue_manager.get_request_status(request_id)
             }
         )
     except Exception as exc:  # pragma: no cover - top-level safety
+        queue_manager.fail_request(request_id, str(exc))
         return jsonify({"error": str(exc)}), 500
+
+
+# ============================================================================
+# Queue Management Endpoints
+# ============================================================================
+
+@app.get("/api/queue/status")
+def get_queue_status():
+    """Get overall queue status."""
+    return jsonify(queue_manager.get_status())
+
+
+@app.get("/api/queue/request/<request_id>")
+def get_request_status(request_id):
+    """Get status of a specific request."""
+    status = queue_manager.get_request_status(request_id)
+    if status is None:
+        return jsonify({"error": "Request not found"}), 404
+    return jsonify(status)
 
 
 # ============================================================================
