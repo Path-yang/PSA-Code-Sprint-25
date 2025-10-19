@@ -249,6 +249,21 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     setCustomFields(updated);
   };
 
+  // IMPORTANT: useMemo hooks MUST be called before any conditional returns
+  // to satisfy React's Rules of Hooks
+  const displayData = useMemo(() => 
+    ticket?.edited_diagnosis || ticket?.diagnosis_data || {},
+    [ticket?.edited_diagnosis, ticket?.diagnosis_data]
+  );
+
+  const parsed = useMemo(() => displayData?.parsed || {}, [displayData]);
+  const rootCause = useMemo(() => displayData?.rootCause || {}, [displayData]);
+  const resolution = useMemo(() => displayData?.resolution || {}, [displayData]);
+  const confidenceAssessment = useMemo(() => 
+    displayData?.confidence_assessment || displayData?.confidenceAssessment || null, 
+    [displayData]
+  );
+
   if (loading || (saving && !ticket)) {
     return (
       <div className="p-6 space-y-6">
@@ -313,16 +328,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </div>
     );
   }
-
-  const displayData = useMemo(() =>
-    ticket.edited_diagnosis || ticket.diagnosis_data,
-    [ticket.edited_diagnosis, ticket.diagnosis_data]
-  );
-
-  const parsed = useMemo(() => displayData?.parsed || {}, [displayData]);
-  const rootCause = useMemo(() => displayData?.rootCause || {}, [displayData]);
-  const resolution = useMemo(() => displayData?.resolution || {}, [displayData]);
-  const confidenceAssessment = useMemo(() => displayData?.confidence_assessment || displayData?.confidenceAssessment || null, [displayData]);
 
   return (
     <div className="p-6 space-y-6">
