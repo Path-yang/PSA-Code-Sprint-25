@@ -45,76 +45,80 @@ export default function LandingPage({ onNavigate }) {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="min-h-screen">
             {/* Hero Section */}
-            <section className="container mx-auto px-6 py-20">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center space-y-8"
-                >
-                    {/* Logo and Badge */}
-                    <div className="flex justify-center">
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                            className="mb-4"
-                        >
-                            <img 
-                                src="/PSA-Logo.png" 
-                                alt="PSA Logo" 
-                                className="h-16 w-auto object-contain"
-                            />
-                        </motion.div>
-                    </div>
-
-                    <Badge variant="secondary" className="gap-2 mb-4">
-                        <Sparkles className="w-4 h-4" />
-                        L2 Diagnostic Assistant
-                    </Badge>
-
-                    {/* Text Flip Animation */}
-                    <div className="space-y-4">
-                        <div className="mb-4">
-                            <LayoutTextFlip />
-                        </div>
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.8 }}
-                            className="text-xl text-muted-foreground max-w-2xl mx-auto"
-                        >
-                            Transform your L2 support operations with AI-powered diagnostics,
-                            intelligent ticket management, and automated resolution workflows.
-                        </motion.p>
-                    </div>
-
-                    {/* CTA Buttons */}
+            <section className="bg-white dark:bg-slate-900">
+                <div className="container mx-auto px-6 py-20">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1 }}
-                        className="flex flex-col sm:flex-row gap-4 justify-center"
+                        transition={{ duration: 0.6 }}
+                        className="text-center space-y-8"
                     >
-                        <Button
-                            size="lg"
-                            onClick={() => onNavigate('diagnose')}
-                            className="gap-2"
+                        {/* Logo and Badge */}
+                        <div className="flex justify-center">
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                className="mb-4"
+                            >
+                                <img
+                                    src="/PSA-Logo.png"
+                                    alt="PSA Logo"
+                                    className="h-16 w-auto object-contain"
+                                />
+                            </motion.div>
+                        </div>
+
+                        <Badge variant="secondary" className="gap-2 mb-4">
+                            <Sparkles className="w-4 h-4" />
+                            L2 Diagnostic Assistant
+                        </Badge>
+
+                        {/* Text Flip Animation */}
+                        <div className="space-y-4">
+                            <div className="mb-4">
+                                <LayoutTextFlip />
+                            </div>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.8 }}
+                                className="text-xl text-muted-foreground max-w-2xl mx-auto"
+                            >
+                                Transform your L2 support operations with AI-powered diagnostics,
+                                intelligent ticket management, and automated resolution workflows.
+                            </motion.p>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1 }}
+                            className="flex flex-col sm:flex-row gap-4 justify-center"
                         >
-                            Get Started <ArrowRight className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="lg" onClick={() => onNavigate('analytics')}>
-                            View Analytics
-                        </Button>
+                            <Button
+                                size="lg"
+                                onClick={() => onNavigate('diagnose')}
+                                className="gap-2"
+                            >
+                                Get Started <ArrowRight className="w-4 h-4" />
+                            </Button>
+                            <Button variant="outline" size="lg" onClick={() => onNavigate('analytics')}>
+                                View Analytics
+                            </Button>
+                        </motion.div>
                     </motion.div>
-                </motion.div>
+                </div>
             </section>
 
             {/* Features Section - Aceternity Bento Grid */}
-            <section className="container mx-auto px-6 py-12">
-                <FeaturesSectionDemo />
+            <section className="bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800">
+                <div className="container mx-auto px-6 py-12">
+                    <FeaturesSectionDemo />
+                </div>
             </section>
 
             {/* Quick Actions Section */}

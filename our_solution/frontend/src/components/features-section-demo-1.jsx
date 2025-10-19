@@ -114,8 +114,8 @@ export const SkeletonOne = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 z-40 inset-x-0 h-60 bg-gradient-to-t from-white dark:from-black via-white dark:via-black to-transparent w-full pointer-events-none" />
-      <div className="absolute top-0 z-40 inset-x-0 h-60 bg-gradient-to-b from-white dark:from-black via-transparent to-transparent w-full pointer-events-none" />
+      <div className="absolute bottom-0 z-40 inset-x-0 h-60 bg-gradient-to-t from-gray-100 dark:from-black via-gray-100 dark:via-black to-transparent w-full pointer-events-none" />
+      <div className="absolute top-0 z-40 inset-x-0 h-60 bg-gradient-to-b from-gray-100 dark:from-black via-transparent to-transparent w-full pointer-events-none" />
     </div>
   );
 };
@@ -152,14 +152,17 @@ export const SkeletonTwo = () => {
             src="/Ticket Management.png"
             alt="Smart Ticket Management Interface"
             width={800}
-            height={800}
-            className="h-full w-full object-cover object-left-top rounded-sm"
+            height={400}
+            className="h-1/2 w-full object-cover object-left-top rounded-sm"
           />
+          <div className="h-1/2 w-full bg-gray-200 dark:bg-gray-700 rounded-sm flex items-center justify-center">
+            <span className="text-gray-500 dark:text-gray-400 text-sm">Additional Image Space</span>
+          </div>
         </div>
       </div>
 
-      <div className="absolute bottom-0 z-40 inset-x-0 h-60 bg-gradient-to-t from-white dark:from-black via-white dark:via-black to-transparent w-full pointer-events-none" />
-      <div className="absolute top-0 z-40 inset-x-0 h-60 bg-gradient-to-b from-white dark:from-black via-transparent to-transparent w-full pointer-events-none" />
+      <div className="absolute bottom-0 z-40 inset-x-0 h-60 bg-gradient-to-t from-gray-100 dark:from-black via-gray-100 dark:via-black to-transparent w-full pointer-events-none" />
+      <div className="absolute top-0 z-40 inset-x-0 h-60 bg-gradient-to-b from-gray-100 dark:from-black via-transparent to-transparent w-full pointer-events-none" />
     </div>
   );
 };

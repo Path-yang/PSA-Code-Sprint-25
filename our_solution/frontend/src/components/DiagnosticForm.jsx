@@ -22,9 +22,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button as MovingBorderButton } from './ui/moving-border';
-import { HoverBorderGradient } from './ui/hover-border-gradient';
 import { Button as StatefulButton } from './ui/stateful-button';
-import { diagnoseAlert, createTicket } from '../api.js';
+import { diagnoseAlert } from '../api.js';
 
 const placeholder = `Paste a ticket (email/SMS/call). Example:
 
@@ -32,7 +31,7 @@ RE: Email ALR-861600 | CMAU0000020 - Duplicate Container information received
 
 Hi team,...`;
 
-export default function DiagnosticForm({ onTicketCreated }) {
+export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onTicketCreatedChange }) {
     const [alertText, setAlertText] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -76,8 +75,10 @@ export default function DiagnosticForm({ onTicketCreated }) {
                 throw new Error(result.error);
             }
             setDiagnosis(result);
+            onDiagnosisChange?.(result);
             setShowResults(true);
             setTicketCreated(false);
+            onTicketCreatedChange?.(false);
             setError('');
             // Smooth scroll to results after a brief delay
             setTimeout(() => {
@@ -95,26 +96,10 @@ export default function DiagnosticForm({ onTicketCreated }) {
         }
     };
 
-    const handleCreateTicket = async () => {
-        if (!diagnosis || !alertText) return;
-
-        setLoading(true);
-        setError('');
-
-        try {
-            const ticket = await createTicket(alertText, diagnosis);
-            setTicketCreated(true);
-            onTicketCreated?.();
-        } catch (err) {
-            setError(err.message || 'Failed to create ticket');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
-        <div className={`h-screen p-4 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-center justify-center'}`}>
-            <div className={`w-full max-w-4xl mx-auto space-y-4 relative transition-all duration-500 ${showResults ? 'pt-6 space-y-6' : 'max-h-full overflow-hidden'}`}>
+        <div className={`min-h-screen p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-start justify-start pt-24'}`}>
+            <div className={`w-full max-w-4xl mx-auto space-y-6 relative transition-all duration-500 ${showResults ? 'pt-6' : ''}`}>
 
                 {/* Greeting */}
                 <AnimatePresence>
@@ -124,12 +109,12 @@ export default function DiagnosticForm({ onTicketCreated }) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -30, transition: { duration: 0.5 } }}
                             transition={{ duration: 0.6 }}
-                            className="text-center mb-6"
+                            className="text-center mb-8"
                         >
-                            <h1 className="text-2xl font-bold text-foreground mb-2">
+                            <h1 className="text-3xl font-bold text-foreground mb-2">
                                 {greeting}
                             </h1>
-                            <div className="text-base text-muted-foreground">
+                            <div className="text-lg text-muted-foreground">
                                 Ready to <FlipWords
                                     words={['diagnose', 'analyze', 'investigate', 'resolve']}
                                     duration={2000}
@@ -165,37 +150,6 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                         Paste your alert text below and let our AI analyze the issue
                                     </CardDescription>
                                 </div>
-                                {diagnosis && !ticketCreated && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                    >
-                                        <HoverBorderGradient
-                                            onClick={handleCreateTicket}
-                                            disabled={loading}
-                                            duration={1}
-                                            clockwise={true}
-                                            containerClassName="h-10 w-auto"
-                                            className="bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4" />
-                                                Save as Ticket
-                                            </div>
-                                        </HoverBorderGradient>
-                                    </motion.div>
-                                )}
-                                {ticketCreated && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                    >
-                                        <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-md border border-green-200 dark:border-green-800">
-                                            <CheckCircle className="w-4 h-4" />
-                                            Ticket created!
-                                        </div>
-                                    </motion.div>
-                                )}
                             </div>
                         </CardHeader>
                         <CardContent>
@@ -261,29 +215,35 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <FileText className="w-5 h-5" />
-                                            Ticket Information
+                                            Alert Summary
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            <div className="space-y-1">
-                                                <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
-                                                <p className="font-mono text-sm">{diagnosis.parsed.ticket_id || '—'}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-sm font-medium text-muted-foreground">Channel</Label>
-                                                <Badge variant="outline">{diagnosis.parsed.channel || '—'}</Badge>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-sm font-medium text-muted-foreground">Module</Label>
-                                                <p className="text-sm">{diagnosis.parsed.module || '—'}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                                                <Badge variant={diagnosis.parsed.priority === 'High' ? 'destructive' : 'secondary'}>
-                                                    {diagnosis.parsed.priority || '—'}
-                                                </Badge>
-                                            </div>
+                                        <div className="border rounded-md">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="border-b bg-muted/50">
+                                                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Ticket ID</th>
+                                                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Channel</th>
+                                                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Module</th>
+                                                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Priority</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td className="px-4 py-3 font-mono text-sm">{diagnosis.parsed.ticket_id || '—'}</td>
+                                                        <td className="px-4 py-3">
+                                                            <Badge variant="outline">{diagnosis.parsed.channel || '—'}</Badge>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-sm">{diagnosis.parsed.module || '—'}</td>
+                                                        <td className="px-4 py-3">
+                                                            <Badge variant={diagnosis.parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                                                                {diagnosis.parsed.priority || '—'}
+                                                            </Badge>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </CardContent>
                                 </Card>

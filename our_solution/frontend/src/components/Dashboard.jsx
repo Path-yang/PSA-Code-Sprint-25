@@ -24,8 +24,9 @@ import { Label } from './ui/label';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { listTickets } from '../api.js';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { listTickets, createTicket } from '../api.js';
+import { TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
+import { HoverBorderGradient } from './ui/hover-border-gradient';
 
 // Import existing components
 import DiagnosticForm from './DiagnosticForm';
@@ -44,6 +45,8 @@ export default function Dashboard() {
     const [activeView, setActiveView] = useState('home');
     const [selectedTicketId, setSelectedTicketId] = useState(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [diagnosis, setDiagnosis] = useState(null);
+    const [ticketCreated, setTicketCreated] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(() => {
         // Check localStorage for saved preference
         const saved = localStorage.getItem('darkMode');
@@ -62,6 +65,21 @@ export default function Dashboard() {
     const handleViewChange = (view) => {
         setActiveView(view);
         setSelectedTicketId(null);
+    };
+
+    const handleCreateTicket = async () => {
+        if (!diagnosis) return;
+
+        try {
+            // Get the alert text from the diagnosis or use a default
+            const alertText = diagnosis.parsed?.alert_type || 'Diagnostic Alert';
+            await createTicket(alertText, diagnosis);
+            setTicketCreated(true);
+            toast.success('Ticket created successfully!');
+        } catch (error) {
+            toast.error('Failed to create ticket');
+            console.error('Ticket creation error:', error);
+        }
     };
 
     const handleTicketSelect = (ticketId) => {
@@ -99,7 +117,11 @@ export default function Dashboard() {
             case 'home':
                 return <LandingPage onNavigate={setActiveView} />;
             case 'diagnose':
-                return <DiagnosticForm onTicketCreated={() => toast.success('Ticket created successfully!')} />;
+                return <DiagnosticForm
+                    onTicketCreated={() => toast.success('Ticket created successfully!')}
+                    onDiagnosisChange={setDiagnosis}
+                    onTicketCreatedChange={setTicketCreated}
+                />;
             case 'tickets':
                 return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} />;
             case 'ticket-detail':
@@ -131,17 +153,17 @@ export default function Dashboard() {
                 animate={{ width: sidebarCollapsed ? 64 : 256, transition: { duration: 0.3 } }}
             >
                 {/* Header */}
-                <div className="p-6 border-b border-border">
+                <div className={`border-b border-border ${sidebarCollapsed ? 'p-2' : 'p-6'}`}>
                     <button
                         onClick={() => setActiveView('home')}
                         className="flex items-center justify-center w-full hover:opacity-80 transition-opacity"
                     >
                         {sidebarCollapsed ? (
-                            <div className="w-8 h-8 flex items-center justify-center">
-                                <img 
-                                    src="/PSA-Logo.png" 
-                                    alt="PSA Logo" 
-                                    className="w-8 h-8 object-contain"
+                            <div className="w-full flex items-center justify-center">
+                                <img
+                                    src="/PSA-Logo.png"
+                                    alt="PSA Logo"
+                                    className="h-12 w-12 object-contain"
                                 />
                             </div>
                         ) : (
@@ -152,9 +174,9 @@ export default function Dashboard() {
                                 transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
                                 className="flex flex-col items-center w-full"
                             >
-                                <img 
-                                    src="/PSA-Logo.png" 
-                                    alt="PSA Logo" 
+                                <img
+                                    src="/PSA-Logo.png"
+                                    alt="PSA Logo"
                                     className="h-12 w-auto object-contain"
                                 />
                                 <p className="text-xs text-muted-foreground mt-2">L2 Diagnostic Assistant</p>
@@ -245,10 +267,25 @@ export default function Dashboard() {
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="gap-1">
-                                <AlertTriangle className="w-3 h-3" />
-                                L2 Assistant
-                            </Badge>
+                            {activeView === 'diagnose' && diagnosis && !ticketCreated && (
+                                <HoverBorderGradient
+                                    onClick={handleCreateTicket}
+                                    duration={1}
+                                    clockwise={true}
+                                    containerClassName="h-10 w-auto"
+                                    className="bg-primary text-primary-foreground"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Save as Ticket
+                                    </div>
+                                </HoverBorderGradient>
+                            )}
+                            {activeView === 'diagnose' && ticketCreated && (
+                                <div className="flex items-center justify-center w-10 h-10 text-green-600 bg-green-50 dark:bg-green-900/20 rounded-full border border-green-200 dark:border-green-800">
+                                    <CheckCircle className="w-5 h-5" />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
