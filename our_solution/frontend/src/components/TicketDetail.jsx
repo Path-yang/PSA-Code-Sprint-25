@@ -541,7 +541,14 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
                   {resolution.resolution_steps?.length > 0 && (
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                        {resolution.time_breakdown?.resolution_steps_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.resolution_steps_time}
+                          </Badge>
+                        )}
+                      </div>
                       <ol className="mt-2 space-y-2">
                         {resolution.resolution_steps.map((step, index) => (
                           <li key={index} className="text-sm flex items-start gap-3">
@@ -557,7 +564,14 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
                   {resolution.verification_steps?.length > 0 && (
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                        {resolution.time_breakdown?.verification_steps_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.verification_steps_time}
+                          </Badge>
+                        )}
+                      </div>
                       <ul className="mt-2 space-y-1">
                         {resolution.verification_steps.map((step, index) => (
                           <li key={index} className="text-sm flex items-start gap-2">
@@ -571,7 +585,14 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
                   {resolution.sql_queries?.length > 0 && (
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                        {resolution.time_breakdown?.sql_commands_time && (
+                          <Badge variant="outline" className="text-xs">
+                            {resolution.time_breakdown.sql_commands_time}
+                          </Badge>
+                        )}
+                      </div>
                       <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
                         {resolution.sql_queries.join('\n\n')}
                       </pre>

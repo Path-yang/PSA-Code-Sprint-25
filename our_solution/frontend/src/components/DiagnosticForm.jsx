@@ -292,7 +292,14 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
                                 {diagnosis.resolution.resolution_steps?.length > 0 && (
                                     <div>
-                                        <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                                            {diagnosis.resolution.time_breakdown?.resolution_steps_time && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    {diagnosis.resolution.time_breakdown.resolution_steps_time}
+                                                </Badge>
+                                            )}
+                                        </div>
                                         <ol className="mt-2 space-y-2">
                                             {diagnosis.resolution.resolution_steps.map((step, index) => (
                                                 <li key={index} className="text-sm flex items-start gap-3">
@@ -308,7 +315,14 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
                                 {diagnosis.resolution.verification_steps?.length > 0 && (
                                     <div>
-                                        <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                                            {diagnosis.resolution.time_breakdown?.verification_steps_time && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    {diagnosis.resolution.time_breakdown.verification_steps_time}
+                                                </Badge>
+                                            )}
+                                        </div>
                                         <ul className="mt-2 space-y-1">
                                             {diagnosis.resolution.verification_steps.map((step, index) => (
                                                 <li key={index} className="text-sm flex items-start gap-2">
@@ -322,7 +336,14 @@ export default function DiagnosticForm({ onTicketCreated }) {
 
                                 {diagnosis.resolution.sql_queries?.length > 0 && (
                                     <div>
-                                        <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                                            {diagnosis.resolution.time_breakdown?.sql_commands_time && (
+                                                <Badge variant="outline" className="text-xs">
+                                                    {diagnosis.resolution.time_breakdown.sql_commands_time}
+                                                </Badge>
+                                            )}
+                                        </div>
                                         <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
                                             {diagnosis.resolution.sql_queries.join('\n\n')}
                                         </pre>

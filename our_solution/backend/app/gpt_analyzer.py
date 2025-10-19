@@ -424,10 +424,20 @@ Return JSON:
         "Any SQL queries needed (if applicable)"
     ],
     "estimated_time": "estimated time to resolve (e.g., '15 minutes')",
+    "time_breakdown": {{
+        "resolution_steps_time": "X minutes",
+        "verification_steps_time": "Y minutes", 
+        "sql_commands_time": "Z minutes"
+    }},
     "escalate": true/false,
     "escalate_to": "Module owner (Container/Vessel/EDI-API) or null",
     "escalate_reason": "why escalation is or isn't needed"
 }}
+
+IMPORTANT: The time breakdown should add up to the total estimated_time. For example:
+- If estimated_time is "20 minutes", then X + Y + Z should equal 20
+- If estimated_time is "45 minutes", then X + Y + Z should equal 45
+- Allocate time realistically based on complexity of each section
 
 NOTE: Write each resolution step as a direct action statement without "Step 1:", "Step 2:" prefixes or special characters like ")".
 
@@ -442,6 +452,11 @@ Return ONLY valid JSON."""
                 "verification_steps": [],
                 "sql_queries": [],
                 "estimated_time": "Unknown",
+                "time_breakdown": {
+                    "resolution_steps_time": "Unknown",
+                    "verification_steps_time": "Unknown",
+                    "sql_commands_time": "Unknown"
+                },
                 "escalate": True,
                 "escalate_to": "Product Team",
                 "escalate_reason": "Unable to determine resolution automatically",
