@@ -90,16 +90,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [newFieldValue, setNewFieldValue] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    if (propTicket) {
-      setTicket(propTicket);
-      setLoading(false);
-    } else {
-      loadTicket();
-    }
-  }, [ticketId, propTicket]);
-
-  const loadTicket = async () => {
+  const loadTicket = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -122,7 +113,16 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     } finally {
       setLoading(false);
     }
-  };
+  }, [ticketId]);
+
+  useEffect(() => {
+    if (propTicket) {
+      setTicket(propTicket);
+      setLoading(false);
+    } else {
+      loadTicket();
+    }
+  }, [ticketId, propTicket, loadTicket]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -330,10 +330,14 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     );
   }
 
-  const displayData = ticket.edited_diagnosis || ticket.diagnosis_data;
-  const parsed = displayData.parsed || {};
-  const rootCause = displayData.rootCause || {};
-  const resolution = displayData.resolution || {};
+  const displayData = useMemo(() => 
+    ticket.edited_diagnosis || ticket.diagnosis_data, 
+    [ticket.edited_diagnosis, ticket.diagnosis_data]
+  );
+  
+  const parsed = useMemo(() => displayData?.parsed || {}, [displayData]);
+  const rootCause = useMemo(() => displayData?.rootCause || {}, [displayData]);
+  const resolution = useMemo(() => displayData?.resolution || {}, [displayData]);
 
   return (
     <div className="p-6 space-y-6">
@@ -357,16 +361,12 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </div>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
-        >
+        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
           <div className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="w-4 h-4" />
             {error}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Tabs */}
@@ -891,11 +891,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </Tabs>
 
       {/* Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex gap-3 pt-6 border-t"
-        >
+      <div className="flex gap-3 pt-6 border-t">
           {isEditing ? (
             <>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
@@ -947,15 +943,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               )}
             </>
           )}
-        </motion.div>
+      </div>
 
-        {/* Ticket Dates - Bottom Right - Outside Container */}
-        {ticket && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg"
-          >
+      {/* Ticket Dates - Bottom Right - Outside Container */}
+      {ticket && (
+        <div className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
             <div className="flex flex-col gap-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
@@ -965,11 +957,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 <Clock className="w-4 h-4" />
                 <span>Updated: {formatDateTime(ticket.updated_at)}</span>
               </div>
-            </div>
-          </motion.div>
-        )}
+          </div>
+        </div>
+      )}
 
-        {/* Close Ticket Confirmation Dialog */}
+      {/* Close Ticket Confirmation Dialog */}
         <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
