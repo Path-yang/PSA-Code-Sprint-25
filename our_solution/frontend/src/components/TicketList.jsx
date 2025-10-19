@@ -15,7 +15,8 @@ import {
   Filter,
   Search,
   Grid3X3,
-  List
+  List,
+  Trash2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -374,7 +375,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="active" className="gap-2">
             <AlertCircle className="w-4 h-4" />
             Active Tickets
@@ -387,6 +388,13 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
             Closed Tickets
             <Badge variant="secondary" className="ml-2">
               {allTickets.filter(t => t.status === 'closed').length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="deleted" className="gap-2">
+            <Trash2 className="w-4 h-4" />
+            Deleted Tickets
+            <Badge variant="secondary" className="ml-2">
+              {allTickets.filter(t => t.status === 'deleted').length}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -499,6 +507,61 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               <h3 className="text-lg font-semibold mb-2">No closed tickets</h3>
               <p className="text-muted-foreground">
                 Closed tickets will appear here once they are resolved
+              </p>
+            </motion.div>
+          ) : viewMode === 'list' ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {renderTicketsTable(filteredTickets, onSelectTicket)}
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              <AnimatePresence>
+                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="deleted" className="mt-6">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-6 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-full" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-3/4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : filteredTickets.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12"
+            >
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Deleted Tickets</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
               </p>
             </motion.div>
           ) : viewMode === 'list' ? (
