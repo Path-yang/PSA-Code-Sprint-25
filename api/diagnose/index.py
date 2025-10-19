@@ -21,7 +21,7 @@ _system = None
 _init_error = None
 
 try:
-    from my_solution.backend.app.diagnostic_system import L2DiagnosticSystem
+    from our_solution.backend.app.diagnostic_system import L2DiagnosticSystem
     # Don't initialize yet - do it on first request
 except Exception as e:
     _init_error = str(e)

@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env files if present.
-# Priority: backend/.env, my_solution/.env, then repo-root/.env
+# Priority: backend/.env, our_solution/.env, then repo-root/.env
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(CURRENT_DIR, ".env"))
 load_dotenv(os.path.join(CURRENT_DIR, "..", ".env"))

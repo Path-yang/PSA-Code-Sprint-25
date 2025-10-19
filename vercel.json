@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd my_solution && npm run build",
-  "installCommand": "cd my_solution && npm install",
-  "outputDirectory": "my_solution/dist",
+  "buildCommand": "cd our_solution && npm run build",
+  "installCommand": "cd our_solution && npm install",
+  "outputDirectory": "our_solution/dist",
   "rewrites": [
     {
       "source": "/((?!api/).*)",

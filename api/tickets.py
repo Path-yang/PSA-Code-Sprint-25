@@ -20,7 +20,7 @@ _ensure_project_root()
 # Try to import database module
 _db_error = None
 try:
-    from my_solution.backend.app import database
+    from our_solution.backend.app import database
 except Exception as e:
     _db_error = str(e)
     print(f"ERROR during import: {e}")
