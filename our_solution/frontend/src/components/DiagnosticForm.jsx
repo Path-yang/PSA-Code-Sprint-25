@@ -112,7 +112,7 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                         duration={1}
                                         clockwise={true}
                                         containerClassName="h-10 w-auto"
-                                        className="bg-primary text-primary-foreground hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <div className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4" />
