@@ -209,7 +209,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
-    
+
     try {
       const updatedTicket = await closeTicket(ticketId);
       console.log('Ticket closed successfully:', updatedTicket);
@@ -222,7 +222,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
         }
         onTicketUpdated?.();
-        
+
         // Wait briefly to show success, then navigate back
         setTimeout(() => {
           onBack();
@@ -264,11 +264,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
-    
+
     try {
       const updatedTicket = await deleteTicket(ticketId, finalReason);
       console.log('Ticket moved to deleted:', updatedTicket);
-      
+
       // Update cache
       const cachedTickets = sessionStorage.getItem('cachedTickets');
       if (cachedTickets) {
@@ -276,12 +276,12 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         const updatedTickets = tickets.map(t => t.id === ticketId ? updatedTicket : t);
         sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
       }
-      
+
       setDeletionReason('');
       setDeletionReasonType('');
       setCustomDeletionReason('');
       onTicketUpdated?.();
-      
+
       // Wait briefly to show success, then navigate back
       setTimeout(() => {
         onBack();
@@ -314,11 +314,11 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
-    
+
     try {
       await permanentDeleteTicket(ticketId, deletePassword);
       console.log('Ticket permanently deleted');
-      
+
       // Update cache to remove ticket
       const cachedTickets = sessionStorage.getItem('cachedTickets');
       if (cachedTickets) {
@@ -326,10 +326,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         const updatedTickets = tickets.filter(t => t.id !== ticketId);
         sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
       }
-      
+
       setDeletePassword('');
       onTicketUpdated?.();
-      
+
       // Wait briefly to show success, then navigate back
       setTimeout(() => {
         onBack();
@@ -659,7 +659,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                     </div>
                   </div>
 
-<<<<<<< HEAD
+                  {/* Escalation Details */}
+                  {resolution.escalate && (
+                    <EscalationDetails
+                      module={parsed.module}
+                      escalateTo={resolution.escalate_to}
+                      escalateReason={resolution.escalate_reason}
+                    />
+                  )}
+
                   {resolution.resolution_steps?.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between">
@@ -680,55 +688,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                           </li>
                         ))}
                       </ol>
-                    </div>
-                  )}
-
-                  {/* Escalation Details */}
-                  {resolution.escalate && (
-                    <EscalationDetails 
-                      module={parsed.module}
-                      escalateTo={resolution.escalate_to}
-                      escalateReason={resolution.escalate_reason}
-                    />
-                  )}
-
-                      {resolution.verification_steps?.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
-                            {resolution.time_breakdown?.verification_steps_time && (
-                              <Badge variant="outline" className="text-xs">
-                                {resolution.time_breakdown.verification_steps_time}
-                              </Badge>
-                            )}
-                          </div>
-                          <ul className="mt-2 space-y-1">
-                            {resolution.verification_steps.map((step, index) => (
-                              <li key={index} className="text-sm flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                                {step}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {resolution.sql_queries?.length > 0 && (
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
-                            {resolution.time_breakdown?.sql_commands_time && (
-                              <Badge variant="outline" className="text-xs">
-                                {resolution.time_breakdown.sql_commands_time}
-                              </Badge>
-                            )}
-                          </div>
-                          <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
-                            {resolution.sql_queries.join('\n\n')}
-                          </pre>
-                        </div>
-                      )}
->>>>>>> 66613afbd1bde2a720ec54bba4fdbc0037dec410
                     </div>
                   )}
 
