@@ -76,14 +76,7 @@ function renderTicketCard(ticket, index, onSelectTicket) {
   const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
 
   return (
-    <motion.div
-      key={ticket.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ delay: index * 0.05 }}
-      className="h-full"
-    >
+    <div key={ticket.id} className="h-full">
       <Card
         className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-primary/50 h-full flex flex-col"
         onClick={() => onSelectTicket(ticket.id)}
@@ -135,7 +128,7 @@ function renderTicketCard(ticket, index, onSelectTicket) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -416,7 +409,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -435,11 +428,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               ))}
             </div>
           ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
+            <div className="text-center py-12">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Ticket className="w-8 h-8 text-muted-foreground" />
               </div>
@@ -453,24 +442,15 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
                   Go to Diagnostics
                 </Button>
               )}
-            </motion.div>
+            </div>
           ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <div>
               {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+            </div>
           )}
         </TabsContent>
 
@@ -478,7 +458,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
           {/* Same content structure for closed tickets */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -497,11 +477,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               ))}
             </div>
           ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
+            <div className="text-center py-12">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-muted-foreground" />
               </div>
@@ -509,31 +485,22 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               <p className="text-muted-foreground">
                 Closed tickets will appear here once they are resolved
               </p>
-            </motion.div>
+            </div>
           ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <div>
               {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="deleted" className="mt-6">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -552,11 +519,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               ))}
             </div>
           ) : filteredTickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
-            >
+            <div className="text-center py-12">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="w-8 h-8 text-muted-foreground" />
               </div>
@@ -564,24 +527,15 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
               <p className="text-muted-foreground mb-4">
                 {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
               </p>
-            </motion.div>
+            </div>
           ) : viewMode === 'list' ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <div>
               {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence>
-                {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-              </AnimatePresence>
-            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+            </div>
           )}
         </TabsContent>
       </Tabs>

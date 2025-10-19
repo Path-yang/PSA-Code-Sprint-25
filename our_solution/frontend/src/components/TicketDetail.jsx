@@ -97,29 +97,23 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       const fetchedTicket = await getTicket(ticketId);
       setTicket(fetchedTicket);
 
-      // Initialize edit fields lazily - only when needed
-      if (fetchedTicket.notes) setNotes(fetchedTicket.notes);
-      if (fetchedTicket.custom_fields) setCustomFields(fetchedTicket.custom_fields);
+      // Initialize all fields
+      const diagnosis = fetchedTicket.edited_diagnosis || fetchedTicket.diagnosis_data;
+      setEditedRootCause(diagnosis?.rootCause?.root_cause || '');
+      setEditedTechnicalDetails(diagnosis?.rootCause?.technical_details || '');
+      setEditedResolutionSteps(
+        Array.isArray(diagnosis?.resolution?.resolution_steps)
+          ? diagnosis.resolution.resolution_steps.join('\n')
+          : ''
+      );
+      setNotes(fetchedTicket.notes || '');
+      setCustomFields(fetchedTicket.custom_fields || {});
     } catch (err) {
       setError(err.message || 'Failed to load ticket');
     } finally {
       setLoading(false);
     }
   }, [ticketId]);
-
-  // Initialize edit fields only when entering edit mode
-  useEffect(() => {
-    if (isEditing && ticket) {
-      const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-      setEditedRootCause(diagnosis.rootCause?.root_cause || '');
-      setEditedTechnicalDetails(diagnosis.rootCause?.technical_details || '');
-      setEditedResolutionSteps(
-        Array.isArray(diagnosis.resolution?.resolution_steps)
-          ? diagnosis.resolution.resolution_steps.join('\n')
-          : ''
-      );
-    }
-  }, [isEditing, ticket]);
 
   useEffect(() => {
     if (propTicket) {
