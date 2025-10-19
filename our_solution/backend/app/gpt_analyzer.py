@@ -35,6 +35,80 @@ class GPTAnalyzer:
             print(f"Error calling Azure OpenAI: {exc}")
             return "{}"
 
+    def _calculate_confidence_score(
+        self,
+        log_evidence: str,
+        case_context: str,
+        kb_context: str,
+        parsed: Dict,
+        evidence_summary: List[str]
+    ) -> int:
+        """
+        Calculate algorithmic confidence score based on evidence quality.
+        
+        Scoring factors:
+        - Log evidence: 0-30 points
+        - Similar cases: 0-25 points
+        - Knowledge base: 0-20 points
+        - Specific identifiers: 0-15 points
+        - Evidence count: 0-10 points
+        
+        Returns: Confidence score between 0-100
+        """
+        confidence = 0
+        
+        # Factor 1: Log Evidence Quality (0-30 points)
+        if log_evidence and "No relevant logs found" not in log_evidence:
+            log_lines = log_evidence.count('\n')
+            if log_lines >= 5:
+                confidence += 30  # Strong log evidence
+            elif log_lines >= 2:
+                confidence += 20  # Moderate log evidence
+            else:
+                confidence += 10  # Weak log evidence
+        
+        # Factor 2: Similar Past Cases (0-25 points)
+        if case_context and "No similar past cases found" not in case_context:
+            if "Relevance: 100%" in case_context or "Relevance: 9" in case_context:
+                confidence += 25  # Exact match to past case
+            elif "Relevance: 8" in case_context or "Relevance: 7" in case_context:
+                confidence += 20  # Strong similarity
+            elif "Relevance: 6" in case_context or "Relevance: 5" in case_context:
+                confidence += 15  # Moderate similarity
+            else:
+                confidence += 10  # Weak similarity
+        
+        # Factor 3: Knowledge Base Coverage (0-20 points)
+        if kb_context and "No relevant knowledge base articles found" not in kb_context:
+            if "Resolution" in kb_context or "Verification" in kb_context:
+                confidence += 20  # Has documented resolution procedure
+            else:
+                confidence += 10  # Has related KB articles
+        
+        # Factor 4: Specific Identifiers (0-15 points)
+        identifiers_found = 0
+        if parsed.get("entity_id"):
+            identifiers_found += 1
+        if parsed.get("error_code"):
+            identifiers_found += 1
+        if parsed.get("module") and parsed.get("module") != "Unknown":
+            identifiers_found += 1
+        
+        confidence += min(15, identifiers_found * 5)
+        
+        # Factor 5: Evidence Summary Quality (0-10 points)
+        if evidence_summary and len(evidence_summary) > 0:
+            evidence_count = len(evidence_summary)
+            if evidence_count >= 4:
+                confidence += 10  # Strong evidence base
+            elif evidence_count >= 2:
+                confidence += 7   # Moderate evidence base
+            else:
+                confidence += 4   # Minimal evidence base
+        
+        # Ensure confidence is within 0-100 range
+        return min(100, max(0, confidence))
+
     def parse_alert(self, alert_text: str) -> Dict:
         """Parse alert and extract key information."""
         system_prompt = """You are a L2 support ticket parser for a port terminal operations system.
@@ -120,7 +194,17 @@ Return ONLY valid JSON."""
 
         response = self._call_gpt(system_prompt, user_prompt, temperature=0.3)
         try:
-            return json.loads(response)
+            result = json.loads(response)
+            # Replace GPT's subjective confidence with algorithmic calculation
+            algorithmic_confidence = self._calculate_confidence_score(
+                log_evidence=log_evidence,
+                case_context=case_context,
+                kb_context=kb_context,
+                parsed=parsed,
+                evidence_summary=result.get("evidence_summary", [])
+            )
+            result["confidence"] = algorithmic_confidence
+            return result
         except json.JSONDecodeError:
             return {
                 "root_cause": "Unable to determine",
