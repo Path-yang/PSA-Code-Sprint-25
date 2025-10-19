@@ -22,6 +22,9 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { listTickets } from '../api.js';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 // Import existing components
 import DiagnosticForm from './DiagnosticForm';
@@ -249,36 +252,274 @@ export default function Dashboard() {
     );
 }
 
-// Placeholder components for analytics and settings
+// Real analytics component with actual data
 function AnalyticsView() {
+    const [tickets, setTickets] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [metrics, setMetrics] = useState({
+        total: 0,
+        active: 0,
+        closed: 0,
+        resolutionRate: 0,
+        avgResolutionTime: 0,
+        weekChange: { total: 0, resolutionTime: 0 }
+    });
+    const [chartData, setChartData] = useState([]);
+
+    useEffect(() => {
+        loadAnalytics();
+    }, []);
+
+    const loadAnalytics = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const allTickets = await listTickets();
+            setTickets(allTickets);
+
+            // Calculate metrics
+            const total = allTickets.length;
+            const active = allTickets.filter(t => t.status === 'active').length;
+            const closed = allTickets.filter(t => t.status === 'closed').length;
+            const resolutionRate = total > 0 ? (closed / total * 100) : 0;
+
+            // Calculate average resolution time for closed tickets
+            const closedTickets = allTickets.filter(t => t.status === 'closed' && t.closed_at);
+            const avgResolutionTime = closedTickets.length > 0
+                ? closedTickets.reduce((sum, ticket) => {
+                    const created = new Date(ticket.created_at);
+                    const closed = new Date(ticket.closed_at);
+                    return sum + (closed - created) / (1000 * 60 * 60); // Convert to hours
+                }, 0) / closedTickets.length
+                : 0;
+
+            // Calculate week-over-week changes
+            const now = new Date();
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+            const currentWeekTickets = allTickets.filter(t => new Date(t.created_at) >= oneWeekAgo);
+            const previousWeekTickets = allTickets.filter(t => {
+                const created = new Date(t.created_at);
+                return created >= twoWeeksAgo && created < oneWeekAgo;
+            });
+
+            const currentWeekClosed = currentWeekTickets.filter(t => t.status === 'closed' && t.closed_at);
+            const previousWeekClosed = previousWeekTickets.filter(t => t.status === 'closed' && t.closed_at);
+
+            const currentWeekAvgTime = currentWeekClosed.length > 0
+                ? currentWeekClosed.reduce((sum, ticket) => {
+                    const created = new Date(ticket.created_at);
+                    const closed = new Date(ticket.closed_at);
+                    return sum + (closed - created) / (1000 * 60 * 60);
+                }, 0) / currentWeekClosed.length
+                : 0;
+
+            const previousWeekAvgTime = previousWeekClosed.length > 0
+                ? previousWeekClosed.reduce((sum, ticket) => {
+                    const created = new Date(ticket.created_at);
+                    const closed = new Date(ticket.closed_at);
+                    return sum + (closed - created) / (1000 * 60 * 60);
+                }, 0) / previousWeekClosed.length
+                : 0;
+
+            setMetrics({
+                total,
+                active,
+                closed,
+                resolutionRate,
+                avgResolutionTime,
+                weekChange: {
+                    total: currentWeekTickets.length - previousWeekTickets.length,
+                    resolutionTime: currentWeekAvgTime - previousWeekAvgTime
+                }
+            });
+
+            // Prepare chart data for last 7 days
+            const chartData = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+
+                const dayTickets = allTickets.filter(t => {
+                    const created = new Date(t.created_at);
+                    return created >= dayStart && created < dayEnd;
+                });
+
+                const dayClosed = dayTickets.filter(t => t.status === 'closed' && t.closed_at);
+                const dayAvgTime = dayClosed.length > 0
+                    ? dayClosed.reduce((sum, ticket) => {
+                        const created = new Date(ticket.created_at);
+                        const closed = new Date(ticket.closed_at);
+                        return sum + (closed - created) / (1000 * 60 * 60);
+                    }, 0) / dayClosed.length
+                    : 0;
+
+                chartData.push({
+                    date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    active: dayTickets.filter(t => t.status === 'active').length,
+                    closed: dayTickets.filter(t => t.status === 'closed').length,
+                    avgTime: Math.round(dayAvgTime * 10) / 10
+                });
+            }
+
+            setChartData(chartData);
+        } catch (err) {
+            setError(err.message || 'Failed to load analytics');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i}>
+                            <CardHeader className="pb-2">
+                                <div className="h-4 bg-muted animate-pulse rounded"></div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-8 bg-muted animate-pulse rounded mb-2"></div>
+                                <div className="h-3 bg-muted animate-pulse rounded w-2/3"></div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-6">
+                <Card>
+                    <CardContent className="pt-6">
+                        <div className="text-center text-muted-foreground">
+                            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+                            <p>Failed to load analytics: {error}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 space-y-6">
+            {/* Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">24</div>
-                        <p className="text-xs text-muted-foreground">+2 from last week</p>
+                        <div className="text-2xl font-bold">{metrics.total}</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            {metrics.weekChange.total >= 0 ? (
+                                <TrendingUp className="w-3 h-3 text-green-500" />
+                            ) : (
+                                <TrendingDown className="w-3 h-3 text-red-500" />
+                            )}
+                            <span className={metrics.weekChange.total >= 0 ? 'text-green-500' : 'text-red-500'}>
+                                {metrics.weekChange.total >= 0 ? '+' : ''}{metrics.weekChange.total} from last week
+                            </span>
+                        </div>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Resolved</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">18</div>
-                        <p className="text-xs text-muted-foreground">75% resolution rate</p>
+                        <div className="text-2xl font-bold">{metrics.closed}</div>
+                        <p className="text-xs text-muted-foreground">
+                            {metrics.resolutionRate.toFixed(1)}% resolution rate
+                        </p>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">2.4h</div>
-                        <p className="text-xs text-muted-foreground">-0.3h from last week</p>
+                        <div className="text-2xl font-bold">{metrics.avgResolutionTime.toFixed(1)}h</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            {metrics.weekChange.resolutionTime <= 0 ? (
+                                <TrendingDown className="w-3 h-3 text-green-500" />
+                            ) : (
+                                <TrendingUp className="w-3 h-3 text-red-500" />
+                            )}
+                            <span className={metrics.weekChange.resolutionTime <= 0 ? 'text-green-500' : 'text-red-500'}>
+                                {metrics.weekChange.resolutionTime <= 0 ? '' : '+'}{metrics.weekChange.resolutionTime.toFixed(1)}h from last week
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Ticket Trends Chart */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Ticket Trends (7 Days)</CardTitle>
+                        <CardDescription>Active vs closed tickets over time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Area
+                                    type="monotone"
+                                    dataKey="active"
+                                    stackId="1"
+                                    stroke="hsl(var(--primary))"
+                                    fill="hsl(var(--primary) / 0.2)"
+                                    name="Active"
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="closed"
+                                    stackId="1"
+                                    stroke="hsl(var(--muted-foreground))"
+                                    fill="hsl(var(--muted-foreground) / 0.2)"
+                                    name="Closed"
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
+                {/* Resolution Times Chart */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Resolution Times</CardTitle>
+                        <CardDescription>Average resolution time per day</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <Tooltip formatter={(value) => [`${value}h`, 'Avg Time']} />
+                                <Bar
+                                    dataKey="avgTime"
+                                    fill="hsl(var(--primary))"
+                                    name="Avg Resolution Time (hours)"
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>
