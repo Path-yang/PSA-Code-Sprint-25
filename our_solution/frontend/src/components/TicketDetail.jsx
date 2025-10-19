@@ -98,7 +98,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     try {
       const fetchedTicket = await getTicket(ticketId);
       setTicket(fetchedTicket);
-      
+
       // Initialize edit fields
       const diagnosis = fetchedTicket.edited_diagnosis || fetchedTicket.diagnosis_data;
       setEditedRootCause(diagnosis.rootCause?.root_cause || '');
@@ -122,7 +122,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
     setError('');
     try {
       const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-      
+
       const editedDiagnosis = {
         ...diagnosis,
         rootCause: {
@@ -173,20 +173,20 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
 
   const handleDelete = async () => {
     // Determine the final reason
-    const finalReason = deletionReasonType === 'Others' 
-      ? customDeletionReason.trim() 
+    const finalReason = deletionReasonType === 'Others'
+      ? customDeletionReason.trim()
       : deletionReasonType;
-    
+
     if (!finalReason) {
       setError('Please provide a reason for deletion');
       return;
     }
-    
+
     if (deletionReasonType === 'Others' && !customDeletionReason.trim()) {
       setError('Please specify the reason');
       return;
     }
-    
+
     setShowDeleteDialog(false);
     setSaving(true);
     setError('');
@@ -211,7 +211,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
       setError('Incorrect password');
       return;
     }
-    
+
     setShowPermanentDeleteDialog(false);
     setSaving(true);
     setError('');
@@ -336,34 +336,19 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between"
       >
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="gap-2"
+        <div className="flex items-center justify-end">
+          <Badge
+            variant={ticket.status === 'active' ? 'default' : 'secondary'}
+            className="gap-1"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to List
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">Ticket #{ticket.id}</h1>
-              <Badge
-                variant={ticket.status === 'active' ? 'default' : 'secondary'}
-                className="gap-1"
-              >
-                {ticket.status === 'active' ? (
-                  <AlertTriangle className="w-3 h-3" />
-                ) : (
-                  <CheckCircle className="w-3 h-3" />
-                )}
-                {ticket.status}
-              </Badge>
+            {ticket.status === 'active' ? (
+              <AlertTriangle className="w-3 h-3" />
+            ) : (
+              <CheckCircle className="w-3 h-3" />
+            )}
+            {ticket.status}
+          </Badge>
         </div>
-            <p className="text-muted-foreground">View and manage ticket details</p>
-          </div>
-          </div>
 
         <div className="flex gap-2">
           {ticket.status === 'active' && (
@@ -517,23 +502,23 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-        {isEditing ? (
+              {isEditing ? (
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="root-cause">Root Cause</Label>
                     <Textarea
-              id="root-cause"
-              value={editedRootCause}
-              onChange={(e) => setEditedRootCause(e.target.value)}
+                      id="root-cause"
+                      value={editedRootCause}
+                      onChange={(e) => setEditedRootCause(e.target.value)}
                       className="min-h-[100px]"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="technical-details">Technical Details</Label>
                     <Textarea
-              id="technical-details"
-              value={editedTechnicalDetails}
-              onChange={(e) => setEditedTechnicalDetails(e.target.value)}
+                      id="technical-details"
+                      value={editedTechnicalDetails}
+                      onChange={(e) => setEditedTechnicalDetails(e.target.value)}
                       className="min-h-[100px]"
                     />
                   </div>
@@ -566,15 +551,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-        {isEditing ? (
+              {isEditing ? (
                 <div className="space-y-2">
                   <Label htmlFor="resolution-steps">Resolution Steps (one per line)</Label>
                   <Textarea
-              id="resolution-steps"
-              value={editedResolutionSteps}
-              onChange={(e) => setEditedResolutionSteps(e.target.value)}
-              rows="6"
-            />
+                    id="resolution-steps"
+                    value={editedResolutionSteps}
+                    onChange={(e) => setEditedResolutionSteps(e.target.value)}
+                    rows="6"
+                  />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -621,8 +606,8 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                             </span>
                             <span className="leading-relaxed">{step}</span>
                           </li>
-                  ))}
-                </ol>
+                        ))}
+                      </ol>
                     </div>
                   )}
 
@@ -862,7 +847,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-6">
-      {/* Notes */}
+          {/* Notes */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -872,15 +857,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
             </CardHeader>
             <CardContent>
               <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Add notes about this ticket..."
-          rows="4"
-        />
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add notes about this ticket..."
+                rows="4"
+              />
             </CardContent>
           </Card>
 
-      {/* Custom Fields */}
+          {/* Custom Fields */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -889,9 +874,9 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-        {Object.keys(customFields).length > 0 && (
+              {Object.keys(customFields).length > 0 && (
                 <div className="space-y-2">
-            {Object.entries(customFields).map(([key, value]) => (
+                  {Object.entries(customFields).map(([key, value]) => (
                     <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
                       <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4 text-muted-foreground" />
@@ -901,34 +886,34 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                  onClick={() => removeCustomField(key)}
+                        onClick={() => removeCustomField(key)}
                         className="text-destructive hover:text-destructive"
-                >
+                      >
                         <Minus className="w-4 h-4" />
                       </Button>
-              </div>
-            ))}
-          </div>
-        )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex gap-2">
                 <Input
-            placeholder="Field name"
-            value={newFieldKey}
-            onChange={(e) => setNewFieldKey(e.target.value)}
+                  placeholder="Field name"
+                  value={newFieldKey}
+                  onChange={(e) => setNewFieldKey(e.target.value)}
                   className="flex-1"
-          />
+                />
                 <Input
-            placeholder="Field value"
-            value={newFieldValue}
-            onChange={(e) => setNewFieldValue(e.target.value)}
+                  placeholder="Field value"
+                  value={newFieldValue}
+                  onChange={(e) => setNewFieldValue(e.target.value)}
                   className="flex-1"
-          />
+                />
                 <Button onClick={addCustomField} size="sm" className="gap-2">
                   <Plus className="w-4 h-4" />
                   Add
                 </Button>
-        </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1027,7 +1012,7 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {deletionReasonType === 'Others' && (
               <div>
                 <Label htmlFor="custom-reason">Please specify *</Label>

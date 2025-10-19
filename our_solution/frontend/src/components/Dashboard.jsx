@@ -12,7 +12,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Moon,
-    Sun
+    Sun,
+    ArrowLeft
 } from 'lucide-react';
 import LandingPage from './LandingPage';
 import { Button } from './ui/button';
@@ -253,18 +254,32 @@ export default function Dashboard() {
                 {/* Top Bar */}
                 <div className="glass-header px-6 py-4">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold capitalize">
-                                {activeView === 'home' ? 'Welcome' : activeView.replace('-', ' ')}
-                            </h2>
-                            <p className="text-sm text-muted-foreground">
-                                {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
-                                {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
-                                {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
-                                {activeView === 'ticket-detail' && 'View and edit ticket details'}
-                                {activeView === 'analytics' && 'View diagnostic insights and metrics'}
-                                {activeView === 'settings' && 'Configure diagnostic settings'}
-                            </p>
+                        <div className="flex items-center gap-3">
+                            {activeView === 'ticket-detail' && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleBackToTickets}
+                                    className="gap-2"
+                                >
+                                    <ArrowLeft className="w-4 h-4" />
+                                </Button>
+                            )}
+                            <div>
+                                <h2 className="text-xl font-semibold capitalize">
+                                    {activeView === 'home' ? 'Welcome' :
+                                        activeView === 'ticket-detail' ? `Ticket #${selectedTicketId}` :
+                                            activeView.replace('-', ' ')}
+                                </h2>
+                                <p className="text-sm text-muted-foreground">
+                                    {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
+                                    {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
+                                    {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
+                                    {activeView === 'ticket-detail' && 'View and edit ticket details'}
+                                    {activeView === 'analytics' && 'View diagnostic insights and metrics'}
+                                    {activeView === 'settings' && 'Configure diagnostic settings'}
+                                </p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {activeView === 'diagnose' && diagnosis && !ticketCreated && (
