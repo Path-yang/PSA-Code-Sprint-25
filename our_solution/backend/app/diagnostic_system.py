@@ -182,6 +182,22 @@ class L2DiagnosticSystem:
 
         if verbose:
             print("   ✓ Report generated\n")
+
+        # Step 8: Generate comprehensive confidence assessment
+        if verbose:
+            print("📊 Step 8: Generating confidence assessment...")
+
+        confidence_assessment = self.gpt_analyzer.generate_confidence_assessment(
+            log_evidence=log_evidence_text,
+            case_context=case_context,
+            kb_context=kb_context,
+            parsed=parsed,
+            evidence_summary=root_cause.get("evidence_summary", [])
+        )
+
+        if verbose:
+            print(f"   ✓ Overall confidence: {confidence_assessment['overall_score']}%")
+            print(f"   ✓ Recommendation: {confidence_assessment['interpretation']['recommendation']}\n")
             print("=" * 80)
             print("✅ DIAGNOSIS COMPLETE")
             print("=" * 80)
@@ -194,6 +210,7 @@ class L2DiagnosticSystem:
             "root_cause": root_cause,
             "resolution": resolution,
             "report": report,
+            "confidence_assessment": confidence_assessment,
         }
 
 def print_report(self, result: Dict):

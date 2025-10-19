@@ -109,6 +109,175 @@ class GPTAnalyzer:
         # Ensure confidence is within 0-100 range
         return min(100, max(0, confidence))
 
+    def generate_confidence_assessment(
+        self,
+        log_evidence: str,
+        case_context: str,
+        kb_context: str,
+        parsed: Dict,
+        evidence_summary: List[str]
+    ) -> Dict:
+        """
+        Generate comprehensive confidence assessment with breakdown and interpretation.
+        
+        Returns detailed confidence analysis including:
+        - Overall confidence score
+        - Breakdown by evidence type
+        - Interpretation for diagnosis and solution
+        - Actionable recommendations
+        """
+        # Calculate individual component scores
+        log_score = 0
+        case_score = 0
+        kb_score = 0
+        identifier_score = 0
+        evidence_quality_score = 0
+        
+        # Factor 1: Log Evidence (0-30)
+        if log_evidence and "No relevant logs found" not in log_evidence:
+            log_lines = log_evidence.count('\n')
+            if log_lines >= 5:
+                log_score = 30
+            elif log_lines >= 2:
+                log_score = 20
+            else:
+                log_score = 10
+        
+        # Factor 2: Similar Past Cases (0-25)
+        if case_context and "No similar past cases found" not in case_context:
+            if "Relevance: 100%" in case_context or "Relevance: 9" in case_context:
+                case_score = 25
+            elif "Relevance: 8" in case_context or "Relevance: 7" in case_context:
+                case_score = 20
+            elif "Relevance: 6" in case_context or "Relevance: 5" in case_context:
+                case_score = 15
+            else:
+                case_score = 10
+        
+        # Factor 3: Knowledge Base (0-20)
+        if kb_context and "No relevant knowledge base articles found" not in kb_context:
+            if "Resolution" in kb_context or "Verification" in kb_context:
+                kb_score = 20
+            else:
+                kb_score = 10
+        
+        # Factor 4: Specific Identifiers (0-15)
+        identifiers_found = 0
+        if parsed.get("entity_id"):
+            identifiers_found += 1
+        if parsed.get("error_code"):
+            identifiers_found += 1
+        if parsed.get("module") and parsed.get("module") != "Unknown":
+            identifiers_found += 1
+        identifier_score = min(15, identifiers_found * 5)
+        
+        # Factor 5: Evidence Quality (0-10)
+        if evidence_summary and len(evidence_summary) > 0:
+            evidence_count = len(evidence_summary)
+            if evidence_count >= 4:
+                evidence_quality_score = 10
+            elif evidence_count >= 2:
+                evidence_quality_score = 7
+            else:
+                evidence_quality_score = 4
+        
+        # Calculate total
+        total_score = log_score + case_score + kb_score + identifier_score + evidence_quality_score
+        
+        # Generate interpretations
+        diagnosis_confidence = "HIGH" if (log_score + case_score) >= 35 else "MODERATE" if (log_score + case_score) >= 20 else "LOW"
+        solution_confidence = "HIGH" if (kb_score + case_score) >= 35 else "MODERATE" if (kb_score + case_score) >= 20 else "LOW"
+        
+        # Determine recommendation
+        if total_score >= 70:
+            recommendation = "PROCEED"
+            recommendation_detail = "High confidence in both diagnosis and solution. Follow documented procedures carefully."
+        elif total_score >= 50:
+            recommendation = "PROCEED WITH CAUTION"
+            recommendation_detail = "Moderate confidence. Verify each step and monitor results closely."
+        elif total_score >= 30:
+            recommendation = "INVESTIGATE FURTHER"
+            recommendation_detail = "Limited evidence. Gather more information before proceeding."
+        else:
+            recommendation = "ESCALATE"
+            recommendation_detail = "Insufficient evidence for confident diagnosis or resolution."
+        
+        return {
+            "overall_score": total_score,
+            "breakdown": {
+                "log_evidence": {
+                    "score": log_score,
+                    "max_score": 30,
+                    "percentage": int((log_score / 30) * 100) if log_score > 0 else 0,
+                    "status": "excellent" if log_score >= 25 else "good" if log_score >= 15 else "limited" if log_score > 0 else "none"
+                },
+                "past_cases": {
+                    "score": case_score,
+                    "max_score": 25,
+                    "percentage": int((case_score / 25) * 100) if case_score > 0 else 0,
+                    "status": "excellent" if case_score >= 20 else "good" if case_score >= 15 else "limited" if case_score > 0 else "none"
+                },
+                "knowledge_base": {
+                    "score": kb_score,
+                    "max_score": 20,
+                    "percentage": int((kb_score / 20) * 100) if kb_score > 0 else 0,
+                    "status": "excellent" if kb_score >= 18 else "good" if kb_score >= 10 else "limited" if kb_score > 0 else "none"
+                },
+                "identifiers": {
+                    "score": identifier_score,
+                    "max_score": 15,
+                    "percentage": int((identifier_score / 15) * 100) if identifier_score > 0 else 0,
+                    "status": "excellent" if identifier_score >= 12 else "good" if identifier_score >= 8 else "limited" if identifier_score > 0 else "none"
+                },
+                "evidence_quality": {
+                    "score": evidence_quality_score,
+                    "max_score": 10,
+                    "percentage": int((evidence_quality_score / 10) * 100) if evidence_quality_score > 0 else 0,
+                    "status": "excellent" if evidence_quality_score >= 8 else "good" if evidence_quality_score >= 5 else "limited" if evidence_quality_score > 0 else "none"
+                }
+            },
+            "interpretation": {
+                "diagnosis_confidence": diagnosis_confidence,
+                "diagnosis_explanation": self._get_diagnosis_explanation(diagnosis_confidence, log_score, case_score),
+                "solution_confidence": solution_confidence,
+                "solution_explanation": self._get_solution_explanation(solution_confidence, kb_score, case_score),
+                "recommendation": recommendation,
+                "recommendation_detail": recommendation_detail
+            }
+        }
+    
+    def _get_diagnosis_explanation(self, confidence_level: str, log_score: int, case_score: int) -> str:
+        """Generate explanation for diagnosis confidence."""
+        if confidence_level == "HIGH":
+            if log_score >= 20 and case_score >= 20:
+                return "Strong log evidence and exact match to past cases. Diagnosis is highly reliable."
+            elif log_score >= 20:
+                return "Clear log evidence supports the diagnosis. High confidence in root cause identification."
+            elif case_score >= 20:
+                return "Exact match found in case history. Similar issue diagnosed and resolved before."
+            else:
+                return "Good evidence supports the diagnosis."
+        elif confidence_level == "MODERATE":
+            return "Some evidence supports diagnosis, but gaps exist. Verify findings during resolution."
+        else:
+            return "Limited diagnostic evidence. Root cause identification requires further investigation."
+    
+    def _get_solution_explanation(self, confidence_level: str, kb_score: int, case_score: int) -> str:
+        """Generate explanation for solution confidence."""
+        if confidence_level == "HIGH":
+            if kb_score >= 18 and case_score >= 20:
+                return "Documented procedure exists and proven solution from past cases. Resolution steps are reliable."
+            elif kb_score >= 18:
+                return "Step-by-step resolution procedure documented in knowledge base. Follow KB guidelines."
+            elif case_score >= 20:
+                return "Proven solution from similar past cases. Resolution approach has worked before."
+            else:
+                return "Good resolution guidance available."
+        elif confidence_level == "MODERATE":
+            return "Some resolution guidance available, but may need adaptation. Proceed carefully and verify results."
+        else:
+            return "Limited resolution guidance. Consider escalation or consult with senior engineers."
+
     def parse_alert(self, alert_text: str) -> Dict:
         """Parse alert and extract key information."""
         system_prompt = """You are a L2 support ticket parser for a port terminal operations system.
