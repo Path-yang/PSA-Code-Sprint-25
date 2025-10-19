@@ -111,57 +111,56 @@ class GPTAnalyzer:
 
     def generate_confidence_assessment(
         self,
-        log_evidence: str,
-        case_context: str,
-        kb_context: str,
+        log_evidence: List[Dict],
+        similar_cases: List[Dict],
+        kb_articles: List[Dict],
         parsed: Dict,
         evidence_summary: List[str]
     ) -> Dict:
         """
         Generate comprehensive confidence assessment with breakdown and interpretation.
         
-        Returns detailed confidence analysis including:
-        - Overall confidence score
-        - Breakdown by evidence type
-        - Interpretation for diagnosis and solution
-        - Actionable recommendations
+        Uses actual data objects to calculate accurate confidence percentages.
         """
-        # Calculate individual component scores
-        log_score = 0
-        case_score = 0
-        kb_score = 0
-        identifier_score = 0
-        evidence_quality_score = 0
+        # Calculate individual component percentages
+        log_percentage = 0
+        case_percentage = 0
+        kb_percentage = 0
+        identifier_percentage = 0
+        evidence_percentage = 0
         
-        # Factor 1: Log Evidence (0-30)
-        if log_evidence and "No relevant logs found" not in log_evidence:
-            log_lines = log_evidence.count('\n')
-            if log_lines >= 5:
-                log_score = 30
-            elif log_lines >= 2:
-                log_score = 20
+        # Factor 1: Log Evidence (0-100%)
+        if log_evidence and len(log_evidence) > 0:
+            log_count = len(log_evidence)
+            if log_count >= 5:
+                log_percentage = 100  # Excellent
+            elif log_count >= 3:
+                log_percentage = 75   # Good
+            elif log_count >= 1:
+                log_percentage = 50   # Moderate
             else:
-                log_score = 10
+                log_percentage = 25   # Limited
         
-        # Factor 2: Similar Past Cases (0-25)
-        if case_context and "No similar past cases found" not in case_context:
-            if "Relevance: 100%" in case_context or "Relevance: 9" in case_context:
-                case_score = 25
-            elif "Relevance: 8" in case_context or "Relevance: 7" in case_context:
-                case_score = 20
-            elif "Relevance: 6" in case_context or "Relevance: 5" in case_context:
-                case_score = 15
+        # Factor 2: Similar Past Cases (0-100%)
+        if similar_cases and len(similar_cases) > 0:
+            # Use the best match's relevance score
+            best_relevance = similar_cases[0].get('relevance_score', 0)
+            case_percentage = int(best_relevance * 100)  # Convert 0.0-1.0 to 0-100%
+        
+        # Factor 3: Knowledge Base (0-100%)
+        if kb_articles and len(kb_articles) > 0:
+            # Check if KB has resolution procedures
+            has_resolution = any('Resolution' in article.get('content', '') or 'Verification' in article.get('content', '') 
+                               for article in kb_articles[:3])
+            if has_resolution:
+                # Use best match relevance
+                best_kb_relevance = kb_articles[0].get('relevance_score', 0)
+                kb_percentage = int(best_kb_relevance * 100)
             else:
-                case_score = 10
+                # Has KB but no resolution procedures
+                kb_percentage = 50
         
-        # Factor 3: Knowledge Base (0-20)
-        if kb_context and "No relevant knowledge base articles found" not in kb_context:
-            if "Resolution" in kb_context or "Verification" in kb_context:
-                kb_score = 20
-            else:
-                kb_score = 10
-        
-        # Factor 4: Specific Identifiers (0-15)
+        # Factor 4: Specific Identifiers (0-100%)
         identifiers_found = 0
         if parsed.get("entity_id"):
             identifiers_found += 1
@@ -169,24 +168,33 @@ class GPTAnalyzer:
             identifiers_found += 1
         if parsed.get("module") and parsed.get("module") != "Unknown":
             identifiers_found += 1
-        identifier_score = min(15, identifiers_found * 5)
+        identifier_percentage = int((identifiers_found / 3) * 100) if identifiers_found > 0 else 0
         
-        # Factor 5: Evidence Quality (0-10)
+        # Factor 5: Evidence Quality (0-100%)
         if evidence_summary and len(evidence_summary) > 0:
             evidence_count = len(evidence_summary)
             if evidence_count >= 4:
-                evidence_quality_score = 10
+                evidence_percentage = 100
+            elif evidence_count >= 3:
+                evidence_percentage = 75
             elif evidence_count >= 2:
-                evidence_quality_score = 7
+                evidence_percentage = 50
             else:
-                evidence_quality_score = 4
+                evidence_percentage = 25
         
-        # Calculate total
-        total_score = log_score + case_score + kb_score + identifier_score + evidence_quality_score
+        # Calculate overall score (weighted average)
+        # Weights: logs=20%, cases=30%, kb=25%, identifiers=10%, evidence=15%
+        total_score = int(
+            (log_percentage * 0.20) +
+            (case_percentage * 0.30) +
+            (kb_percentage * 0.25) +
+            (identifier_percentage * 0.10) +
+            (evidence_percentage * 0.15)
+        )
         
         # Generate interpretations
-        diagnosis_confidence = "HIGH" if (log_score + case_score) >= 35 else "MODERATE" if (log_score + case_score) >= 20 else "LOW"
-        solution_confidence = "HIGH" if (kb_score + case_score) >= 35 else "MODERATE" if (kb_score + case_score) >= 20 else "LOW"
+        diagnosis_confidence = "HIGH" if (log_percentage + case_percentage) / 2 >= 70 else "MODERATE" if (log_percentage + case_percentage) / 2 >= 50 else "LOW"
+        solution_confidence = "HIGH" if (kb_percentage + case_percentage) / 2 >= 70 else "MODERATE" if (kb_percentage + case_percentage) / 2 >= 50 else "LOW"
         
         # Determine recommendation
         if total_score >= 70:
@@ -206,54 +214,44 @@ class GPTAnalyzer:
             "overall_score": total_score,
             "breakdown": {
                 "log_evidence": {
-                    "score": log_score,
-                    "max_score": 30,
-                    "percentage": int((log_score / 30) * 100) if log_score > 0 else 0,
-                    "status": "excellent" if log_score >= 25 else "good" if log_score >= 15 else "limited" if log_score > 0 else "none"
+                    "percentage": log_percentage,
+                    "status": "excellent" if log_percentage >= 90 else "good" if log_percentage >= 70 else "moderate" if log_percentage >= 50 else "limited" if log_percentage > 0 else "none"
                 },
                 "past_cases": {
-                    "score": case_score,
-                    "max_score": 25,
-                    "percentage": int((case_score / 25) * 100) if case_score > 0 else 0,
-                    "status": "excellent" if case_score >= 20 else "good" if case_score >= 15 else "limited" if case_score > 0 else "none"
+                    "percentage": case_percentage,
+                    "status": "excellent" if case_percentage >= 90 else "good" if case_percentage >= 70 else "moderate" if case_percentage >= 50 else "limited" if case_percentage > 0 else "none"
                 },
                 "knowledge_base": {
-                    "score": kb_score,
-                    "max_score": 20,
-                    "percentage": int((kb_score / 20) * 100) if kb_score > 0 else 0,
-                    "status": "excellent" if kb_score >= 18 else "good" if kb_score >= 10 else "limited" if kb_score > 0 else "none"
+                    "percentage": kb_percentage,
+                    "status": "excellent" if kb_percentage >= 90 else "good" if kb_percentage >= 70 else "moderate" if kb_percentage >= 50 else "limited" if kb_percentage > 0 else "none"
                 },
                 "identifiers": {
-                    "score": identifier_score,
-                    "max_score": 15,
-                    "percentage": int((identifier_score / 15) * 100) if identifier_score > 0 else 0,
-                    "status": "excellent" if identifier_score >= 12 else "good" if identifier_score >= 8 else "limited" if identifier_score > 0 else "none"
+                    "percentage": identifier_percentage,
+                    "status": "excellent" if identifier_percentage >= 90 else "good" if identifier_percentage >= 70 else "moderate" if identifier_percentage >= 50 else "limited" if identifier_percentage > 0 else "none"
                 },
                 "evidence_quality": {
-                    "score": evidence_quality_score,
-                    "max_score": 10,
-                    "percentage": int((evidence_quality_score / 10) * 100) if evidence_quality_score > 0 else 0,
-                    "status": "excellent" if evidence_quality_score >= 8 else "good" if evidence_quality_score >= 5 else "limited" if evidence_quality_score > 0 else "none"
+                    "percentage": evidence_percentage,
+                    "status": "excellent" if evidence_percentage >= 90 else "good" if evidence_percentage >= 70 else "moderate" if evidence_percentage >= 50 else "limited" if evidence_percentage > 0 else "none"
                 }
             },
             "interpretation": {
                 "diagnosis_confidence": diagnosis_confidence,
-                "diagnosis_explanation": self._get_diagnosis_explanation(diagnosis_confidence, log_score, case_score),
+                "diagnosis_explanation": self._get_diagnosis_explanation(diagnosis_confidence, log_percentage, case_percentage),
                 "solution_confidence": solution_confidence,
-                "solution_explanation": self._get_solution_explanation(solution_confidence, kb_score, case_score),
+                "solution_explanation": self._get_solution_explanation(solution_confidence, kb_percentage, case_percentage),
                 "recommendation": recommendation,
                 "recommendation_detail": recommendation_detail
             }
         }
     
-    def _get_diagnosis_explanation(self, confidence_level: str, log_score: int, case_score: int) -> str:
+    def _get_diagnosis_explanation(self, confidence_level: str, log_percentage: int, case_percentage: int) -> str:
         """Generate explanation for diagnosis confidence."""
         if confidence_level == "HIGH":
-            if log_score >= 20 and case_score >= 20:
+            if log_percentage >= 75 and case_percentage >= 75:
                 return "Strong log evidence and exact match to past cases. Diagnosis is highly reliable."
-            elif log_score >= 20:
+            elif log_percentage >= 75:
                 return "Clear log evidence supports the diagnosis. High confidence in root cause identification."
-            elif case_score >= 20:
+            elif case_percentage >= 75:
                 return "Exact match found in case history. Similar issue diagnosed and resolved before."
             else:
                 return "Good evidence supports the diagnosis."
@@ -262,14 +260,14 @@ class GPTAnalyzer:
         else:
             return "Limited diagnostic evidence. Root cause identification requires further investigation."
     
-    def _get_solution_explanation(self, confidence_level: str, kb_score: int, case_score: int) -> str:
+    def _get_solution_explanation(self, confidence_level: str, kb_percentage: int, case_percentage: int) -> str:
         """Generate explanation for solution confidence."""
         if confidence_level == "HIGH":
-            if kb_score >= 18 and case_score >= 20:
+            if kb_percentage >= 75 and case_percentage >= 75:
                 return "Documented procedure exists and proven solution from past cases. Resolution steps are reliable."
-            elif kb_score >= 18:
+            elif kb_percentage >= 75:
                 return "Step-by-step resolution procedure documented in knowledge base. Follow KB guidelines."
-            elif case_score >= 20:
+            elif case_percentage >= 75:
                 return "Proven solution from similar past cases. Resolution approach has worked before."
             else:
                 return "Good resolution guidance available."

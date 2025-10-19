@@ -654,16 +654,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                           <Label className="text-sm font-medium">Application Logs</Label>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
-                              {ticket.confidence_assessment.breakdown.log_evidence.score}/
-                              {ticket.confidence_assessment.breakdown.log_evidence.max_score} pts
+                              {ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0}%
                             </span>
                             <Badge variant="outline" className="text-xs">
-                              {ticket.confidence_assessment.breakdown.log_evidence.status}
+                              {ticket.confidence_assessment.breakdown.log_evidence?.status || 'none'}
                             </Badge>
                           </div>
                         </div>
                         <Progress 
-                          value={ticket.confidence_assessment.breakdown.log_evidence.percentage} 
+                          value={ticket.confidence_assessment.breakdown.log_evidence?.percentage || 0} 
                           className="h-2"
                         />
                       </div>
@@ -674,16 +673,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                           <Label className="text-sm font-medium">Similar Past Cases</Label>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
-                              {ticket.confidence_assessment.breakdown.past_cases.score}/
-                              {ticket.confidence_assessment.breakdown.past_cases.max_score} pts
+                              {ticket.confidence_assessment.breakdown.past_cases?.percentage || 0}%
                             </span>
                             <Badge variant="outline" className="text-xs">
-                              {ticket.confidence_assessment.breakdown.past_cases.status}
+                              {ticket.confidence_assessment.breakdown.past_cases?.status || 'none'}
                             </Badge>
                           </div>
                         </div>
                         <Progress 
-                          value={ticket.confidence_assessment.breakdown.past_cases.percentage} 
+                          value={ticket.confidence_assessment.breakdown.past_cases?.percentage || 0} 
                           className="h-2"
                         />
                       </div>
@@ -694,16 +692,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                           <Label className="text-sm font-medium">Knowledge Base</Label>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
-                              {ticket.confidence_assessment.breakdown.knowledge_base.score}/
-                              {ticket.confidence_assessment.breakdown.knowledge_base.max_score} pts
+                              {ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0}%
                             </span>
                             <Badge variant="outline" className="text-xs">
-                              {ticket.confidence_assessment.breakdown.knowledge_base.status}
+                              {ticket.confidence_assessment.breakdown.knowledge_base?.status || 'none'}
                             </Badge>
                           </div>
                         </div>
                         <Progress 
-                          value={ticket.confidence_assessment.breakdown.knowledge_base.percentage} 
+                          value={ticket.confidence_assessment.breakdown.knowledge_base?.percentage || 0} 
                           className="h-2"
                         />
                       </div>
@@ -714,16 +711,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                           <Label className="text-sm font-medium">Specific Identifiers</Label>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
-                              {ticket.confidence_assessment.breakdown.identifiers.score}/
-                              {ticket.confidence_assessment.breakdown.identifiers.max_score} pts
+                              {ticket.confidence_assessment.breakdown.identifiers?.percentage || 0}%
                             </span>
                             <Badge variant="outline" className="text-xs">
-                              {ticket.confidence_assessment.breakdown.identifiers.status}
+                              {ticket.confidence_assessment.breakdown.identifiers?.status || 'none'}
                             </Badge>
                           </div>
                         </div>
                         <Progress 
-                          value={ticket.confidence_assessment.breakdown.identifiers.percentage} 
+                          value={ticket.confidence_assessment.breakdown.identifiers?.percentage || 0} 
                           className="h-2"
                         />
                       </div>
@@ -734,16 +730,15 @@ export default function TicketDetail({ ticketId, onBack, onTicketUpdated }) {
                           <Label className="text-sm font-medium">Evidence Quality</Label>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
-                              {ticket.confidence_assessment.breakdown.evidence_quality.score}/
-                              {ticket.confidence_assessment.breakdown.evidence_quality.max_score} pts
+                              {ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0}%
                             </span>
                             <Badge variant="outline" className="text-xs">
-                              {ticket.confidence_assessment.breakdown.evidence_quality.status}
+                              {ticket.confidence_assessment.breakdown.evidence_quality?.status || 'none'}
                             </Badge>
                           </div>
                         </div>
                         <Progress 
-                          value={ticket.confidence_assessment.breakdown.evidence_quality.percentage} 
+                          value={ticket.confidence_assessment.breakdown.evidence_quality?.percentage || 0} 
                           className="h-2"
                         />
                       </div>

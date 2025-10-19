@@ -188,9 +188,9 @@ class L2DiagnosticSystem:
             print("📊 Step 8: Generating confidence assessment...")
 
         confidence_assessment = self.gpt_analyzer.generate_confidence_assessment(
-            log_evidence=log_evidence_text,
-            case_context=case_context,
-            kb_context=kb_context,
+            log_evidence=log_evidence,
+            similar_cases=similar_cases,
+            kb_articles=kb_articles,
             parsed=parsed,
             evidence_summary=root_cause.get("evidence_summary", [])
         )
