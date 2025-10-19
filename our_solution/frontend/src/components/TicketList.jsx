@@ -73,7 +73,8 @@ function getChannelIcon(channel) {
 
 const TicketCard = memo(({ ticket, onSelectTicket }) => {
   const parsedData = ticket.diagnosis_data?.parsed || {};
-  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
+  const priority = parsedData.priority || 'Medium';
+  const module = parsedData.module || 'N/A';
 
   return (
     <Card
@@ -82,16 +83,16 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
     >
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-medium">#{ticket.id}</span>
+          <span className="font-mono text-sm font-medium">#{ticket.ticket_number}</span>
           <Badge variant={ticket.status === 'active' ? 'default' : 'secondary'}>
             {ticket.status}
           </Badge>
         </div>
         <CardTitle className="text-sm font-medium line-clamp-2">
-          {parsedData.alert_type || 'Unknown Alert'}
+          {priority}
         </CardTitle>
         <CardDescription className="text-xs line-clamp-2">
-          {alertSummary}...
+          {module}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
@@ -109,7 +110,8 @@ function renderTicketCard(ticket, index, onSelectTicket) {
 
 function renderTicketTableRow(ticket, index, onSelectTicket) {
   const parsedData = ticket.diagnosis_data?.parsed || {};
-  const alertSummary = ticket.alert_text.split('\n')[0].substring(0, 80);
+  const priority = parsedData.priority || 'Medium';
+  const module = parsedData.module || 'N/A';
 
   return (
     <TableRow
@@ -117,7 +119,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={() => onSelectTicket(ticket.id)}
     >
-      <TableCell className="font-mono font-medium">#{ticket.id}</TableCell>
+      <TableCell className="font-mono font-medium">#{ticket.ticket_number}</TableCell>
       <TableCell>
         <Badge
           variant={ticket.status === 'active' ? 'default' : 'secondary'}
@@ -133,8 +135,8 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
       </TableCell>
       <TableCell>
         <div className="max-w-md">
-          <div className="font-medium">{parsedData.alert_type || 'Unknown Alert'}</div>
-          <div className="text-xs text-muted-foreground line-clamp-1">{alertSummary}...</div>
+          <div className="font-medium">{priority}</div>
+          <div className="text-xs text-muted-foreground line-clamp-1">{module}</div>
         </div>
       </TableCell>
       <TableCell>

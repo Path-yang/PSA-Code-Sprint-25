@@ -263,30 +263,20 @@ export default function Dashboard() {
                 <div className="glass-header px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            {activeView === 'ticket-detail' && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleBackToTickets}
-                                    className="gap-2"
-                                >
-                                    <ArrowLeft className="w-4 h-4" />
-                                </Button>
-                            )}
                             <div>
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-xl font-semibold capitalize">
                                         {activeView === 'home' ? 'Welcome' :
-                                            activeView === 'ticket-detail' ? `Ticket #${selectedTicketId}` :
+                                            activeView === 'ticket-detail' ? `Ticket #${selectedTicket?.ticket_number || selectedTicketId}` :
                                                 activeView.replace('-', ' ')}
                                     </h2>
-                                    {activeView === 'ticket-detail' && (
+                                    {activeView === 'ticket-detail' && selectedTicket && (
                                         <Badge
-                                            variant="default"
+                                            variant={selectedTicket.status === 'active' ? 'default' : selectedTicket.status === 'closed' ? 'secondary' : 'destructive'}
                                             className="gap-1"
                                         >
                                             <AlertTriangle className="w-3 h-3" />
-                                            Active
+                                            {selectedTicket.status}
                                         </Badge>
                                     )}
                                 </div>
