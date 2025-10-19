@@ -113,42 +113,42 @@ export default function DiagnosticForm({ onTicketCreated }) {
     };
 
     return (
-        <div className={`min-h-screen p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-center justify-center'}`}>
-            <div className={`w-full max-w-4xl mx-auto space-y-6 relative transition-all duration-500 ${showResults ? 'pt-6' : ''}`}>
+        <div className={`h-screen p-4 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-center justify-center'}`}>
+            <div className={`w-full max-w-4xl mx-auto space-y-4 relative transition-all duration-500 ${showResults ? 'pt-6 space-y-6' : 'max-h-full overflow-hidden'}`}>
 
-            {/* Greeting */}
-            <AnimatePresence>
-                {!showResults && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -30, transition: { duration: 0.5 } }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-8"
-                    >
-                        <h1 className="text-3xl font-bold text-foreground mb-2">
-                            {greeting}
-                        </h1>
-                        <div className="text-lg text-muted-foreground">
-                            Ready to <FlipWords 
-                                words={['diagnose', 'analyze', 'investigate', 'resolve']} 
-                                duration={2000}
-                                className="text-primary font-semibold"
-                            /> your alerts? Let's get started.
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                {/* Greeting */}
+                <AnimatePresence>
+                    {!showResults && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -30, transition: { duration: 0.5 } }}
+                            transition={{ duration: 0.6 }}
+                            className="text-center mb-6"
+                        >
+                            <h1 className="text-2xl font-bold text-foreground mb-2">
+                                {greeting}
+                            </h1>
+                            <div className="text-base text-muted-foreground">
+                                Ready to <FlipWords
+                                    words={['diagnose', 'analyze', 'investigate', 'resolve']}
+                                    duration={2000}
+                                    className="text-primary font-semibold"
+                                /> your alerts? Let's get started.
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Diagnostic Form */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                        opacity: 1, 
+                    animate={{
+                        opacity: 1,
                         y: 0,
                         scale: showResults ? 0.98 : 1
                     }}
-                    transition={{ 
+                    transition={{
                         delay: showResults ? 0 : 0.1,
                         duration: showResults ? 0.6 : 0.3
                     }}
@@ -264,29 +264,29 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                             Ticket Information
                                         </CardTitle>
                                     </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <div className="space-y-1">
-                                            <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
-                                            <p className="font-mono text-sm">{diagnosis.parsed.ticket_id || '—'}</p>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <div className="space-y-1">
+                                                <Label className="text-sm font-medium text-muted-foreground">Ticket ID</Label>
+                                                <p className="font-mono text-sm">{diagnosis.parsed.ticket_id || '—'}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-sm font-medium text-muted-foreground">Channel</Label>
+                                                <Badge variant="outline">{diagnosis.parsed.channel || '—'}</Badge>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-sm font-medium text-muted-foreground">Module</Label>
+                                                <p className="text-sm">{diagnosis.parsed.module || '—'}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
+                                                <Badge variant={diagnosis.parsed.priority === 'High' ? 'destructive' : 'secondary'}>
+                                                    {diagnosis.parsed.priority || '—'}
+                                                </Badge>
+                                            </div>
                                         </div>
-                                        <div className="space-y-1">
-                                            <Label className="text-sm font-medium text-muted-foreground">Channel</Label>
-                                            <Badge variant="outline">{diagnosis.parsed.channel || '—'}</Badge>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label className="text-sm font-medium text-muted-foreground">Module</Label>
-                                            <p className="text-sm">{diagnosis.parsed.module || '—'}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label className="text-sm font-medium text-muted-foreground">Priority</Label>
-                                            <Badge variant={diagnosis.parsed.priority === 'High' ? 'destructive' : 'secondary'}>
-                                                {diagnosis.parsed.priority || '—'}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
 
                             {/* Root Cause Analysis */}
@@ -296,40 +296,40 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 transition={{ duration: 0.5, delay: 0.7 }}
                             >
                                 <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <AlertTriangle className="w-5 h-5" />
-                                        Root Cause Analysis
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div>
-                                        <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
-                                        <p className="mt-1 text-sm leading-relaxed">{diagnosis.rootCause.root_cause}</p>
-                                    </div>
-
-                                    <div>
-                                        <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
-                                        <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                                            {diagnosis.rootCause.technical_details}
-                                        </p>
-                                    </div>
-
-                                    {diagnosis.rootCause.evidence_summary?.length > 0 && (
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <AlertTriangle className="w-5 h-5" />
+                                            Root Cause Analysis
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
                                         <div>
-                                            <Label className="text-sm font-medium text-muted-foreground">Evidence</Label>
-                                            <ul className="mt-2 space-y-1">
-                                                {diagnosis.rootCause.evidence_summary.map((item, index) => (
-                                                    <li key={index} className="text-sm flex items-start gap-2">
-                                                        <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                                                        {item}
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <Label className="text-sm font-medium text-muted-foreground">Root Cause</Label>
+                                            <p className="mt-1 text-sm leading-relaxed">{diagnosis.rootCause.root_cause}</p>
                                         </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+
+                                        <div>
+                                            <Label className="text-sm font-medium text-muted-foreground">Technical Details</Label>
+                                            <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                                                {diagnosis.rootCause.technical_details}
+                                            </p>
+                                        </div>
+
+                                        {diagnosis.rootCause.evidence_summary?.length > 0 && (
+                                            <div>
+                                                <Label className="text-sm font-medium text-muted-foreground">Evidence</Label>
+                                                <ul className="mt-2 space-y-1">
+                                                    {diagnosis.rootCause.evidence_summary.map((item, index) => (
+                                                        <li key={index} className="text-sm flex items-start gap-2">
+                                                            <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </motion.div>
 
                             {/* Resolution Plan */}
@@ -339,97 +339,97 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 transition={{ duration: 0.5, delay: 0.9 }}
                             >
                                 <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <CheckCircle className="w-5 h-5" />
-                                        Resolution Plan
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <Clock className="w-4 h-4 text-muted-foreground" />
-                                                <span className="text-sm">{diagnosis.resolution.estimated_time || '—'}</span>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <CheckCircle className="w-5 h-5" />
+                                            Resolution Plan
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label className="text-sm font-medium text-muted-foreground">Estimated Time</Label>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <Clock className="w-4 h-4 text-muted-foreground" />
+                                                    <span className="text-sm">{diagnosis.resolution.estimated_time || '—'}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
+                                                <div className="mt-1">
+                                                    {diagnosis.resolution.escalate ? (
+                                                        <Badge variant="destructive" className="gap-1">
+                                                            <AlertTriangle className="w-3 h-3" />
+                                                            Yes → {diagnosis.resolution.escalate_to || 'L3 team'}
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary">No</Badge>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <Label className="text-sm font-medium text-muted-foreground">Escalation</Label>
-                                            <div className="mt-1">
-                                                {diagnosis.resolution.escalate ? (
-                                                    <Badge variant="destructive" className="gap-1">
-                                                        <AlertTriangle className="w-3 h-3" />
-                                                        Yes → {diagnosis.resolution.escalate_to || 'L3 team'}
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="secondary">No</Badge>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    {diagnosis.resolution.resolution_steps?.length > 0 && (
-                                        <div>
-                                            <div className="flex items-center justify-between">
-                                                <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
-                                                {diagnosis.resolution.time_breakdown?.resolution_steps_time && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {diagnosis.resolution.time_breakdown.resolution_steps_time}
-                                                    </Badge>
-                                                )}
+                                        {diagnosis.resolution.resolution_steps?.length > 0 && (
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-sm font-medium text-muted-foreground">Resolution Steps</Label>
+                                                    {diagnosis.resolution.time_breakdown?.resolution_steps_time && (
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {diagnosis.resolution.time_breakdown.resolution_steps_time}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <ol className="mt-2 space-y-2">
+                                                    {diagnosis.resolution.resolution_steps.map((step, index) => (
+                                                        <li key={index} className="text-sm flex items-start gap-3">
+                                                            <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
+                                                                {index + 1}
+                                                            </span>
+                                                            <span className="leading-relaxed">{step}</span>
+                                                        </li>
+                                                    ))}
+                                                </ol>
                                             </div>
-                                            <ol className="mt-2 space-y-2">
-                                                {diagnosis.resolution.resolution_steps.map((step, index) => (
-                                                    <li key={index} className="text-sm flex items-start gap-3">
-                                                        <span className="w-6 h-6 bg-muted text-foreground rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
-                                                            {index + 1}
-                                                        </span>
-                                                        <span className="leading-relaxed">{step}</span>
-                                                    </li>
-                                                ))}
-                                            </ol>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {diagnosis.resolution.verification_steps?.length > 0 && (
-                                        <div>
-                                            <div className="flex items-center justify-between">
-                                                <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
-                                                {diagnosis.resolution.time_breakdown?.verification_steps_time && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {diagnosis.resolution.time_breakdown.verification_steps_time}
-                                                    </Badge>
-                                                )}
+                                        {diagnosis.resolution.verification_steps?.length > 0 && (
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-sm font-medium text-muted-foreground">Verification Steps</Label>
+                                                    {diagnosis.resolution.time_breakdown?.verification_steps_time && (
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {diagnosis.resolution.time_breakdown.verification_steps_time}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <ul className="mt-2 space-y-1">
+                                                    {diagnosis.resolution.verification_steps.map((step, index) => (
+                                                        <li key={index} className="text-sm flex items-start gap-2">
+                                                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                                                            {step}
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </div>
-                                            <ul className="mt-2 space-y-1">
-                                                {diagnosis.resolution.verification_steps.map((step, index) => (
-                                                    <li key={index} className="text-sm flex items-start gap-2">
-                                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                                                        {step}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {diagnosis.resolution.sql_queries?.length > 0 && (
-                                        <div>
-                                            <div className="flex items-center justify-between">
-                                                <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
-                                                {diagnosis.resolution.time_breakdown?.sql_commands_time && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {diagnosis.resolution.time_breakdown.sql_commands_time}
-                                                    </Badge>
-                                                )}
+                                        {diagnosis.resolution.sql_queries?.length > 0 && (
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <Label className="text-sm font-medium text-muted-foreground">SQL / Commands</Label>
+                                                    {diagnosis.resolution.time_breakdown?.sql_commands_time && (
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {diagnosis.resolution.time_breakdown.sql_commands_time}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
+                                                    {diagnosis.resolution.sql_queries.join('\n\n')}
+                                                </pre>
                                             </div>
-                                            <pre className="mt-2 p-3 bg-muted rounded-md text-xs font-mono overflow-x-auto">
-                                                {diagnosis.resolution.sql_queries.join('\n\n')}
-                                            </pre>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </motion.div>
 
                             {/* Confidence Assessment */}
@@ -440,199 +440,199 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                     transition={{ duration: 0.5, delay: 1.1 }}
                                 >
                                     <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Settings className="w-5 h-5" />
-                                            Confidence Assessment
-                                        </CardTitle>
-                                        <CardDescription>
-                                            Evidence-based confidence analysis for diagnosis and resolution
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-6">
-                                            {/* Overall Score */}
-                                            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                                                <div>
-                                                    <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
-                                                    <p className="text-3xl font-bold mt-1">{diagnosis.confidenceAssessment.overall_score}%</p>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Settings className="w-5 h-5" />
+                                                Confidence Assessment
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Evidence-based confidence analysis for diagnosis and resolution
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-6">
+                                                {/* Overall Score */}
+                                                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                                                    <div>
+                                                        <Label className="text-sm font-medium text-muted-foreground">Overall Confidence Score</Label>
+                                                        <p className="text-3xl font-bold mt-1">{diagnosis.confidenceAssessment.overall_score}%</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <Badge
+                                                            variant={
+                                                                diagnosis.confidenceAssessment.overall_score >= 70 ? "default" :
+                                                                    diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
+                                                                        "destructive"
+                                                            }
+                                                            className="text-sm"
+                                                        >
+                                                            {diagnosis.confidenceAssessment.interpretation?.recommendation || 'N/A'}
+                                                        </Badge>
+                                                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                                                            {diagnosis.confidenceAssessment.interpretation?.recommendation_detail || ''}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <Badge
-                                                        variant={
-                                                            diagnosis.confidenceAssessment.overall_score >= 70 ? "default" :
-                                                                diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
-                                                                    "destructive"
-                                                        }
-                                                        className="text-sm"
-                                                    >
-                                                        {diagnosis.confidenceAssessment.interpretation?.recommendation || 'N/A'}
-                                                    </Badge>
-                                                    <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                                                        {diagnosis.confidenceAssessment.interpretation?.recommendation_detail || ''}
-                                                    </p>
-                                                </div>
-                                            </div>
 
-                                            <Separator />
+                                                <Separator />
 
-                                            {/* Evidence Breakdown */}
-                                            {diagnosis.confidenceAssessment.breakdown && (
-                                                <div>
-                                                    <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                                                {/* Evidence Breakdown */}
+                                                {diagnosis.confidenceAssessment.breakdown && (
+                                                    <div>
+                                                        <Label className="text-base font-semibold mb-4 block">Evidence Quality Breakdown</Label>
+                                                        <div className="space-y-4">
+                                                            {/* Log Evidence */}
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-medium">Application Logs</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {diagnosis.confidenceAssessment.breakdown.log_evidence.score}/
+                                                                            {diagnosis.confidenceAssessment.breakdown.log_evidence.max_score} pts
+                                                                        </span>
+                                                                        <Badge variant="outline" className="text-xs">
+                                                                            {diagnosis.confidenceAssessment.breakdown.log_evidence.status}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                                <Progress
+                                                                    value={diagnosis.confidenceAssessment.breakdown.log_evidence.percentage}
+                                                                    className="h-2"
+                                                                />
+                                                            </div>
+
+                                                            {/* Past Cases */}
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-medium">Similar Past Cases</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {diagnosis.confidenceAssessment.breakdown.past_cases.score}/
+                                                                            {diagnosis.confidenceAssessment.breakdown.past_cases.max_score} pts
+                                                                        </span>
+                                                                        <Badge variant="outline" className="text-xs">
+                                                                            {diagnosis.confidenceAssessment.breakdown.past_cases.status}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                                <Progress
+                                                                    value={diagnosis.confidenceAssessment.breakdown.past_cases.percentage}
+                                                                    className="h-2"
+                                                                />
+                                                            </div>
+
+                                                            {/* Knowledge Base */}
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-medium">Knowledge Base</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {diagnosis.confidenceAssessment.breakdown.knowledge_base.score}/
+                                                                            {diagnosis.confidenceAssessment.breakdown.knowledge_base.max_score} pts
+                                                                        </span>
+                                                                        <Badge variant="outline" className="text-xs">
+                                                                            {diagnosis.confidenceAssessment.breakdown.knowledge_base.status}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                                <Progress
+                                                                    value={diagnosis.confidenceAssessment.breakdown.knowledge_base.percentage}
+                                                                    className="h-2"
+                                                                />
+                                                            </div>
+
+                                                            {/* Identifiers */}
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-medium">Specific Identifiers</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {diagnosis.confidenceAssessment.breakdown.identifiers.score}/
+                                                                            {diagnosis.confidenceAssessment.breakdown.identifiers.max_score} pts
+                                                                        </span>
+                                                                        <Badge variant="outline" className="text-xs">
+                                                                            {diagnosis.confidenceAssessment.breakdown.identifiers.status}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                                <Progress
+                                                                    value={diagnosis.confidenceAssessment.breakdown.identifiers.percentage}
+                                                                    className="h-2"
+                                                                />
+                                                            </div>
+
+                                                            {/* Evidence Quality */}
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <Label className="text-sm font-medium">Evidence Quality</Label>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {diagnosis.confidenceAssessment.breakdown.evidence_quality.score}/
+                                                                            {diagnosis.confidenceAssessment.breakdown.evidence_quality.max_score} pts
+                                                                        </span>
+                                                                        <Badge variant="outline" className="text-xs">
+                                                                            {diagnosis.confidenceAssessment.breakdown.evidence_quality.status}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                                <Progress
+                                                                    value={diagnosis.confidenceAssessment.breakdown.evidence_quality.percentage}
+                                                                    className="h-2"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <Separator />
+
+                                                {/* Interpretation */}
+                                                {diagnosis.confidenceAssessment.interpretation && (
                                                     <div className="space-y-4">
-                                                        {/* Log Evidence */}
-                                                        <div className="space-y-2">
+                                                        <Label className="text-base font-semibold block">Interpretation</Label>
+
+                                                        {/* Diagnosis Confidence */}
+                                                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
                                                             <div className="flex items-center justify-between">
-                                                                <Label className="text-sm font-medium">Application Logs</Label>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">
-                                                                        {diagnosis.confidenceAssessment.breakdown.log_evidence.score}/
-                                                                        {diagnosis.confidenceAssessment.breakdown.log_evidence.max_score} pts
-                                                                    </span>
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {diagnosis.confidenceAssessment.breakdown.log_evidence.status}
-                                                                    </Badge>
-                                                                </div>
+                                                                <Label className="text-sm font-medium">Diagnosis Confidence</Label>
+                                                                <Badge
+                                                                    variant={
+                                                                        diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
+                                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
+                                                                                "destructive"
+                                                                    }
+                                                                >
+                                                                    {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
+                                                                </Badge>
                                                             </div>
-                                                            <Progress
-                                                                value={diagnosis.confidenceAssessment.breakdown.log_evidence.percentage}
-                                                                className="h-2"
-                                                            />
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {diagnosis.confidenceAssessment.interpretation.diagnosis_explanation}
+                                                            </p>
                                                         </div>
 
-                                                        {/* Past Cases */}
-                                                        <div className="space-y-2">
+                                                        {/* Solution Confidence */}
+                                                        <div className="p-4 bg-muted/30 rounded-lg space-y-2">
                                                             <div className="flex items-center justify-between">
-                                                                <Label className="text-sm font-medium">Similar Past Cases</Label>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">
-                                                                        {diagnosis.confidenceAssessment.breakdown.past_cases.score}/
-                                                                        {diagnosis.confidenceAssessment.breakdown.past_cases.max_score} pts
-                                                                    </span>
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {diagnosis.confidenceAssessment.breakdown.past_cases.status}
-                                                                    </Badge>
-                                                                </div>
+                                                                <Label className="text-sm font-medium">Solution Confidence</Label>
+                                                                <Badge
+                                                                    variant={
+                                                                        diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
+                                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
+                                                                                "destructive"
+                                                                    }
+                                                                >
+                                                                    {diagnosis.confidenceAssessment.interpretation.solution_confidence}
+                                                                </Badge>
                                                             </div>
-                                                            <Progress
-                                                                value={diagnosis.confidenceAssessment.breakdown.past_cases.percentage}
-                                                                className="h-2"
-                                                            />
-                                                        </div>
-
-                                                        {/* Knowledge Base */}
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <Label className="text-sm font-medium">Knowledge Base</Label>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">
-                                                                        {diagnosis.confidenceAssessment.breakdown.knowledge_base.score}/
-                                                                        {diagnosis.confidenceAssessment.breakdown.knowledge_base.max_score} pts
-                                                                    </span>
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {diagnosis.confidenceAssessment.breakdown.knowledge_base.status}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
-                                                            <Progress
-                                                                value={diagnosis.confidenceAssessment.breakdown.knowledge_base.percentage}
-                                                                className="h-2"
-                                                            />
-                                                        </div>
-
-                                                        {/* Identifiers */}
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <Label className="text-sm font-medium">Specific Identifiers</Label>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">
-                                                                        {diagnosis.confidenceAssessment.breakdown.identifiers.score}/
-                                                                        {diagnosis.confidenceAssessment.breakdown.identifiers.max_score} pts
-                                                                    </span>
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {diagnosis.confidenceAssessment.breakdown.identifiers.status}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
-                                                            <Progress
-                                                                value={diagnosis.confidenceAssessment.breakdown.identifiers.percentage}
-                                                                className="h-2"
-                                                            />
-                                                        </div>
-
-                                                        {/* Evidence Quality */}
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <Label className="text-sm font-medium">Evidence Quality</Label>
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">
-                                                                        {diagnosis.confidenceAssessment.breakdown.evidence_quality.score}/
-                                                                        {diagnosis.confidenceAssessment.breakdown.evidence_quality.max_score} pts
-                                                                    </span>
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        {diagnosis.confidenceAssessment.breakdown.evidence_quality.status}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
-                                                            <Progress
-                                                                value={diagnosis.confidenceAssessment.breakdown.evidence_quality.percentage}
-                                                                className="h-2"
-                                                            />
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {diagnosis.confidenceAssessment.interpretation.solution_explanation}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )}
-
-                                            <Separator />
-
-                                            {/* Interpretation */}
-                                            {diagnosis.confidenceAssessment.interpretation && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-semibold block">Interpretation</Label>
-
-                                                    {/* Diagnosis Confidence */}
-                                                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                                                        <div className="flex items-center justify-between">
-                                                            <Label className="text-sm font-medium">Diagnosis Confidence</Label>
-                                                            <Badge
-                                                                variant={
-                                                                    diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                                                        diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                                                                            "destructive"
-                                                                }
-                                                            >
-                                                                {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
-                                                            </Badge>
-                                                        </div>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {diagnosis.confidenceAssessment.interpretation.diagnosis_explanation}
-                                                        </p>
-                                                    </div>
-
-                                                    {/* Solution Confidence */}
-                                                    <div className="p-4 bg-muted/30 rounded-lg space-y-2">
-                                                        <div className="flex items-center justify-between">
-                                                            <Label className="text-sm font-medium">Solution Confidence</Label>
-                                                            <Badge
-                                                                variant={
-                                                                    diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                                                        diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                                                                            "destructive"
-                                                                }
-                                                            >
-                                                                {diagnosis.confidenceAssessment.interpretation.solution_confidence}
-                                                            </Badge>
-                                                        </div>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {diagnosis.confidenceAssessment.interpretation.solution_explanation}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </motion.div>
                             )}
 
@@ -643,20 +643,20 @@ export default function DiagnosticForm({ onTicketCreated }) {
                                 transition={{ duration: 0.5, delay: 1.3 }}
                             >
                                 <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="w-5 h-5" />
-                                        Full Report
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                            {diagnosis.report}
-                                        </ReactMarkdown>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <FileText className="w-5 h-5" />
+                                            Full Report
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {diagnosis.report}
+                                            </ReactMarkdown>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
                         </motion.div>
                     )}
