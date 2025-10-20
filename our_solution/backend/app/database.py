@@ -196,10 +196,10 @@ def create_ticket(alert_text: str, diagnosis_data: dict) -> dict:
             try:
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
                 cursor.execute("""
-                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at)
-                    VALUES (%s, %s, %s, %s, %s)
+                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at, update_reason)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING id
-                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now, now))
+                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now, now, 'Ticket created'))
                 
                 ticket_id = cursor.fetchone()['id']
                 conn.commit()
@@ -215,9 +215,9 @@ def create_ticket(alert_text: str, diagnosis_data: dict) -> dict:
                 cursor = conn.cursor()
                 now_iso = now.isoformat()
                 cursor.execute("""
-                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now_iso, now_iso))
+                    INSERT INTO tickets (ticket_number, alert_text, diagnosis_data, created_at, updated_at, update_reason)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (ticket_number, alert_text, json.dumps(diagnosis_data), now_iso, now_iso, 'Ticket created'))
                 
                 ticket_id = cursor.lastrowid
                 conn.commit()

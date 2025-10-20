@@ -146,27 +146,39 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   }, [ticket]);
 
   const handleSave = async () => {
-    const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
-
-    const editedDiagnosis = {
-      ...diagnosis,
-      rootCause: {
-        ...diagnosis.rootCause,
-        root_cause: editedRootCause,
-        technical_details: editedTechnicalDetails,
-      },
-      resolution: {
-        ...diagnosis.resolution,
-        resolution_steps: editedResolutionSteps.split('\n').filter(s => s.trim()),
-      },
-    };
+    // When saving from Notes tab, only send notes and custom_fields
+    // When saving from Root Cause/Resolution tabs (isEditing), send edited_diagnosis
+    
+    const updatesToSend = {};
+    
+    // Always include notes and custom_fields if saving from Notes tab
+    if (activeTab === 'notes') {
+      updatesToSend.notes = notes;
+      updatesToSend.custom_fields = customFields;
+    }
+    
+    // Only include edited diagnosis if we're in editing mode (Root Cause/Resolution edits)
+    if (isEditing) {
+      const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
+      const editedDiagnosis = {
+        ...diagnosis,
+        rootCause: {
+          ...diagnosis.rootCause,
+          root_cause: editedRootCause,
+          technical_details: editedTechnicalDetails,
+        },
+        resolution: {
+          ...diagnosis.resolution,
+          resolution_steps: editedResolutionSteps.split('\n').filter(s => s.trim()),
+        },
+      };
+      updatesToSend.edited_diagnosis = editedDiagnosis;
+    }
 
     // Optimistic update - update UI immediately
     const optimisticTicket = {
       ...ticket,
-      edited_diagnosis: editedDiagnosis,
-      notes,
-      custom_fields: customFields,
+      ...updatesToSend,
     };
     setTicket(optimisticTicket);
     setIsEditing(false); // Exit edit mode immediately
@@ -178,11 +190,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     const toastId = toast.loading('Saving your changes...');
     
     try {
-      const updated = await updateTicket(ticketId, {
-        edited_diagnosis: editedDiagnosis,
-        notes,
-        custom_fields: customFields,
-      });
+      const updated = await updateTicket(ticketId, updatesToSend);
 
       setTicket(updated);
       // Update cache
