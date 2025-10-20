@@ -115,9 +115,10 @@ export default function Dashboard() {
         if (view !== 'tickets') {
             setTicketFilters(null);
         }
-        // Reset ticket created state when navigating back to diagnose page
-        if (view === 'diagnose') {
+        // Reset ticket created state and diagnosis when navigating to diagnose page from another page
+        if (view === 'diagnose' && activeView !== 'diagnose') {
             setTicketCreated(false);
+            setDiagnosis(null); // Clear diagnosis to hide "Save as Ticket" button
         }
         // Reset previous ticket tab to 'active' when navigating away from tickets
         // This ensures tickets page always opens to Active Tickets by default

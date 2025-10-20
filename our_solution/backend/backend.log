@@ -1,0 +1,10 @@
+💾 Using SQLite database (local development)
+🎯 Request Queue Manager initialized
+   Max concurrent requests: 3
+🚀 Starting Flask server on 127.0.0.1:5000
+   Threading: Enabled (supports concurrent requests)
+ * Serving Flask app 'webapp'
+ * Debug mode: off
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+On macOS, try disabling the 'AirPlay Receiver' service from System Preferences -> General -> AirDrop & Handoff.
