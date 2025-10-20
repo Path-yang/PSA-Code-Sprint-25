@@ -147,11 +147,11 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
   return (
     <TableRow
       key={ticket.id}
-      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      className="cursor-pointer border-b border-border even:bg-muted/10 hover:bg-muted/70 transition-colors duration-150"
       onClick={() => onSelectTicket(ticket.id)}
     >
-      <TableCell className="font-mono font-medium">{ticketId}</TableCell>
-      <TableCell>
+      <TableCell className="font-mono font-medium py-4">{ticketId}</TableCell>
+      <TableCell className="py-4">
         <Badge
           variant={ticket.status === 'active' ? 'default' : 'secondary'}
           className="gap-1"
@@ -164,7 +164,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
           {ticket.status}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <div className="max-w-md">
           <div className="font-medium">
             <Badge variant={
@@ -178,28 +178,34 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
           <div className="text-xs text-muted-foreground line-clamp-1">{module}</div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <div className="flex items-center gap-1">
           {getChannelIcon(parsedData.channel)}
           <span className="text-sm">{parsedData.channel || 'Unknown'}</span>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <div className="flex items-center gap-1">
           <Clock className="w-3 h-3 text-muted-foreground" />
           <span className="text-sm">{formatDuration(ticket.created_at, ticket.closed_at)}</span>
         </div>
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground">
+      <TableCell className="text-sm text-muted-foreground py-4">
         <div className="space-y-1">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             <span className="text-xs">{formatDate(ticket.created_at)}</span>
           </div>
-          {(ticket.status === 'closed' || ticket.status === 'deleted') && ticket.closed_at && (
+          {ticket.status === 'closed' && ticket.closed_at && (
             <div className="flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
               <span className="text-xs">{formatDate(ticket.closed_at)}</span>
+            </div>
+          )}
+          {ticket.status === 'deleted' && ticket.deleted_at && (
+            <div className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              <span className="text-xs">{formatDate(ticket.deleted_at)}</span>
             </div>
           )}
         </div>
@@ -208,18 +214,24 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
   );
 }
 
-function renderTicketsTable(tickets, onSelectTicket) {
+function renderTicketsTable(tickets, onSelectTicket, activeTab) {
+  const getDateHeaderLabel = () => {
+    if (activeTab === 'deleted') return 'Deleted';
+    if (activeTab === 'closed') return 'Created / Closed';
+    return 'Created';
+  };
+
   return (
     <div className="border rounded-md">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[90px]">Ticket ID</TableHead>
+            <TableHead className="w-[140px]">Ticket ID</TableHead>
             <TableHead className="w-[100px]">Status</TableHead>
-            <TableHead className="min-w-[200px]">Priority / Module</TableHead>
+            <TableHead className="min-w-[150px]">Priority / Module</TableHead>
             <TableHead className="w-[100px]">Channel</TableHead>
             <TableHead className="w-[100px]">Duration</TableHead>
-            <TableHead className="w-[200px]">Created / Closed</TableHead>
+            <TableHead className="w-[200px]">{getDateHeaderLabel()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -533,7 +545,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : viewMode === 'list' ? (
                 <div>
-                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                  {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -571,7 +583,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : viewMode === 'list' ? (
                 <div>
-                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                  {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -609,7 +621,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : viewMode === 'list' ? (
                 <div>
-                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                  {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
