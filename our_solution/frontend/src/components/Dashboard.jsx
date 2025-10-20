@@ -73,6 +73,10 @@ export default function Dashboard() {
     const handleViewChange = (view) => {
         setActiveView(view);
         setSelectedTicketId(null);
+        // Reset ticket created state when navigating back to diagnose page
+        if (view === 'diagnose') {
+            setTicketCreated(false);
+        }
     };
 
     const handleCreateTicket = async () => {
