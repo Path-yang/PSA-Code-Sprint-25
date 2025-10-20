@@ -86,7 +86,13 @@ const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="font-mono text-sm font-medium">{ticketId}</span>
-          <Badge variant={ticket.status === 'active' ? 'default' : 'secondary'}>
+          <Badge
+            variant={
+              ticket.status === 'active' ? 'default' :
+                ticket.status === 'closed' ? 'secondary' :
+                  'destructive'
+            }
+          >
             {ticket.status}
           </Badge>
         </div>
@@ -164,13 +170,19 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
       <TableCell className="font-mono font-medium py-4">{ticketId}</TableCell>
       <TableCell className="py-4">
         <Badge
-          variant={ticket.status === 'active' ? 'default' : 'secondary'}
+          variant={
+            ticket.status === 'active' ? 'default' :
+              ticket.status === 'closed' ? 'secondary' :
+                'destructive'
+          }
           className="gap-1"
         >
           {ticket.status === 'active' ? (
             <AlertCircle className="w-3 h-3" />
-          ) : (
+          ) : ticket.status === 'closed' ? (
             <CheckCircle className="w-3 h-3" />
+          ) : (
+            <Trash2 className="w-3 h-3" />
           )}
           {ticket.status}
         </Badge>
