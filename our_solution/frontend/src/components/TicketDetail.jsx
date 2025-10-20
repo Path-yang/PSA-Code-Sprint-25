@@ -22,6 +22,7 @@ import {
   BarChart3,
   Loader2
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -170,6 +171,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
+    
+    // Show loading toast
+    const toastId = toast.loading('Saving your notes...');
+    
     try {
       const updated = await updateTicket(ticketId, {
         edited_diagnosis: editedDiagnosis,
@@ -186,11 +191,17 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
       }
       onTicketUpdated?.();
+      
+      // Show success toast
+      toast.success('Notes saved successfully! Updated time refreshed.', { id: toastId });
     } catch (err) {
       setError(err.message || 'Failed to save changes');
       // Rollback on error
       setTicket(ticket);
       setIsEditing(true);
+      
+      // Show error toast
+      toast.error('Failed to save notes. Please try again.', { id: toastId });
     } finally {
       setSaving(false);
     }
@@ -1021,8 +1032,17 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
             {/* Save Notes Button - Only on Notes Tab */}
             {ticket.status === 'active' && activeTab === 'notes' && (
               <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
-                <Save className="w-4 h-4" />
-                {saving ? 'Saving...' : 'Save Notes'}
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving your notes...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save Notes
+                  </>
+                )}
               </Button>
             )}
 
