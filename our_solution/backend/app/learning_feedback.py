@@ -159,7 +159,8 @@ class LearningFeedback:
             "module_escalation_rates": {
                 "Vessel": 0.0,
                 "Container": 0.0,
-                "EDI": 0.0,
+                "EDI": 0.0,  # Legacy
+                "EDI/API": 0.0,
                 "API": 0.0
             },
             
@@ -216,16 +217,18 @@ class LearningFeedback:
                 "current": {
                     "Vessel": 25,
                     "Container": 20,
-                    "EDI": 15,
+                    "EDI": 15,  # Legacy
+                    "EDI/API": 15,
                     "API": 10
                 },
                 "suggested": {
                     "Vessel": 30,  # Increase vessel criticality
                     "Container": 20,
-                    "EDI": 18,     # Increase EDI criticality
+                    "EDI": 18,     # Legacy - Increase EDI criticality
+                    "EDI/API": 18,  # Increase EDI/API criticality
                     "API": 10
                 },
-                "reasoning": "Vessel and EDI modules have higher business impact than initially assessed"
+                "reasoning": "Vessel and EDI/API modules have higher business impact than initially assessed"
             }
         }
         

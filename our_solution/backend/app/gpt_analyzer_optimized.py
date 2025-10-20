@@ -76,7 +76,7 @@ Provide BOTH parsing AND root cause analysis in ONE JSON response:
 {{
     "parsed": {{
         "ticket_id": "Extract from alert (e.g., ALR-123, INC-456)",
-        "module": "Container/Vessel/EDI/API",
+        "module": "MUST be one of: Container, Vessel, EDI/API (EDI issues must always be EDI/API, never just EDI)",
         "entity_id": "Container/Vessel ID or IFT number",
         "channel": "Email/SMS/Call",
         "priority": "High/Medium/Low",

@@ -52,7 +52,8 @@ class SeverityClassifier:
             "Database": +1,  # Upgrade severity by 1 level
             "Vessel": 0,     # No change
             "Container": 0,  # No change
-            "EDI": 0,       # No change
+            "EDI": 0,       # No change (legacy)
+            "EDI/API": 0,   # No change
             "API": -1,      # Downgrade severity by 1 level
         }
         

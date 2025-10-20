@@ -48,7 +48,8 @@ class ImpactAssessor:
         self.module_criticality = {
             "Vessel": 25,
             "Container": 20,
-            "EDI": 15,
+            "EDI": 15,  # Legacy
+            "EDI/API": 15,
             "API": 10,
             "Database": 30,  # Highest criticality
             "System": 20,

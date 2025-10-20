@@ -318,7 +318,7 @@ class JustificationEngine:
             risk_factors.append("Port operations dependency")
         elif module == "Container":
             risk_factors.append("Cargo handling impact")
-        elif module == "EDI":
+        elif module in ["EDI", "EDI/API"]:
             risk_factors.append("External partner communication")
         
         # Context-based risks
