@@ -80,7 +80,7 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
 
   return (
     <Card
-      className="bg-background/50 backdrop-blur-sm border border-border/50 cursor-pointer hover:bg-muted/30 hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
+      className="glass-card cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
       onClick={() => onSelectTicket(ticket.id)}
     >
       <CardHeader className="pb-3 space-y-2">
