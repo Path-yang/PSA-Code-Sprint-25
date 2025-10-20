@@ -267,6 +267,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   const [dateFilter, setDateFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState(initialFilters?.priority || 'all');
   const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
+  const [isWarmLoading, setIsWarmLoading] = useState(false); // Short overlay when cache exists but network fetch is pending
   const [hasAnalyticsFilters, setHasAnalyticsFilters] = useState(false);
 
   // Track previous refreshKey to detect actual changes
@@ -320,8 +321,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
       try {
         const parsed = JSON.parse(cachedTickets);
         setAllTickets(parsed);
-        // Don't show loading spinner since we have cached data
-        loadAllTickets(false);
+        // Show a brief warm-loading overlay while we refresh in background
+        setIsWarmLoading(true);
+        loadAllTickets(false).finally(() => setIsWarmLoading(false));
         return;
       } catch (e) {
         // Invalid cache, ignore and fetch normally
@@ -418,6 +420,27 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
 
   return (
     <div className="p-6 space-y-6 relative">
+      {/* Warm Loading Overlay (fast background refresh) */}
+      <AnimatePresence>
+        {isWarmLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/70 backdrop-blur-sm z-50 flex items-center justify-center"
+          >
+            <div className="bg-card border rounded-lg p-6 shadow-xl">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <div>
+                  <h3 className="font-semibold">Loading Tickets</h3>
+                  <p className="text-sm text-muted-foreground">Syncing latest tickets...</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Refreshing Overlay */}
       <AnimatePresence>
         {isRefreshing && (
