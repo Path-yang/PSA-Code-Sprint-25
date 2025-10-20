@@ -182,8 +182,17 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                     onClick={handleSubmit}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <Zap className="w-4 h-4" />
-                                        Run Diagnostics
+                                        {loading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Analyzing your issue...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Zap className="w-4 h-4" />
+                                                Run Diagnostics
+                                            </>
+                                        )}
                                     </div>
                                 </StatefulButton>
 

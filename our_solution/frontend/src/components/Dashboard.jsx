@@ -313,7 +313,7 @@ export default function Dashboard() {
                                         ) : (
                                             <CheckCircle className="w-4 h-4" />
                                         )}
-                                        {isSavingTicket ? 'Saving...' : 'Save as Ticket'}
+                                        {isSavingTicket ? 'Creating your ticket...' : 'Save as Ticket'}
                                     </div>
                                 </HoverBorderGradient>
                             )}
