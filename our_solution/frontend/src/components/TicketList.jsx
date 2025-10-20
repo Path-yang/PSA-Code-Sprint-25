@@ -72,7 +72,7 @@ function getChannelIcon(channel) {
   }
 }
 
-const TicketCard = memo(({ ticket, onSelectTicket }) => {
+const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
   const parsedData = ticket.diagnosis_data?.parsed || {};
   const priority = parsedData.priority || 'Medium';
   const module = parsedData.module || 'N/A';
@@ -81,7 +81,7 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
   return (
     <Card
       className="glass-card cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
-      onClick={() => onSelectTicket(ticket.id)}
+      onClick={() => onSelectTicket(ticket.id, activeTab)}
     >
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
@@ -145,11 +145,11 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
   );
 });
 
-function renderTicketCard(ticket, index, onSelectTicket) {
-  return <TicketCard key={ticket.id} ticket={ticket} onSelectTicket={onSelectTicket} />;
+function renderTicketCard(ticket, index, onSelectTicket, activeTab) {
+  return <TicketCard key={ticket.id} ticket={ticket} onSelectTicket={onSelectTicket} activeTab={activeTab} />;
 }
 
-function renderTicketTableRow(ticket, index, onSelectTicket) {
+function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
   const parsedData = ticket.diagnosis_data?.parsed || {};
   const priority = parsedData.priority || 'Medium';
   const module = parsedData.module || 'N/A';
@@ -159,7 +159,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
     <TableRow
       key={ticket.id}
       className="cursor-pointer border-b border-border even:bg-muted/10 hover:bg-muted/70 transition-colors duration-150"
-      onClick={() => onSelectTicket(ticket.id)}
+      onClick={() => onSelectTicket(ticket.id, activeTab)}
     >
       <TableCell className="font-mono font-medium py-4">{ticketId}</TableCell>
       <TableCell className="py-4">
@@ -247,7 +247,7 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
         </TableHeader>
         <TableBody>
           <AnimatePresence>
-            {tickets.map((ticket, index) => renderTicketTableRow(ticket, index, onSelectTicket))}
+            {tickets.map((ticket, index) => renderTicketTableRow(ticket, index, onSelectTicket, activeTab))}
           </AnimatePresence>
         </TableBody>
       </Table>
@@ -255,8 +255,8 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
   );
 }
 
-export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKey }) {
-  const [activeTab, setActiveTab] = useState('active');
+export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKey, initialTab = 'active' }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -566,7 +566,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}
             </motion.div>
@@ -604,7 +604,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}
             </motion.div>
@@ -642,7 +642,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}
             </motion.div>

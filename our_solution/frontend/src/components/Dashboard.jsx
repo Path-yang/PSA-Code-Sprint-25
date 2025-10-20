@@ -62,6 +62,7 @@ export default function Dashboard() {
     const [ticketCreated, setTicketCreated] = useState(false);
     const [isSavingTicket, setIsSavingTicket] = useState(false);
     const [ticketRefreshKey, setTicketRefreshKey] = useState(0); // Trigger ticket list refresh
+    const [previousTicketTab, setPreviousTicketTab] = useState('active'); // Remember which tab user was on
 
     // Force light mode - always remove dark class
     useEffect(() => {
@@ -97,7 +98,8 @@ export default function Dashboard() {
         }
     };
 
-    const handleTicketSelect = async (ticketId) => {
+    const handleTicketSelect = async (ticketId, currentTab) => {
+        setPreviousTicketTab(currentTab); // Remember which tab they were on
         setSelectedTicketId(ticketId);
         setSelectedTicket(null); // Clear old ticket data to prevent showing wrong ID during loading
         setActiveView('ticket-detail');
@@ -114,6 +116,7 @@ export default function Dashboard() {
         setActiveView('tickets');
         setSelectedTicketId(null);
         setSelectedTicket(null);
+        // previousTicketTab will be used by TicketList to restore the correct tab
     };
 
     const handleBackToDiagnose = () => {
@@ -132,7 +135,7 @@ export default function Dashboard() {
                     onTicketCreatedChange={setTicketCreated}
                 />;
             case 'tickets':
-                return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} refreshKey={ticketRefreshKey} />;
+                return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} refreshKey={ticketRefreshKey} initialTab={previousTicketTab} />;
             case 'ticket-detail':
                 return selectedTicketId ? (
                     <TicketDetail
