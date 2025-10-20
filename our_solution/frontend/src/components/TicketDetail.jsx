@@ -1073,15 +1073,22 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
       {/* Ticket Dates - Bottom Right - Outside Container */}
       {ticket && (
-        <div className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
+        <div className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-xs">
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>Created: {formatDateTime(ticket.created_at)}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+              </div>
+              {ticket.update_reason && (
+                <div className="pl-6 text-xs italic text-muted-foreground/80">
+                  ({ticket.update_reason})
+                </div>
+              )}
             </div>
             {ticket.status === 'closed' && ticket.closed_at && (
               <div className="flex items-center gap-2">

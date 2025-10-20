@@ -140,7 +140,8 @@ def _init_postgres_schema():
                     deleted_at TIMESTAMP WITH TIME ZONE,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     closed_at TIMESTAMP WITH TIME ZONE,
-                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    update_reason TEXT
                 )
             """)
             
@@ -157,6 +158,18 @@ def _init_postgres_schema():
             
             conn.commit()
             print("✅ Postgres schema initialized")
+            
+            # Add update_reason column if it doesn't exist (migration)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("""
+                    ALTER TABLE tickets ADD COLUMN IF NOT EXISTS update_reason TEXT
+                """)
+                conn.commit()
+            except Exception as e:
+                print(f"ℹ️  update_reason column: {e}")
+            finally:
+                cursor.close()
         finally:
             conn.close()
     except Exception as e:
@@ -303,6 +316,17 @@ def update_ticket(ticket_id: int, updates: dict) -> Optional[dict]:
         if not fields_to_update:
             return get_ticket(ticket_id)
         
+        # Determine what was updated for update_reason
+        update_reasons = []
+        if 'notes' in fields_to_update:
+            update_reasons.append('Updated notes')
+        if 'custom_fields' in fields_to_update:
+            update_reasons.append('Updated custom fields')
+        if 'edited_diagnosis' in fields_to_update:
+            update_reasons.append('Edited diagnosis')
+        
+        fields_to_update['update_reason'] = ' & '.join(update_reasons) if update_reasons else 'Updated ticket'
+        
         # For Postgres, keep as dict; for SQLite, convert to JSON string
         if not USE_POSTGRES:
             for key in ['edited_diagnosis', 'custom_fields']:
@@ -366,9 +390,9 @@ def close_ticket(ticket_id: int) -> Optional[dict]:
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE tickets
-                    SET status = 'closed', closed_at = %s, updated_at = %s
+                    SET status = 'closed', closed_at = %s, updated_at = %s, update_reason = %s
                     WHERE id = %s
-                """, (now, now, ticket_id))
+                """, (now, now, 'Closed ticket', ticket_id))
                 conn.commit()
             finally:
                 conn.close()
@@ -379,9 +403,9 @@ def close_ticket(ticket_id: int) -> Optional[dict]:
                 now_iso = now.isoformat()
                 cursor.execute("""
                     UPDATE tickets
-                    SET status = 'closed', closed_at = ?, updated_at = ?
+                    SET status = 'closed', closed_at = ?, updated_at = ?, update_reason = ?
                     WHERE id = ?
-                """, (now_iso, now_iso, ticket_id))
+                """, (now_iso, now_iso, 'Closed ticket', ticket_id))
                 conn.commit()
             finally:
                 conn.close()
@@ -401,9 +425,9 @@ def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE tickets
-                    SET status = 'deleted', deletion_reason = %s, deleted_at = %s::timestamptz, updated_at = %s::timestamptz
+                    SET status = 'deleted', deletion_reason = %s, deleted_at = %s::timestamptz, updated_at = %s::timestamptz, update_reason = %s
                     WHERE id = %s
-                """, (reason, now_iso, now_iso, ticket_id))
+                """, (reason, now_iso, now_iso, 'Moved to deleted', ticket_id))
                 conn.commit()
             finally:
                 conn.close()
@@ -413,9 +437,9 @@ def delete_ticket(ticket_id: int, reason: str) -> Optional[dict]:
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE tickets
-                    SET status = 'deleted', deletion_reason = ?, deleted_at = ?, updated_at = ?
+                    SET status = 'deleted', deletion_reason = ?, deleted_at = ?, updated_at = ?, update_reason = ?
                     WHERE id = ?
-                """, (reason, now_iso, now_iso, ticket_id))
+                """, (reason, now_iso, now_iso, 'Moved to deleted', ticket_id))
                 conn.commit()
             finally:
                 conn.close()
