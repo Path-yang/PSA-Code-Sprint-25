@@ -84,8 +84,22 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                 setRequestId(result.request_id);
             }
             
-            setDiagnosis(result);
-            onDiagnosisChange?.(result);
+            // Normalize module naming to ensure EDI/API is always used on the UI
+            const normalizedModule = result?.parsed?.module === 'EDI' ? 'EDI/API' : result?.parsed?.module;
+            const normalized = {
+                ...result,
+                parsed: { ...(result.parsed || {}), module: normalizedModule },
+                // Also normalize any escalation target mentions
+                resolution: {
+                    ...(result.resolution || {}),
+                    escalate_to: (result.resolution?.escalate_to || '')
+                        .replace('EDI Team', 'EDI/API Team')
+                        .replace(/\bEDI\b/g, 'EDI/API')
+                }
+            };
+
+            setDiagnosis(normalized);
+            onDiagnosisChange?.(normalized);
             setShowResults(true);
             setTicketCreated(false);
             onTicketCreatedChange?.(false);
@@ -261,7 +275,7 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                         <td className="px-4 py-3">
                                                             <Badge variant="outline">{diagnosis.parsed.channel || '—'}</Badge>
                                                         </td>
-                                                        <td className="px-4 py-3 text-sm">{diagnosis.parsed.module || '—'}</td>
+                                                        <td className="px-4 py-3 text-sm">{(diagnosis.parsed.module === 'EDI' ? 'EDI/API' : diagnosis.parsed.module) || '—'}</td>
                                                         <td className="px-4 py-3">
                                                             <Badge variant={
                                                                 diagnosis.parsed.priority === 'High' ? 'destructive' : 
