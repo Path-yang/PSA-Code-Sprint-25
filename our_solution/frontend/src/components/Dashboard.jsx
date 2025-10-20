@@ -90,6 +90,7 @@ export default function Dashboard() {
         const handleNavigateTickets = (event) => {
             const { filterType, filterValue } = event.detail;
             setTicketFilters({ [filterType]: filterValue });
+            setPreviousTicketTab('active'); // Reset to active tab when navigating from analytics
             setActiveView('tickets');
         };
 
@@ -117,6 +118,11 @@ export default function Dashboard() {
         // Reset ticket created state when navigating back to diagnose page
         if (view === 'diagnose') {
             setTicketCreated(false);
+        }
+        // Reset previous ticket tab to 'active' when navigating away from tickets
+        // This ensures tickets page always opens to Active Tickets by default
+        if (view !== 'tickets' && view !== 'ticket-detail') {
+            setPreviousTicketTab('active');
         }
     };
 
