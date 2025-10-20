@@ -1044,28 +1044,32 @@ function AnalyticsView() {
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <ResponsiveContainer width="100%" height={300}>
-                                            <AreaChart data={chartData}>
+                                        <ResponsiveContainer width="100%" height={350}>
+                                            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                                <XAxis
-                                                    dataKey="date"
+                                                <XAxis 
+                                                    dataKey="date" 
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
                                                 />
-                                                <YAxis
+                                                <YAxis 
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
                                                 />
-                                                <RechartsTooltip
+                                                <RechartsTooltip 
                                                     contentStyle={{
                                                         backgroundColor: 'hsl(var(--popover))',
                                                         border: '1px solid hsl(var(--border))',
                                                         borderRadius: '6px'
                                                     }}
                                                 />
-                                                <Legend />
+                                                <Legend 
+                                                    verticalAlign="bottom" 
+                                                    height={36}
+                                                    wrapperStyle={{ paddingTop: '20px' }}
+                                                />
                                                 <Area
                                                     type="monotone"
                                                     dataKey="active"
@@ -1292,27 +1296,32 @@ function AnalyticsView() {
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <ResponsiveContainer width="100%" height={300}>
-                                            <BarChart data={chartData}>
+                                        <ResponsiveContainer width="100%" height={350}>
+                                            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                                <XAxis
-                                                    dataKey="date"
+                                                <XAxis 
+                                                    dataKey="date" 
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
                                                 />
-                                                <YAxis
+                                                <YAxis 
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
                                                 />
-                                                <RechartsTooltip
+                                                <RechartsTooltip 
                                                     contentStyle={{
                                                         backgroundColor: 'hsl(var(--popover))',
                                                         border: '1px solid hsl(var(--border))',
                                                         borderRadius: '6px'
                                                     }}
                                                     formatter={(value) => [`${value}h`, 'Avg Time']}
+                                                />
+                                                <Legend 
+                                                    verticalAlign="bottom" 
+                                                    height={36}
+                                                    wrapperStyle={{ paddingTop: '20px' }}
                                                 />
                                                 <Bar
                                                     dataKey="avgTime"
