@@ -194,12 +194,12 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
         <div className="space-y-1">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            <span>Opened: {formatDate(ticket.created_at)}</span>
+            <span className="text-xs">{formatDate(ticket.created_at)}</span>
           </div>
-          {ticket.status === 'closed' && ticket.closed_at && (
-            <div className="flex items-center gap-1 text-xs">
+          {(ticket.status === 'closed' || ticket.status === 'deleted') && ticket.closed_at && (
+            <div className="flex items-center gap-1">
               <CheckCircle className="w-3 h-3" />
-              <span>Closed: {formatDate(ticket.closed_at)}</span>
+              <span className="text-xs">{formatDate(ticket.closed_at)}</span>
             </div>
           )}
         </div>
@@ -214,12 +214,12 @@ function renderTicketsTable(tickets, onSelectTicket) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px]">Ticket ID</TableHead>
-            <TableHead className="w-[120px]">Status</TableHead>
-            <TableHead>Alert & Description</TableHead>
-            <TableHead className="w-[120px]">Channel</TableHead>
-            <TableHead className="w-[120px]">Duration</TableHead>
-            <TableHead className="w-[180px]">Timeline</TableHead>
+            <TableHead className="w-[90px]">Ticket ID</TableHead>
+            <TableHead className="w-[100px]">Status</TableHead>
+            <TableHead className="min-w-[200px]">Priority / Module</TableHead>
+            <TableHead className="w-[100px]">Channel</TableHead>
+            <TableHead className="w-[100px]">Duration</TableHead>
+            <TableHead className="w-[200px]">Created / Closed</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
