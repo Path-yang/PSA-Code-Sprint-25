@@ -42,6 +42,13 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
     const [requestId, setRequestId] = useState(null);
     const [greeting, setGreeting] = useState('');
     const [showResults, setShowResults] = useState(false);
+    // Utility: render black oval badges for confidence labels (LOW/MODERATE/HIGH)
+    const getConfidenceBadgeClass = (status) => {
+        const s = (status || '').toString().toLowerCase();
+        return (s === 'low' || s === 'moderate' || s === 'high')
+            ? 'bg-foreground text-background border-foreground'
+            : '';
+    };
 
     // Generate time-based greeting
     useEffect(() => {
@@ -472,12 +479,8 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                     </div>
                                                     <div className="text-right">
                                                         <Badge
-                                                            variant={
-                                                                diagnosis.confidenceAssessment.overall_score >= 70 ? "default" :
-                                                                    diagnosis.confidenceAssessment.overall_score >= 50 ? "secondary" :
-                                                                        "destructive"
-                                                            }
-                                                            className="text-sm"
+                                                            variant="outline"
+                                                            className={`text-sm ${getConfidenceBadgeClass(diagnosis.confidenceAssessment.interpretation?.recommendation?.split(' ').pop())}`}
                                                         >
                                                             {diagnosis.confidenceAssessment.interpretation?.recommendation || 'N/A'}
                                                         </Badge>
@@ -606,11 +609,8 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                             <div className="flex items-center justify-between">
                                                                 <Label className="text-sm font-medium">Diagnosis Confidence</Label>
                                                                 <Badge
-                                                                    variant={
-                                                                        diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "HIGH" ? "default" :
-                                                                            diagnosis.confidenceAssessment.interpretation.diagnosis_confidence === "MODERATE" ? "secondary" :
-                                                                                "destructive"
-                                                                    }
+                                                                    variant="outline"
+                                                                    className={getConfidenceBadgeClass(diagnosis.confidenceAssessment.interpretation.diagnosis_confidence)}
                                                                 >
                                                                     {diagnosis.confidenceAssessment.interpretation.diagnosis_confidence}
                                                                 </Badge>
@@ -625,11 +625,8 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                                             <div className="flex items-center justify-between">
                                                                 <Label className="text-sm font-medium">Solution Confidence</Label>
                                                                 <Badge
-                                                                    variant={
-                                                                        diagnosis.confidenceAssessment.interpretation.solution_confidence === "HIGH" ? "default" :
-                                                                            diagnosis.confidenceAssessment.interpretation.solution_confidence === "MODERATE" ? "secondary" :
-                                                                                "destructive"
-                                                                    }
+                                                                    variant="outline"
+                                                                    className={getConfidenceBadgeClass(diagnosis.confidenceAssessment.interpretation.solution_confidence)}
                                                                 >
                                                                     {diagnosis.confidenceAssessment.interpretation.solution_confidence}
                                                                 </Badge>
