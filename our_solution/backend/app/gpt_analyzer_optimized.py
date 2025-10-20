@@ -96,8 +96,14 @@ Return ONLY valid JSON. Be concise."""
         response = self._call_gpt(system_prompt, user_prompt, temperature=0.2, max_tokens=1500)
         try:
             result = json.loads(response)
+            
+            # FORCE EDI to be EDI/API - hard override
+            parsed_data = result.get("parsed", {})
+            if parsed_data.get("module") == "EDI":
+                parsed_data["module"] = "EDI/API"
+            
             return {
-                "parsed": result.get("parsed", {}),
+                "parsed": parsed_data,
                 "root_cause": result.get("root_cause", {})
             }
         except json.JSONDecodeError:
@@ -208,8 +214,14 @@ Return ONLY valid JSON. Keep report concise (max 500 words)."""
         response = self._call_gpt(system_prompt, user_prompt, temperature=0.2, max_tokens=2500)
         try:
             result = json.loads(response)
+            
+            # FORCE EDI to be EDI/API in escalation target - hard override
+            resolution = result.get("resolution", self._get_fallback_resolution(parsed))
+            if resolution.get("escalate_to"):
+                resolution["escalate_to"] = resolution["escalate_to"].replace("EDI Team", "EDI/API Team").replace(" EDI ", " EDI/API ")
+            
             return {
-                "resolution": result.get("resolution", self._get_fallback_resolution(parsed)),
+                "resolution": resolution,
                 "report": result.get("report", "# Diagnostic Report\n\nAnalysis in progress...")
             }
         except json.JSONDecodeError:
