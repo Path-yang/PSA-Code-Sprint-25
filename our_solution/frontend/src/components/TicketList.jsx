@@ -266,7 +266,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState(initialFilters?.priority || 'all');
-  const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
+  const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh (for create/close/delete)
   const [isWarmLoading, setIsWarmLoading] = useState(false); // Short overlay when cache exists but network fetch is pending
   const [hasAnalyticsFilters, setHasAnalyticsFilters] = useState(false);
 
@@ -321,9 +321,8 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
       try {
         const parsed = JSON.parse(cachedTickets);
         setAllTickets(parsed);
-        // Show a brief warm-loading overlay while we refresh in background
-        setIsWarmLoading(true);
-        loadAllTickets(false).finally(() => setIsWarmLoading(false));
+        // Refresh silently without overlay when navigating back (no changes)
+        loadAllTickets(false);
         return;
       } catch (e) {
         // Invalid cache, ignore and fetch normally
@@ -348,12 +347,13 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
     }
   }, [initialFilters]);
 
-  // Refresh tickets when refreshKey changes (e.g., after close/delete actions)
+  // Refresh tickets when refreshKey changes (e.g., after create/close/delete actions)
   useEffect(() => {
     // Only refresh if refreshKey actually changed (not on initial mount)
     if (refreshKey > 0 && refreshKey !== prevRefreshKeyRef.current) {
       setIsRefreshing(true);
-      loadAllTickets(false).finally(() => {
+      // Use full loading state (same as initial) for a consistent experience
+      loadAllTickets(true).finally(() => {
         setIsRefreshing(false);
       });
       // Update ref to current value
@@ -420,48 +420,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
 
   return (
     <div className="p-6 space-y-6 relative">
-      {/* Warm Loading Overlay (fast background refresh) */}
-      <AnimatePresence>
-        {isWarmLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/70 backdrop-blur-sm z-50 flex items-center justify-center"
-          >
-            <div className="bg-card border rounded-lg p-6 shadow-xl">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <div>
-                  <h3 className="font-semibold">Loading Tickets</h3>
-                  <p className="text-sm text-muted-foreground">Syncing latest tickets...</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* Refreshing Overlay */}
-      <AnimatePresence>
-        {isRefreshing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center"
-          >
-            <div className="bg-card border rounded-lg p-6 shadow-xl">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                <div>
-                  <h3 className="font-semibold">Refreshing Tickets</h3>
-                  <p className="text-sm text-muted-foreground">Updating ticket list...</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* No overlay when just navigating back; full-screen loading is handled by 'loading' state in each tab */}
 
       {/* Analytics Filter Banner */}
       {hasAnalyticsFilters && (
