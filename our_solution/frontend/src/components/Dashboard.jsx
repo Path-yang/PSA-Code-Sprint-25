@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Activity,
     AlertTriangle,
+    AlertCircle,
     BarChart3,
     FileText,
     Home,
     Settings,
     Ticket,
+    Trash2,
     Zap,
     ChevronLeft,
     ChevronRight,
@@ -343,7 +345,13 @@ export default function Dashboard() {
                                             variant={selectedTicket.status === 'active' ? 'default' : selectedTicket.status === 'closed' ? 'secondary' : 'destructive'}
                                             className="gap-1"
                                         >
-                                            <AlertTriangle className="w-3 h-3" />
+                                            {selectedTicket.status === 'active' ? (
+                                                <AlertCircle className="w-3 h-3" />
+                                            ) : selectedTicket.status === 'closed' ? (
+                                                <CheckCircle className="w-3 h-3" />
+                                            ) : (
+                                                <Trash2 className="w-3 h-3" />
+                                            )}
                                             {selectedTicket.status}
                                         </Badge>
                                     )}

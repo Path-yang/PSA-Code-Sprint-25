@@ -146,15 +146,15 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const handleSave = async () => {
     // When saving from Notes tab, only send notes and custom_fields
     // When saving from Root Cause/Resolution tabs (isEditing), send edited_diagnosis
-    
+
     const updatesToSend = {};
-    
+
     // Always include notes and custom_fields if saving from Notes tab
     if (activeTab === 'notes') {
       updatesToSend.notes = notes;
       updatesToSend.custom_fields = customFields;
     }
-    
+
     // Only include edited diagnosis if we're in editing mode (Root Cause/Resolution edits)
     if (isEditing) {
       const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
@@ -183,10 +183,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
     setSaving(true);
     setError('');
-    
+
     // Show loading toast
     const toastId = toast.loading('Saving your changes...');
-    
+
     try {
       const updated = await updateTicket(ticketId, updatesToSend);
 
@@ -199,7 +199,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
       }
       onTicketUpdated?.();
-      
+
       // Show success toast
       toast.success('Changes saved successfully! Updated time refreshed.', { id: toastId });
     } catch (err) {
@@ -207,7 +207,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       // Rollback on error
       setTicket(ticket);
       setIsEditing(true);
-      
+
       // Show error toast
       toast.error('Failed to save changes. Please try again.', { id: toastId });
     } finally {
@@ -217,7 +217,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   const handleClose = async () => {
     setShowCloseDialog(false);
-    
+
     // Show loading screen immediately
     setLoadingAction('closing');
     setLoading(true);
@@ -265,7 +265,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowDeleteDialog(false);
-    
+
     // Show loading screen immediately
     setLoadingAction('deleting');
     setLoading(true);
@@ -306,7 +306,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowPermanentDeleteDialog(false);
-    
+
     // Show loading screen immediately
     setLoadingAction('permanent-deleting');
     setLoading(true);
@@ -478,7 +478,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           <ArrowLeft className="w-4 h-4" />
           Back to List
         </Button>
-        
+
         {/* Ticket Dates - Top Right within content */}
         <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
@@ -1072,44 +1072,50 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </Tabs>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-6 border-t">
-        {isEditing ? (
-          <>
-            <Button onClick={handleSave} disabled={saving} className="gap-2">
-              <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-            <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            {/* Edit Diagnosis Button - Only on Diagnosis Tab */}
-            {ticket.status === 'active' && activeTab === 'root-cause' && (
-              <Button onClick={() => setIsEditing(true)} className="gap-2">
-                <Edit className="w-4 h-4" />
-                Edit Diagnosis
+      <div className="flex justify-between items-center gap-3 pt-6 border-t">
+        <div className="flex gap-3">
+          {isEditing ? (
+            <>
+              <Button onClick={handleSave} disabled={saving} className="gap-2">
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
-            )}
-
-            {/* Save Changes Button - Available on Notes Tab for all ticket statuses */}
-            {activeTab === 'notes' && (
-              <Button onClick={handleSave} disabled={saving} className="gap-2 bg-foreground text-background hover:bg-foreground/90">
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving your changes...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </>
-                )}
+              <Button onClick={() => setIsEditing(false)} disabled={saving} variant="outline">
+                Cancel
               </Button>
-            )}
+            </>
+          ) : (
+            <>
+              {/* Edit Analysis Button - Only on Root Cause Tab */}
+              {ticket.status === 'active' && activeTab === 'root-cause' && (
+                <Button onClick={() => setIsEditing(true)} className="gap-2">
+                  <Edit className="w-4 h-4" />
+                  Edit Analysis
+                </Button>
+              )}
 
+              {/* Save Changes Button - Available on Notes Tab for all ticket statuses */}
+              {activeTab === 'notes' && (
+                <Button onClick={handleSave} disabled={saving} className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving your changes...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
+        {!isEditing && (
+          <div className="flex gap-3">
             {/* Close Ticket Button - Always visible for active tickets */}
             {ticket.status === 'active' && (
               <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">
@@ -1131,7 +1137,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 Permanent Delete
               </Button>
             )}
-          </>
+          </div>
         )}
       </div>
 

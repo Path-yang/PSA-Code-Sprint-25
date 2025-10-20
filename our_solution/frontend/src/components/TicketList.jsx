@@ -188,17 +188,15 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
         </Badge>
       </TableCell>
       <TableCell className="py-4">
-        <div className="max-w-md">
-          <div className="font-medium">
-            <Badge variant={
-              priority === 'High' ? 'destructive' :
-                priority === 'Medium' ? 'warning' :
-                  'success'
-            }>
-              {priority}
-            </Badge>
-          </div>
-          <div className="text-xs text-muted-foreground line-clamp-1">{module}</div>
+        <div className="flex items-center gap-2 max-w-md">
+          <Badge variant={
+            priority === 'High' ? 'destructive' :
+              priority === 'Medium' ? 'warning' :
+                'success'
+          }>
+            {priority}
+          </Badge>
+          <span className="text-sm text-muted-foreground line-clamp-1">{module}</span>
         </div>
       </TableCell>
       <TableCell className="py-4">
