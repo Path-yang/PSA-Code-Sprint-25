@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Ticket,
@@ -255,6 +255,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
+  
+  // Track previous refreshKey to detect actual changes
+  const prevRefreshKeyRef = useRef(refreshKey);
 
   // Optimistic update handler for ticket status changes
   const handleTicketUpdate = useCallback((ticketId, updates) => {
@@ -318,11 +321,14 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
 
   // Refresh tickets when refreshKey changes (e.g., after close/delete actions)
   useEffect(() => {
-    if (refreshKey > 0) {
+    // Only refresh if refreshKey actually changed (not on initial mount)
+    if (refreshKey > 0 && refreshKey !== prevRefreshKeyRef.current) {
       setIsRefreshing(true);
       loadAllTickets(false).finally(() => {
         setIsRefreshing(false);
       });
+      // Update ref to current value
+      prevRefreshKeyRef.current = refreshKey;
     }
   }, [refreshKey, loadAllTickets]);
 
