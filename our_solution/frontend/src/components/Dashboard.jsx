@@ -15,7 +15,6 @@ import {
     Calendar as CalendarIcon,
     Clock,
     Loader2,
-    Info,
     Download,
     FileDown,
     FileSpreadsheet,
@@ -33,7 +32,7 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as
 import { listTickets, createTicket, getTicket } from '../api.js';
 import { TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
 import { HoverBorderGradient } from './ui/hover-border-gradient';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { TooltipProvider } from './ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -923,17 +922,7 @@ function AnalyticsView() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <Card className="glass-metric">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Total number of tickets created in the selected period</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
+                                        <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">{metrics.total}</div>
@@ -952,17 +941,7 @@ function AnalyticsView() {
 
                                 <Card className="glass-metric">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-sm font-medium">Active Tickets</CardTitle>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Tickets currently being worked on</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
+                                        <CardTitle className="text-sm font-medium">Active Tickets</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">{metrics.active}</div>
@@ -974,17 +953,7 @@ function AnalyticsView() {
 
                                 <Card className="glass-metric">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Tickets that have been successfully closed</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
+                                        <CardTitle className="text-sm font-medium">Resolved</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">{metrics.closed}</div>
@@ -996,17 +965,7 @@ function AnalyticsView() {
 
                                 <Card className="glass-metric">
                                     <CardHeader className="pb-2">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Average time from ticket creation to closure</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
+                                        <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">{metrics.avgResolutionTime.toFixed(1)}h</div>
@@ -1029,47 +988,37 @@ function AnalyticsView() {
                                 {/* Ticket Trends Chart */}
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <CardTitle className="text-lg">Ticket Trends</CardTitle>
-                                                <CardDescription>Active vs closed tickets over time</CardDescription>
-                                            </div>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Shows the daily count of active and closed tickets</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <div>
+                                            <CardTitle className="text-lg">Ticket Trends</CardTitle>
+                                            <CardDescription>Active vs closed tickets over time</CardDescription>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
                                         <ResponsiveContainer width="100%" height={350}>
                                             <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                                <XAxis 
-                                                    dataKey="date" 
+                                                <XAxis
+                                                    dataKey="date"
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
                                                 />
-                                                <YAxis 
+                                                <YAxis
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
                                                 />
-                                                <RechartsTooltip 
+                                                <RechartsTooltip
                                                     contentStyle={{
                                                         backgroundColor: 'hsl(var(--popover))',
                                                         border: '1px solid hsl(var(--border))',
                                                         borderRadius: '6px'
                                                     }}
                                                 />
-                                                <Legend 
-                                                    verticalAlign="bottom" 
-                                                    height={36}
-                                                    wrapperStyle={{ paddingTop: '20px' }}
+                                                <Legend
+                                                    verticalAlign="bottom"
+                                                    height={24}
+                                                    wrapperStyle={{ paddingTop: '30px' }}
                                                 />
                                                 <Area
                                                     type="monotone"
@@ -1099,19 +1048,9 @@ function AnalyticsView() {
                                 {/* Status Distribution Donut Chart */}
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <CardTitle className="text-lg">Status Distribution</CardTitle>
-                                                <CardDescription>Breakdown of ticket statuses</CardDescription>
-                                            </div>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Distribution of tickets by their current status</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <div>
+                                            <CardTitle className="text-lg">Status Distribution</CardTitle>
+                                            <CardDescription>Breakdown of ticket statuses</CardDescription>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
@@ -1158,19 +1097,9 @@ function AnalyticsView() {
                                 {/* Priority Breakdown Chart */}
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <CardTitle className="text-lg">Priority Breakdown</CardTitle>
-                                                <CardDescription>Tickets by priority level</CardDescription>
-                                            </div>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Distribution of tickets across priority levels</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <div>
+                                            <CardTitle className="text-lg">Priority Breakdown</CardTitle>
+                                            <CardDescription>Tickets by priority level</CardDescription>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
@@ -1222,19 +1151,9 @@ function AnalyticsView() {
                                 {/* Alert Type Analysis Chart */}
                                 <Card className="glass-card">
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <CardTitle className="text-lg">Top Alert Types</CardTitle>
-                                                <CardDescription>Most common alert categories</CardDescription>
-                                            </div>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Top 5 most frequent alert types or modules</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <div>
+                                            <CardTitle className="text-lg">Top Alert Types</CardTitle>
+                                            <CardDescription>Most common alert categories</CardDescription>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
@@ -1281,37 +1200,27 @@ function AnalyticsView() {
                                 {/* Resolution Times Chart */}
                                 <Card className="glass-card lg:col-span-2">
                                     <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <CardTitle className="text-lg">Resolution Times</CardTitle>
-                                                <CardDescription>Average resolution time per day</CardDescription>
-                                            </div>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Daily average time to resolve tickets (in hours)</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <div>
+                                            <CardTitle className="text-lg">Resolution Times</CardTitle>
+                                            <CardDescription>Average resolution time per day</CardDescription>
                                         </div>
                                     </CardHeader>
                                     <CardContent>
                                         <ResponsiveContainer width="100%" height={350}>
                                             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                                <XAxis 
-                                                    dataKey="date" 
+                                                <XAxis
+                                                    dataKey="date"
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
                                                 />
-                                                <YAxis 
+                                                <YAxis
                                                     stroke="hsl(var(--muted-foreground))"
                                                     fontSize={12}
                                                     label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
                                                 />
-                                                <RechartsTooltip 
+                                                <RechartsTooltip
                                                     contentStyle={{
                                                         backgroundColor: 'hsl(var(--popover))',
                                                         border: '1px solid hsl(var(--border))',
@@ -1319,10 +1228,10 @@ function AnalyticsView() {
                                                     }}
                                                     formatter={(value) => [`${value}h`, 'Avg Time']}
                                                 />
-                                                <Legend 
-                                                    verticalAlign="bottom" 
-                                                    height={36}
-                                                    wrapperStyle={{ paddingTop: '20px' }}
+                                                <Legend
+                                                    verticalAlign="bottom"
+                                                    height={24}
+                                                    wrapperStyle={{ paddingTop: '30px' }}
                                                 />
                                                 <Bar
                                                     dataKey="avgTime"
