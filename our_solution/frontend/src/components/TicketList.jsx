@@ -426,139 +426,166 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="active" className="gap-2">
-            <AlertCircle className="w-4 h-4" />
-            Active Tickets
-            <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-              {allTickets.filter(t => t.status === 'active').length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="closed" className="gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Closed Tickets
-            <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-              {allTickets.filter(t => t.status === 'closed').length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="deleted" className="gap-2">
-            <Trash2 className="w-4 h-4" />
-            Deleted Tickets
-            <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-              {allTickets.filter(t => t.status === 'deleted').length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="mt-6">
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
-            >
-              <div className="flex items-center gap-2 text-destructive">
+        <AnimatePresence mode="wait">
+          <div className="flex justify-center w-full">
+            <TabsList className="inline-flex w-auto rounded-full">
+              <TabsTrigger value="active" className="gap-2">
                 <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            </motion.div>
-          )}
+                Active Tickets
+                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  {allTickets.filter(t => t.status === 'active').length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="closed" className="gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Closed Tickets
+                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  {allTickets.filter(t => t.status === 'closed').length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="deleted" className="gap-2">
+                <Trash2 className="w-4 h-4" />
+                Deleted Tickets
+                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  {allTickets.filter(t => t.status === 'deleted').length}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
-                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
-              </div>
-            </div>
-          ) : filteredTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Ticket className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? 'Try adjusting your search terms' : 'Create a ticket from a diagnosis to get started'}
-              </p>
-              {!searchQuery && (
-                <Button onClick={onBackToDiagnose} className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Go to Diagnostics
-                </Button>
+          <TabsContent value="active" className="mt-6">
+            <motion.div
+              key="active"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+                >
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="w-4 h-4" />
+                    {error}
+                  </div>
+                </motion.div>
               )}
-            </div>
-          ) : viewMode === 'list' ? (
-            <div>
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-            </div>
-          )}
-        </TabsContent>
 
-        <TabsContent value="closed" className="mt-6">
-          {/* Same content structure for closed tickets */}
-          {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
-                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
-              </div>
-            </div>
-          ) : filteredTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No closed tickets</h3>
-              <p className="text-muted-foreground">
-                Closed tickets will appear here once they are resolved
-              </p>
-            </div>
-          ) : viewMode === 'list' ? (
-            <div>
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-            </div>
-          )}
-        </TabsContent>
+              {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                    <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+                  </div>
+                </div>
+              ) : filteredTickets.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Ticket className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No tickets found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Create a ticket from a diagnosis to get started'}
+                  </p>
+                  {!searchQuery && (
+                    <Button onClick={onBackToDiagnose} className="gap-2">
+                      <ArrowLeft className="w-4 h-4" />
+                      Go to Diagnostics
+                    </Button>
+                  )}
+                </div>
+              ) : viewMode === 'list' ? (
+                <div>
+                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
 
-        <TabsContent value="deleted" className="mt-6">
-          {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
-                <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
-              </div>
-            </div>
-          ) : filteredTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No Deleted Tickets</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
-              </p>
-            </div>
-          ) : viewMode === 'list' ? (
-            <div>
-              {renderTicketsTable(filteredTickets, onSelectTicket)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
-            </div>
-          )}
-        </TabsContent>
+          <TabsContent value="closed" className="mt-6">
+            <motion.div
+              key="closed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                    <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+                  </div>
+                </div>
+              ) : filteredTickets.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No closed tickets</h3>
+                  <p className="text-muted-foreground">
+                    Closed tickets will appear here once they are resolved
+                  </p>
+                </div>
+              ) : viewMode === 'list' ? (
+                <div>
+                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="deleted" className="mt-6">
+            <motion.div
+              key="deleted"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Loading Tickets</h3>
+                    <p className="text-sm text-muted-foreground">Fetching your diagnostic tickets...</p>
+                  </div>
+                </div>
+              ) : filteredTickets.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Trash2 className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No Deleted Tickets</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery ? 'Try adjusting your search terms' : 'Deleted tickets will appear here'}
+                  </p>
+                </div>
+              ) : viewMode === 'list' ? (
+                <div>
+                  {renderTicketsTable(filteredTickets, onSelectTicket)}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket))}
+                </div>
+              )}
+            </motion.div>
+          </TabsContent>
+        </AnimatePresence>
       </Tabs>
     </div>
   );
