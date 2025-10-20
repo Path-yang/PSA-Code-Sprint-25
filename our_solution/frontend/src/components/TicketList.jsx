@@ -255,17 +255,19 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
   );
 }
 
-export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKey, initialTab = 'active' }) {
+export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKey, initialTab = 'active', initialFilters = null, onFiltersCleared }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('ticketViewMode') || 'card');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState(initialFilters?.status || 'all');
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState(initialFilters?.priority || 'all');
   const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
+  const [hasAnalyticsFilters, setHasAnalyticsFilters] = useState(false);
 
   // Track previous refreshKey to detect actual changes
   const prevRefreshKeyRef = useRef(refreshKey);
@@ -330,6 +332,20 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
     loadAllTickets(true);
   }, [loadAllTickets]);
 
+  // Handle initial filters from analytics
+  useEffect(() => {
+    if (initialFilters) {
+      setHasAnalyticsFilters(true);
+      if (initialFilters.status) {
+        setStatusFilter(initialFilters.status);
+        setActiveTab(initialFilters.status);
+      }
+      if (initialFilters.priority) {
+        setPriorityFilter(initialFilters.priority);
+      }
+    }
+  }, [initialFilters]);
+
   // Refresh tickets when refreshKey changes (e.g., after close/delete actions)
   useEffect(() => {
     // Only refresh if refreshKey actually changed (not on initial mount)
@@ -347,6 +363,16 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
     localStorage.setItem('ticketViewMode', viewMode);
   }, [viewMode]);
 
+  // Clear analytics filters
+  const handleClearAnalyticsFilters = () => {
+    setHasAnalyticsFilters(false);
+    setStatusFilter('all');
+    setPriorityFilter('all');
+    if (onFiltersCleared) {
+      onFiltersCleared();
+    }
+  };
+
   // Memoize filtered tickets for better performance
   const filteredTickets = useMemo(() => {
     const ticketsForCurrentTab = allTickets.filter(ticket => ticket.status === activeTab);
@@ -362,6 +388,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
 
       // Status filter (additional to active tab)
       const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+
+      // Priority filter
+      const matchesPriority = priorityFilter === 'all' || parsedData.priority === priorityFilter;
 
       // Channel filter
       const matchesChannel = channelFilter === 'all' || parsedData.channel === channelFilter;
@@ -383,9 +412,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
         }
       })();
 
-      return matchesSearch && matchesStatus && matchesChannel && matchesDate;
+      return matchesSearch && matchesStatus && matchesPriority && matchesChannel && matchesDate;
     });
-  }, [allTickets, activeTab, searchQuery, statusFilter, channelFilter, dateFilter]);
+  }, [allTickets, activeTab, searchQuery, statusFilter, priorityFilter, channelFilter, dateFilter]);
 
   return (
     <div className="p-6 space-y-6 relative">
@@ -410,6 +439,34 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Analytics Filter Banner */}
+      {hasAnalyticsFilters && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Filters applied from Analytics</span>
+            {statusFilter !== 'all' && (
+              <Badge variant="secondary">Status: {statusFilter}</Badge>
+            )}
+            {priorityFilter !== 'all' && (
+              <Badge variant="secondary">Priority: {priorityFilter}</Badge>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAnalyticsFilters}
+            className="gap-2"
+          >
+            Clear filters
+          </Button>
+        </motion.div>
+      )}
 
       {/* Search and Filters */}
       <motion.div
@@ -444,6 +501,19 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Filter by Priority</DropdownMenuLabel>
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Priorities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Priorities</SelectItem>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
               </SelectContent>
             </Select>
             <DropdownMenuSeparator />

@@ -12,9 +12,15 @@ import {
     ChevronLeft,
     ChevronRight,
     ArrowLeft,
-    Calendar,
+    Calendar as CalendarIcon,
     Clock,
-    Loader2
+    Loader2,
+    Info,
+    Download,
+    FileDown,
+    FileSpreadsheet,
+    X,
+    RefreshCw
 } from 'lucide-react';
 import LandingPage from './LandingPage';
 import { Button } from './ui/button';
@@ -23,10 +29,17 @@ import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, Label } from 'recharts';
 import { listTickets, createTicket, getTicket } from '../api.js';
 import { TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
 import { HoverBorderGradient } from './ui/hover-border-gradient';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Import existing components
 import DiagnosticForm from './DiagnosticForm';
@@ -63,6 +76,7 @@ export default function Dashboard() {
     const [isSavingTicket, setIsSavingTicket] = useState(false);
     const [ticketRefreshKey, setTicketRefreshKey] = useState(0); // Trigger ticket list refresh
     const [previousTicketTab, setPreviousTicketTab] = useState('active'); // Remember which tab user was on
+    const [ticketFilters, setTicketFilters] = useState(null); // Store filters from analytics
 
     // Force light mode - always remove dark class
     useEffect(() => {
@@ -71,9 +85,35 @@ export default function Dashboard() {
         localStorage.removeItem('darkMode');
     }, []);
 
+    // Listen for navigation events from analytics charts
+    useEffect(() => {
+        const handleNavigateTickets = (event) => {
+            const { filterType, filterValue } = event.detail;
+            setTicketFilters({ [filterType]: filterValue });
+            setActiveView('tickets');
+        };
+
+        const handleNavigate = (event) => {
+            const view = event.detail;
+            setActiveView(view);
+        };
+
+        window.addEventListener('navigate-tickets', handleNavigateTickets);
+        window.addEventListener('navigate', handleNavigate);
+
+        return () => {
+            window.removeEventListener('navigate-tickets', handleNavigateTickets);
+            window.removeEventListener('navigate', handleNavigate);
+        };
+    }, []);
+
     const handleViewChange = (view) => {
         setActiveView(view);
         setSelectedTicketId(null);
+        // Reset filters when manually navigating
+        if (view !== 'tickets') {
+            setTicketFilters(null);
+        }
         // Reset ticket created state when navigating back to diagnose page
         if (view === 'diagnose') {
             setTicketCreated(false);
@@ -135,7 +175,14 @@ export default function Dashboard() {
                     onTicketCreatedChange={setTicketCreated}
                 />;
             case 'tickets':
-                return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} refreshKey={ticketRefreshKey} initialTab={previousTicketTab} />;
+                return <TicketList
+                    onSelectTicket={handleTicketSelect}
+                    onBackToDiagnose={handleBackToDiagnose}
+                    refreshKey={ticketRefreshKey}
+                    initialTab={previousTicketTab}
+                    initialFilters={ticketFilters}
+                    onFiltersCleared={() => setTicketFilters(null)}
+                />;
             case 'ticket-detail':
                 return selectedTicketId ? (
                     <TicketDetail
@@ -353,6 +400,14 @@ export default function Dashboard() {
     );
 }
 
+// Format number for display
+const formatNumber = (num) => {
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
+};
+
 // Real analytics component with actual data
 function AnalyticsView() {
     const [tickets, setTickets] = useState([]);
@@ -362,15 +417,56 @@ function AnalyticsView() {
         total: 0,
         active: 0,
         closed: 0,
+        escalated: 0,
         resolutionRate: 0,
         avgResolutionTime: 0,
         weekChange: { total: 0, resolutionTime: 0 }
     });
     const [chartData, setChartData] = useState([]);
+    const [statusDistribution, setStatusDistribution] = useState([]);
+    const [priorityBreakdown, setPriorityBreakdown] = useState([]);
+    const [alertTypeData, setAlertTypeData] = useState([]);
+
+    // Time period state
+    const [timePeriod, setTimePeriod] = useState('7D');
+    const [customDateRange, setCustomDateRange] = useState({ from: null, to: null });
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    // Filter state
+    const [filters, setFilters] = useState({
+        status: 'all',
+        priority: 'all',
+        module: 'all'
+    });
 
     useEffect(() => {
         loadAnalytics();
-    }, []);
+    }, [timePeriod, customDateRange, filters]);
+
+    const getDateRange = () => {
+        const now = new Date();
+        let startDate;
+
+        if (timePeriod === 'Custom' && customDateRange.from && customDateRange.to) {
+            return { start: customDateRange.from, end: customDateRange.to };
+        }
+
+        switch (timePeriod) {
+            case '7D':
+                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                break;
+            case '14D':
+                startDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+                break;
+            case '30D':
+                startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                break;
+            default:
+                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        }
+
+        return { start: startDate, end: now };
+    };
 
     const loadAnalytics = async () => {
         setLoading(true);
@@ -378,13 +474,39 @@ function AnalyticsView() {
         try {
             const fetchedTickets = await listTickets();
             // Exclude deleted tickets from analytics
-            const allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
+            let allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
+
+            // Apply filters
+            if (filters.status !== 'all') {
+                allTickets = allTickets.filter(t => t.status === filters.status);
+            }
+            if (filters.priority !== 'all') {
+                allTickets = allTickets.filter(t => {
+                    const priority = t.diagnosis_data?.parsed?.priority;
+                    return priority === filters.priority;
+                });
+            }
+            if (filters.module !== 'all') {
+                allTickets = allTickets.filter(t => {
+                    const module = t.diagnosis_data?.parsed?.module;
+                    return module === filters.module;
+                });
+            }
+
+            // Filter by date range
+            const { start, end } = getDateRange();
+            allTickets = allTickets.filter(t => {
+                const created = new Date(t.created_at);
+                return created >= start && created <= end;
+            });
+
             setTickets(allTickets);
 
             // Calculate metrics (excluding deleted tickets)
             const total = allTickets.length;
             const active = allTickets.filter(t => t.status === 'active').length;
             const closed = allTickets.filter(t => t.status === 'closed').length;
+            const escalated = allTickets.filter(t => t.diagnosis_data?.parsed?.escalation_needed === 'Yes').length;
             const resolutionRate = total > 0 ? (closed / total * 100) : 0;
 
             // Calculate average resolution time for closed tickets
@@ -431,6 +553,7 @@ function AnalyticsView() {
                 total,
                 active,
                 closed,
+                escalated,
                 resolutionRate,
                 avgResolutionTime,
                 weekChange: {
@@ -439,10 +562,45 @@ function AnalyticsView() {
                 }
             });
 
-            // Prepare chart data for last 7 days
+            // Status distribution for donut chart
+            setStatusDistribution([
+                { name: 'Active', value: active, color: 'hsl(var(--primary))' },
+                { name: 'Closed', value: closed, color: 'hsl(var(--muted-foreground))' },
+                { name: 'Escalated', value: escalated, color: 'hsl(var(--destructive))' }
+            ]);
+
+            // Priority breakdown
+            const highPriority = allTickets.filter(t => t.diagnosis_data?.parsed?.priority === 'High').length;
+            const mediumPriority = allTickets.filter(t => t.diagnosis_data?.parsed?.priority === 'Medium').length;
+            const lowPriority = allTickets.filter(t => t.diagnosis_data?.parsed?.priority === 'Low').length;
+
+            setPriorityBreakdown([
+                { priority: 'High', count: highPriority, percentage: total > 0 ? (highPriority / total * 100).toFixed(1) : 0 },
+                { priority: 'Medium', count: mediumPriority, percentage: total > 0 ? (mediumPriority / total * 100).toFixed(1) : 0 },
+                { priority: 'Low', count: lowPriority, percentage: total > 0 ? (lowPriority / total * 100).toFixed(1) : 0 }
+            ]);
+
+            // Alert type analysis (top 5)
+            const alertTypes = {};
+            allTickets.forEach(ticket => {
+                const alertType = ticket.diagnosis_data?.parsed?.alert_type ||
+                    ticket.diagnosis_data?.parsed?.module ||
+                    'Unknown';
+                alertTypes[alertType] = (alertTypes[alertType] || 0) + 1;
+            });
+
+            const sortedAlertTypes = Object.entries(alertTypes)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([type, count]) => ({ type, count }));
+
+            setAlertTypeData(sortedAlertTypes);
+
+            // Prepare chart data based on time period
+            const days = timePeriod === '30D' ? 30 : timePeriod === '14D' ? 14 : 7;
             const chartData = [];
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(end.getTime() - i * 24 * 60 * 60 * 1000);
                 const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                 const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
 
@@ -461,7 +619,7 @@ function AnalyticsView() {
                     : 0;
 
                 chartData.push({
-                    date: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     active: dayTickets.filter(t => t.status === 'active').length,
                     closed: dayTickets.filter(t => t.status === 'closed').length,
                     avgTime: Math.round(dayAvgTime * 10) / 10
@@ -475,6 +633,99 @@ function AnalyticsView() {
             setLoading(false);
         }
     };
+
+    // Export functions
+    const exportToCSV = () => {
+        try {
+            const headers = ['Date', 'Active Tickets', 'Closed Tickets', 'Avg Resolution Time (h)'];
+            const csvData = chartData.map(row => [
+                row.date,
+                row.active,
+                row.closed,
+                row.avgTime
+            ]);
+
+            // Add summary metrics at the top
+            const summaryRows = [
+                ['Metrics Summary'],
+                ['Total Tickets', metrics.total],
+                ['Active Tickets', metrics.active],
+                ['Closed Tickets', metrics.closed],
+                ['Resolution Rate (%)', metrics.resolutionRate.toFixed(1)],
+                ['Avg Resolution Time (h)', metrics.avgResolutionTime.toFixed(1)],
+                [],
+                headers,
+                ...csvData
+            ];
+
+            const csvContent = summaryRows.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `analytics_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('CSV exported successfully!');
+        } catch (error) {
+            toast.error('Failed to export CSV');
+            console.error('CSV export error:', error);
+        }
+    };
+
+    const exportToPDF = async () => {
+        try {
+            toast.info('Generating PDF...');
+            const element = document.getElementById('analytics-content');
+            if (!element) {
+                toast.error('Analytics content not found');
+                return;
+            }
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                logging: false,
+                useCORS: true
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save(`analytics_report_${new Date().toISOString().split('T')[0]}.pdf`);
+            toast.success('PDF exported successfully!');
+        } catch (error) {
+            toast.error('Failed to export PDF');
+            console.error('PDF export error:', error);
+        }
+    };
+
+    // Navigate to tickets page with filters
+    const navigateToTicketsWithFilter = (filterType, filterValue) => {
+        // This will be passed to parent Dashboard to navigate to tickets with filters
+        window.dispatchEvent(new CustomEvent('navigate-tickets', {
+            detail: { filterType, filterValue }
+        }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            status: 'all',
+            priority: 'all',
+            module: 'all'
+        });
+    };
+
+    const activeFilterCount = Object.values(filters).filter(v => v !== 'all').length;
+
+    // Get unique modules for filter
+    const uniqueModules = [...new Set(tickets.map(t => t.diagnosis_data?.parsed?.module).filter(Boolean))];
 
     if (loading) {
         return (
@@ -503,122 +754,576 @@ function AnalyticsView() {
         );
     }
 
+    const hasData = metrics.total > 0;
+
     return (
-        <div className="p-6 space-y-6">
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="glass-metric">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{metrics.total}</div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            {metrics.weekChange.total >= 0 ? (
-                                <TrendingUp className="w-3 h-3 text-green-500" />
-                            ) : (
-                                <TrendingDown className="w-3 h-3 text-red-500" />
+        <TooltipProvider>
+            <div className="p-6 space-y-6">
+                {/* Header Controls */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                    <div className="flex flex-wrap gap-2 items-center">
+                        {/* Time Period Selector */}
+                        <Select value={timePeriod} onValueChange={setTimePeriod}>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Time Period" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="7D">Last 7 Days</SelectItem>
+                                <SelectItem value="14D">Last 14 Days</SelectItem>
+                                <SelectItem value="30D">Last 30 Days</SelectItem>
+                                <SelectItem value="Custom">Custom Range</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {timePeriod === 'Custom' && (
+                            <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" className="gap-2">
+                                        <CalendarIcon className="w-4 h-4" />
+                                        {customDateRange.from && customDateRange.to
+                                            ? `${customDateRange.from.toLocaleDateString()} - ${customDateRange.to.toLocaleDateString()}`
+                                            : 'Select dates'}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <div className="p-4 space-y-4">
+                                        <div>
+                                            <p className="text-sm font-medium mb-2">From Date</p>
+                                            <Calendar
+                                                selected={customDateRange.from}
+                                                onSelect={(date) => setCustomDateRange(prev => ({ ...prev, from: date }))}
+                                            />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium mb-2">To Date</p>
+                                            <Calendar
+                                                selected={customDateRange.to}
+                                                onSelect={(date) => setCustomDateRange(prev => ({ ...prev, to: date }))}
+                                            />
+                                        </div>
+                                        <Button onClick={() => setShowDatePicker(false)} className="w-full">
+                                            Apply
+                                        </Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        )}
+
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={loadAnalytics}
+                            title="Refresh data"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                        </Button>
+                    </div>
+
+                    {/* Export Buttons */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="gap-2">
+                                <Download className="w-4 h-4" />
+                                Export
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={exportToCSV}>
+                                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                                Export as CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={exportToPDF}>
+                                <FileDown className="w-4 h-4 mr-2" />
+                                Export as PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                {/* Filters Bar */}
+                <Card className="p-4">
+                    <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Filters:</span>
+                            {activeFilterCount > 0 && (
+                                <Badge variant="secondary">{activeFilterCount} active</Badge>
                             )}
-                            <span className={metrics.weekChange.total >= 0 ? 'text-green-500' : 'text-red-500'}>
-                                {metrics.weekChange.total >= 0 ? '+' : ''}{metrics.weekChange.total} from last week
-                            </span>
                         </div>
-                    </CardContent>
+
+                        <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="closed">Closed</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
+                            <SelectTrigger className="w-[140px]">
+                                <SelectValue placeholder="Priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Priority</SelectItem>
+                                <SelectItem value="High">High</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Low">Low</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {uniqueModules.length > 0 && (
+                            <Select value={filters.module} onValueChange={(value) => setFilters(prev => ({ ...prev, module: value }))}>
+                                <SelectTrigger className="w-[160px]">
+                                    <SelectValue placeholder="Module" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Modules</SelectItem>
+                                    {uniqueModules.map(module => (
+                                        <SelectItem key={module} value={module}>{module}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {activeFilterCount > 0 && (
+                            <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-2">
+                                <X className="w-3 h-3" />
+                                Clear filters
+                            </Button>
+                        )}
+                    </div>
                 </Card>
 
-                <Card className="glass-metric">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{metrics.closed}</div>
-                        <p className="text-xs text-muted-foreground">
-                            {metrics.resolutionRate.toFixed(1)}% resolution rate
-                        </p>
-                    </CardContent>
-                </Card>
+                <div id="analytics-content" className="space-y-6">
+                    {!hasData ? (
+                        <Card className="p-12">
+                            <CardContent className="text-center">
+                                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold mb-2">No Data Available</h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    There are no tickets in the selected time period.
+                                </p>
+                                <Button variant="outline" onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'diagnose' }))}>
+                                    Create Your First Ticket
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <>
+                            {/* Metrics Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <Card className="glass-metric">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Total number of tickets created in the selected period</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">{metrics.total}</div>
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                            {metrics.weekChange.total >= 0 ? (
+                                                <TrendingUp className="w-3 h-3 text-green-500" />
+                                            ) : (
+                                                <TrendingDown className="w-3 h-3 text-red-500" />
+                                            )}
+                                            <span className={metrics.weekChange.total >= 0 ? 'text-green-500' : 'text-red-500'}>
+                                                {metrics.weekChange.total >= 0 ? '+' : ''}{metrics.weekChange.total} from last week
+                                            </span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
-                <Card className="glass-metric">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{metrics.avgResolutionTime.toFixed(1)}h</div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            {metrics.weekChange.resolutionTime <= 0 ? (
-                                <TrendingDown className="w-3 h-3 text-green-500" />
-                            ) : (
-                                <TrendingUp className="w-3 h-3 text-red-500" />
-                            )}
-                            <span className={metrics.weekChange.resolutionTime <= 0 ? 'text-green-500' : 'text-red-500'}>
-                                {metrics.weekChange.resolutionTime <= 0 ? '' : '+'}{metrics.weekChange.resolutionTime.toFixed(1)}h from last week
-                            </span>
-                        </div>
-                    </CardContent>
-                </Card>
+                                <Card className="glass-metric">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-sm font-medium">Active Tickets</CardTitle>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Tickets currently being worked on</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">{metrics.active}</div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {metrics.total > 0 ? ((metrics.active / metrics.total) * 100).toFixed(1) : 0}% of total
+                                        </p>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="glass-metric">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Tickets that have been successfully closed</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">{metrics.closed}</div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {metrics.resolutionRate.toFixed(1)}% resolution rate
+                                        </p>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="glass-metric">
+                                    <CardHeader className="pb-2">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-sm font-medium">Avg. Resolution</CardTitle>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Average time from ticket creation to closure</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">{metrics.avgResolutionTime.toFixed(1)}h</div>
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                            {metrics.weekChange.resolutionTime <= 0 ? (
+                                                <TrendingDown className="w-3 h-3 text-green-500" />
+                                            ) : (
+                                                <TrendingUp className="w-3 h-3 text-red-500" />
+                                            )}
+                                            <span className={metrics.weekChange.resolutionTime <= 0 ? 'text-green-500' : 'text-red-500'}>
+                                                {metrics.weekChange.resolutionTime <= 0 ? '' : '+'}{metrics.weekChange.resolutionTime.toFixed(1)}h from last week
+                                            </span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Charts Grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Ticket Trends Chart */}
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">Ticket Trends</CardTitle>
+                                                <CardDescription>Active vs closed tickets over time</CardDescription>
+                                            </div>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Shows the daily count of active and closed tickets</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <AreaChart data={chartData}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                                <XAxis
+                                                    dataKey="date"
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                    label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
+                                                />
+                                                <YAxis
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                    label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+                                                />
+                                                <RechartsTooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'hsl(var(--popover))',
+                                                        border: '1px solid hsl(var(--border))',
+                                                        borderRadius: '6px'
+                                                    }}
+                                                />
+                                                <Legend />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="active"
+                                                    stackId="1"
+                                                    stroke="hsl(var(--primary))"
+                                                    fill="hsl(var(--primary) / 0.2)"
+                                                    name="Active"
+                                                    onClick={(data) => navigateToTicketsWithFilter('status', 'active')}
+                                                    style={{ cursor: 'pointer' }}
+                                                />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="closed"
+                                                    stackId="1"
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fill="hsl(var(--muted-foreground) / 0.2)"
+                                                    name="Closed"
+                                                    onClick={(data) => navigateToTicketsWithFilter('status', 'closed')}
+                                                    style={{ cursor: 'pointer' }}
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Status Distribution Donut Chart */}
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">Status Distribution</CardTitle>
+                                                <CardDescription>Breakdown of ticket statuses</CardDescription>
+                                            </div>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Distribution of tickets by their current status</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <PieChart>
+                                                <Pie
+                                                    data={statusDistribution}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={60}
+                                                    outerRadius={100}
+                                                    paddingAngle={2}
+                                                    dataKey="value"
+                                                    onClick={(data) => navigateToTicketsWithFilter('status', data.name.toLowerCase())}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
+                                                    {statusDistribution.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <Label
+                                                        value={metrics.total}
+                                                        position="center"
+                                                        style={{
+                                                            fontSize: '24px',
+                                                            fontWeight: 'bold',
+                                                            fill: 'hsl(var(--foreground))'
+                                                        }}
+                                                    />
+                                                </Pie>
+                                                <RechartsTooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'hsl(var(--popover))',
+                                                        border: '1px solid hsl(var(--border))',
+                                                        borderRadius: '6px'
+                                                    }}
+                                                    formatter={(value) => [`${value} tickets`, 'Count']}
+                                                />
+                                                <Legend />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Priority Breakdown Chart */}
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">Priority Breakdown</CardTitle>
+                                                <CardDescription>Tickets by priority level</CardDescription>
+                                            </div>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Distribution of tickets across priority levels</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <BarChart data={priorityBreakdown}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                                <XAxis
+                                                    dataKey="priority"
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                />
+                                                <YAxis
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                    label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+                                                />
+                                                <RechartsTooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'hsl(var(--popover))',
+                                                        border: '1px solid hsl(var(--border))',
+                                                        borderRadius: '6px'
+                                                    }}
+                                                    formatter={(value, name, props) => [
+                                                        `${value} tickets (${props.payload.percentage}%)`,
+                                                        'Count'
+                                                    ]}
+                                                />
+                                                <Bar
+                                                    dataKey="count"
+                                                    fill="hsl(var(--primary))"
+                                                    onClick={(data) => navigateToTicketsWithFilter('priority', data.priority)}
+                                                    style={{ cursor: 'pointer' }}
+                                                    radius={[4, 4, 0, 0]}
+                                                >
+                                                    {priorityBreakdown.map((entry, index) => {
+                                                        const colors = {
+                                                            High: 'hsl(var(--destructive))',
+                                                            Medium: 'hsl(var(--warning))',
+                                                            Low: 'hsl(var(--success))'
+                                                        };
+                                                        return <Cell key={`cell-${index}`} fill={colors[entry.priority] || 'hsl(var(--primary))'} />;
+                                                    })}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Alert Type Analysis Chart */}
+                                <Card className="glass-card">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">Top Alert Types</CardTitle>
+                                                <CardDescription>Most common alert categories</CardDescription>
+                                            </div>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Top 5 most frequent alert types or modules</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {alertTypeData.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height={300}>
+                                                <BarChart data={alertTypeData} layout="vertical">
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                                    <XAxis
+                                                        type="number"
+                                                        stroke="hsl(var(--muted-foreground))"
+                                                        fontSize={12}
+                                                    />
+                                                    <YAxis
+                                                        dataKey="type"
+                                                        type="category"
+                                                        width={120}
+                                                        stroke="hsl(var(--muted-foreground))"
+                                                        fontSize={12}
+                                                    />
+                                                    <RechartsTooltip
+                                                        contentStyle={{
+                                                            backgroundColor: 'hsl(var(--popover))',
+                                                            border: '1px solid hsl(var(--border))',
+                                                            borderRadius: '6px'
+                                                        }}
+                                                        formatter={(value) => [`${value} tickets`, 'Count']}
+                                                    />
+                                                    <Bar
+                                                        dataKey="count"
+                                                        fill="hsl(var(--primary))"
+                                                        radius={[0, 4, 4, 0]}
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                                                <p>No alert type data available</p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+
+                                {/* Resolution Times Chart */}
+                                <Card className="glass-card lg:col-span-2">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">Resolution Times</CardTitle>
+                                                <CardDescription>Average resolution time per day</CardDescription>
+                                            </div>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Daily average time to resolve tickets (in hours)</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <BarChart data={chartData}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                                <XAxis
+                                                    dataKey="date"
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                    label={{ value: 'Date', position: 'insideBottom', offset: -5 }}
+                                                />
+                                                <YAxis
+                                                    stroke="hsl(var(--muted-foreground))"
+                                                    fontSize={12}
+                                                    label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+                                                />
+                                                <RechartsTooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'hsl(var(--popover))',
+                                                        border: '1px solid hsl(var(--border))',
+                                                        borderRadius: '6px'
+                                                    }}
+                                                    formatter={(value) => [`${value}h`, 'Avg Time']}
+                                                />
+                                                <Bar
+                                                    dataKey="avgTime"
+                                                    fill="hsl(var(--primary))"
+                                                    name="Avg Resolution Time (hours)"
+                                                    radius={[4, 4, 0, 0]}
+                                                />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
-
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Ticket Trends Chart */}
-                <Card className="glass-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Ticket Trends (7 Days)</CardTitle>
-                        <CardDescription>Active vs closed tickets over time</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <AreaChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Area
-                                    type="monotone"
-                                    dataKey="active"
-                                    stackId="1"
-                                    stroke="hsl(var(--primary))"
-                                    fill="hsl(var(--primary) / 0.2)"
-                                    name="Active"
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="closed"
-                                    stackId="1"
-                                    stroke="hsl(var(--muted-foreground))"
-                                    fill="hsl(var(--muted-foreground) / 0.2)"
-                                    name="Closed"
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-
-                {/* Resolution Times Chart */}
-                <Card className="glass-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Resolution Times</CardTitle>
-                        <CardDescription>Average resolution time per day</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date" />
-                                <YAxis />
-                                <Tooltip formatter={(value) => [`${value}h`, 'Avg Time']} />
-                                <Bar
-                                    dataKey="avgTime"
-                                    fill="hsl(var(--primary))"
-                                    name="Avg Resolution Time (hours)"
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
+        </TooltipProvider>
     );
 }
 
