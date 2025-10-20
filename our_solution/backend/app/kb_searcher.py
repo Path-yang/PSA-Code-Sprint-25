@@ -30,10 +30,14 @@ class KnowledgeBaseSearcher:
             if line.startswith(("CNTR:", "VSL:", "VAS:", "EDI:", "API:")):
                 if current_article:
                     articles.append(current_article)
-                # Map VAS to VSL for consistency
+                # Map VAS to VSL and EDI to EDI/API for consistency
                 module = line.split(":")[0] if ":" in line else "Unknown"
                 if module == "VAS":
                     module = "VSL"
+                elif module == "EDI":
+                    module = "EDI/API"
+                elif module == "API":
+                    module = "EDI/API"
                 current_article = {
                     "title": line.strip(),
                     "content": "",
@@ -64,19 +68,20 @@ class KnowledgeBaseSearcher:
         return matching_articles
 
     def search_by_module(self, module: str) -> List[Dict]:
-        """Get all articles for a specific module (CNTR, VSL, EDI, API)."""
+        """Get all articles for a specific module (CNTR, VSL, EDI/API)."""
         # Map common module names to KB prefixes
         module_map = {
             'container': 'CNTR',
             'vessel': 'VSL',
-            'edi': 'EDI',
-            'api': 'API'
+            'edi': 'EDI/API',
+            'api': 'EDI/API',
+            'edi/api': 'EDI/API'
         }
         
         # Try to map the module name, otherwise use as-is
         target_module = module_map.get(module.lower(), module.upper())
         
-        return [article for article in self.articles if article["module"].upper() == target_module]
+        return [article for article in self.articles if article["module"].upper() == target_module.upper()]
 
     def get_article_by_title(self, title: str) -> Dict:
         """Get a specific article by title."""

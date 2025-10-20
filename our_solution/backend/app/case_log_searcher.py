@@ -37,8 +37,13 @@ class CaseLogSearcher:
                 i = 8  # Start after headers
                 while i < len(strings):
                     try:
+                        module_value = strings[i] if i < len(strings) else ''
+                        # Replace "EDI" with "EDI/API" for consistency
+                        if module_value.upper() == 'EDI':
+                            module_value = 'EDI/API'
+                        
                         case = {
-                            'module': strings[i] if i < len(strings) else '',
+                            'module': module_value,
                             'mode': strings[i+1] if i+1 < len(strings) else '',
                             'edi': strings[i+2] if i+2 < len(strings) else '',
                             'timestamp': strings[i+3] if i+3 < len(strings) else '',
