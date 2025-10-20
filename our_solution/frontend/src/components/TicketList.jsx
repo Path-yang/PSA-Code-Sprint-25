@@ -239,9 +239,9 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
           <TableRow>
             <TableHead className="w-[140px]">Ticket ID</TableHead>
             <TableHead className="w-[100px]">Status</TableHead>
-            <TableHead className="min-w-[150px]">Priority / Module</TableHead>
+            <TableHead className="min-w-[120px]">Priority / Module</TableHead>
             <TableHead className="w-[100px]">Channel</TableHead>
-            <TableHead className="w-[100px]">Duration</TableHead>
+            <TableHead className="w-[130px]">Duration</TableHead>
             <TableHead className="w-[200px]">{getDateHeaderLabel()}</TableHead>
           </TableRow>
         </TableHeader>
