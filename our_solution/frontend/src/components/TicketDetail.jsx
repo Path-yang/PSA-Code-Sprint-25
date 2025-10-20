@@ -173,7 +173,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     setError('');
     
     // Show loading toast
-    const toastId = toast.loading('Saving your notes...');
+    const toastId = toast.loading('Saving your changes...');
     
     try {
       const updated = await updateTicket(ticketId, {
@@ -193,7 +193,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       onTicketUpdated?.();
       
       // Show success toast
-      toast.success('Notes saved successfully! Updated time refreshed.', { id: toastId });
+      toast.success('Changes saved successfully! Updated time refreshed.', { id: toastId });
     } catch (err) {
       setError(err.message || 'Failed to save changes');
       // Rollback on error
@@ -201,7 +201,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       setIsEditing(true);
       
       // Show error toast
-      toast.error('Failed to save notes. Please try again.', { id: toastId });
+      toast.error('Failed to save changes. Please try again.', { id: toastId });
     } finally {
       setSaving(false);
     }
@@ -1029,18 +1029,18 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               </Button>
             )}
 
-            {/* Save Notes Button - Available on Notes Tab for all ticket statuses */}
+            {/* Save Changes Button - Available on Notes Tab for all ticket statuses */}
             {activeTab === 'notes' && (
-              <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
+              <Button onClick={handleSave} disabled={saving} className="gap-2 bg-foreground text-background hover:bg-foreground/90">
                 {saving ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving your notes...
+                    Saving your changes...
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Save Notes
+                    Save Changes
                   </>
                 )}
               </Button>
@@ -1071,9 +1071,9 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         )}
       </div>
 
-      {/* Ticket Dates - Bottom Right - Outside Container */}
+      {/* Ticket Dates - Top Right - Outside Container */}
       {ticket && (
-        <div className="fixed bottom-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-xs">
+        <div className="fixed top-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-xs">
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
