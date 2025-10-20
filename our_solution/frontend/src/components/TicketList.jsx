@@ -232,7 +232,7 @@ function renderTicketsTable(tickets, onSelectTicket) {
   );
 }
 
-export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
+export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKey }) {
   const [activeTab, setActiveTab] = useState('active');
   const [allTickets, setAllTickets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -242,6 +242,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
 
   // Optimistic update handler for ticket status changes
   const handleTicketUpdate = useCallback((ticketId, updates) => {
@@ -303,6 +304,16 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
     loadAllTickets(true);
   }, [loadAllTickets]);
 
+  // Refresh tickets when refreshKey changes (e.g., after close/delete actions)
+  useEffect(() => {
+    if (refreshKey > 0) {
+      setIsRefreshing(true);
+      loadAllTickets(false).finally(() => {
+        setIsRefreshing(false);
+      });
+    }
+  }, [refreshKey, loadAllTickets]);
+
   useEffect(() => {
     localStorage.setItem('ticketViewMode', viewMode);
   }, [viewMode]);
@@ -348,7 +359,29 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose }) {
   }, [allTickets, activeTab, searchQuery, statusFilter, channelFilter, dateFilter]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 relative">
+      {/* Refreshing Overlay */}
+      <AnimatePresence>
+        {isRefreshing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center"
+          >
+            <div className="bg-card border rounded-lg p-6 shadow-xl">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                <div>
+                  <h3 className="font-semibold">Refreshing Tickets</h3>
+                  <p className="text-sm text-muted-foreground">Updating ticket list...</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Search and Filters */}
       <motion.div
         initial={{ opacity: 0 }}

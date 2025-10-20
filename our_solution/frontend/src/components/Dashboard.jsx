@@ -61,6 +61,7 @@ export default function Dashboard() {
     const [diagnosis, setDiagnosis] = useState(null);
     const [ticketCreated, setTicketCreated] = useState(false);
     const [isSavingTicket, setIsSavingTicket] = useState(false);
+    const [ticketRefreshKey, setTicketRefreshKey] = useState(0); // Trigger ticket list refresh
 
     // Force light mode - always remove dark class
     useEffect(() => {
@@ -127,14 +128,17 @@ export default function Dashboard() {
                     onTicketCreatedChange={setTicketCreated}
                 />;
             case 'tickets':
-                return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} />;
+                return <TicketList onSelectTicket={handleTicketSelect} onBackToDiagnose={handleBackToDiagnose} refreshKey={ticketRefreshKey} />;
             case 'ticket-detail':
                 return selectedTicketId ? (
                     <TicketDetail
                         ticketId={selectedTicketId}
                         ticket={selectedTicket}
                         onBack={handleBackToTickets}
-                        onTicketUpdated={() => toast.success('Ticket updated!')}
+                        onTicketUpdated={() => {
+                            setTicketRefreshKey(prev => prev + 1); // Trigger ticket list refresh
+                            toast.success('Ticket updated!');
+                        }}
                     />
                 ) : null;
             case 'analytics':
