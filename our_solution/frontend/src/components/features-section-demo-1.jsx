@@ -155,9 +155,14 @@ export const SkeletonTwo = () => {
             height={400}
             className="h-1/2 w-full object-cover object-left-top rounded-sm"
           />
-          <div className="h-1/2 w-full bg-gray-200 dark:bg-gray-700 rounded-sm flex items-center justify-center">
-            <span className="text-gray-500 dark:text-gray-400 text-sm">Additional Image Space</span>
-          </div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+          <img
+            src="/Ticket Management 2.png"
+            alt="Smart Ticket Management Interface - Additional View"
+            width={800}
+            height={400}
+            className="h-1/2 w-full object-cover object-left-top rounded-sm"
+          />
         </div>
       </div>
 

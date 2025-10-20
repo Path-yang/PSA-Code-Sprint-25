@@ -110,7 +110,7 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
             <span>{parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}</span>
           </div>
           <div className="flex flex-col items-end gap-1">
-            {(ticket.status === 'closed' || ticket.status === 'deleted') && ticket.closed_at ? (
+            {ticket.status === 'closed' && ticket.closed_at ? (
               <>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
@@ -119,6 +119,17 @@ const TicketCard = memo(({ ticket, onSelectTicket }) => {
                 <div className="flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />
                   <span className="text-xs">{formatDate(ticket.closed_at)}</span>
+                </div>
+              </>
+            ) : ticket.status === 'deleted' && ticket.deleted_at ? (
+              <>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  <span className="text-xs">{formatDate(ticket.created_at)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Trash2 className="w-3 h-3" />
+                  <span className="text-xs">{formatDate(ticket.deleted_at)}</span>
                 </div>
               </>
             ) : (
@@ -204,7 +215,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
           )}
           {ticket.status === 'deleted' && ticket.deleted_at && (
             <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
+              <Trash2 className="w-3 h-3" />
               <span className="text-xs">{formatDate(ticket.deleted_at)}</span>
             </div>
           )}
@@ -216,7 +227,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket) {
 
 function renderTicketsTable(tickets, onSelectTicket, activeTab) {
   const getDateHeaderLabel = () => {
-    if (activeTab === 'deleted') return 'Deleted';
+    if (activeTab === 'deleted') return 'Created / Deleted';
     if (activeTab === 'closed') return 'Created / Closed';
     return 'Created';
   };
@@ -255,7 +266,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   const [channelFilter, setChannelFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false); // Loading indicator for refresh
-  
+
   // Track previous refreshKey to detect actual changes
   const prevRefreshKeyRef = useRef(refreshKey);
 
