@@ -96,7 +96,7 @@ class L2DiagnosticSystemOptimized:
         # Search KB articles
         kb_articles = []
         if quick_parse.get("module"):
-            module_mapping = {"Vessel": "VSL", "Container": "CNTR", "EDI": "EDI", "API": "API"}
+            module_mapping = {"Vessel": "VSL", "Container": "CNTR", "EDI/API": "EDI", "API": "API"}
             kb_module = module_mapping.get(quick_parse.get("module"), quick_parse.get("module"))
             kb_articles = self.kb_searcher.search_by_module(kb_module)[:3]
         
@@ -222,8 +222,8 @@ class L2DiagnosticSystemOptimized:
             result["module"] = "Container"
         elif re.search(r'vessel', alert_text, re.IGNORECASE):
             result["module"] = "Vessel"
-        elif re.search(r'EDI|message', alert_text, re.IGNORECASE):
-            result["module"] = "EDI"
+        elif re.search(r'EDI|API|message', alert_text, re.IGNORECASE):
+            result["module"] = "EDI/API"
         
         # Try to find error pattern
         if re.search(r'error|ERROR|fail|duplicate|stuck', alert_text, re.IGNORECASE):

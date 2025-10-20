@@ -147,7 +147,7 @@ class L2DiagnosticSystem:
             module_mapping = {
                 "Vessel": "VSL",
                 "Container": "CNTR", 
-                "EDI": "EDI",
+                "EDI/API": "EDI",
                 "API": "API"
             }
             kb_module = module_mapping.get(parsed["module"], parsed["module"])

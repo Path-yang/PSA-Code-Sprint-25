@@ -78,7 +78,7 @@ Recipient: PSA-TOS, State: No acknowledgment sent, ack_at is NULL)."""
     ticket2_diagnosis = {
         "parsed": {
             "ticket_id": "INC-154599",
-            "module": "EDI",
+            "module": "EDI/API",
             "entity_id": "IFT-0007",
             "channel": "SMS",
             "priority": "High",
