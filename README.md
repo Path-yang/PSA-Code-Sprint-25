@@ -3,7 +3,7 @@
 > **AI Co-Pilot for Level 2 Product Operations at PORTNET®**  
 > Automates triage, diagnostics, and resolution planning using application logs, historical cases, and knowledge base articles.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://psa-code-sprint-25-frontend.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](psal2ops.com)
 
 ---
 
