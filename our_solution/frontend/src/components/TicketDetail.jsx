@@ -1029,8 +1029,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               </Button>
             )}
 
-            {/* Save Notes Button - Only on Notes Tab */}
-            {ticket.status === 'active' && activeTab === 'notes' && (
+            {/* Save Notes Button - Available on Notes Tab for all ticket statuses */}
+            {activeTab === 'notes' && (
               <Button onClick={handleSave} disabled={saving} variant="outline" className="gap-2">
                 {saving ? (
                   <>
