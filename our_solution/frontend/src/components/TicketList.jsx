@@ -556,23 +556,29 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
               <TabsTrigger value="active" className="gap-2">
                 <AlertCircle className="w-4 h-4" />
                 Active Tickets
-                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-                  {allTickets.filter(t => t.status === 'active').length}
-                </Badge>
+                {!loading && (
+                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                    {allTickets.filter(t => t.status === 'active').length}
+                  </Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger value="closed" className="gap-2">
                 <CheckCircle className="w-4 h-4" />
                 Closed Tickets
-                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-                  {allTickets.filter(t => t.status === 'closed').length}
-                </Badge>
+                {!loading && (
+                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                    {allTickets.filter(t => t.status === 'closed').length}
+                  </Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger value="deleted" className="gap-2">
                 <Trash2 className="w-4 h-4" />
                 Deleted Tickets
-                <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
-                  {allTickets.filter(t => t.status === 'deleted').length}
-                </Badge>
+                {!loading && (
+                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                    {allTickets.filter(t => t.status === 'deleted').length}
+                  </Badge>
+                )}
               </TabsTrigger>
             </TabsList>
           </div>
