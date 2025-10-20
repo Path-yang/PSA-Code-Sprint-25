@@ -95,8 +95,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [customFields, setCustomFields] = useState({});
   const [newFieldKey, setNewFieldKey] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');
-  const [editingFieldKey, setEditingFieldKey] = useState(null);
-  const [editingFieldValue, setEditingFieldValue] = useState('');
   const [activeTab, setActiveTab] = useState('alert-summary');
 
   const loadTicket = useCallback(async () => {
@@ -354,22 +352,18 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     setCustomFields(updated);
   };
 
-  const startEditingField = (key, value) => {
-    setEditingFieldKey(key);
-    setEditingFieldValue(value);
-  };
-
-  const saveEditingField = () => {
-    if (editingFieldKey && editingFieldValue.trim()) {
-      setCustomFields({ ...customFields, [editingFieldKey]: editingFieldValue.trim() });
-      setEditingFieldKey(null);
-      setEditingFieldValue('');
+  const updateCustomFieldKey = (oldKey, newKey) => {
+    if (newKey.trim() && newKey !== oldKey) {
+      const updated = { ...customFields };
+      const value = updated[oldKey];
+      delete updated[oldKey];
+      updated[newKey.trim()] = value;
+      setCustomFields(updated);
     }
   };
 
-  const cancelEditingField = () => {
-    setEditingFieldKey(null);
-    setEditingFieldValue('');
+  const updateCustomFieldValue = (key, newValue) => {
+    setCustomFields({ ...customFields, [key]: newValue });
   };
 
   // IMPORTANT: useMemo hooks MUST be called before any conditional returns
@@ -1020,58 +1014,35 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               {Object.keys(customFields).length > 0 && (
                 <div className="space-y-2">
                   {Object.entries(customFields).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
-                      {editingFieldKey === key ? (
-                        <>
-                          <div className="flex items-center gap-2 flex-1">
-                            <Tag className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium">{key}:</span>
-                            <Input
-                              value={editingFieldValue}
-                              onChange={(e) => setEditingFieldValue(e.target.value)}
-                              className="flex-1"
-                              autoFocus
-                            />
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={saveEditingField}
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={cancelEditingField}
-                              className="text-muted-foreground hover:text-foreground"
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div 
-                            className="flex items-center gap-2 flex-1 cursor-pointer hover:bg-muted-foreground/10 rounded p-1 -m-1"
-                            onClick={() => startEditingField(key, value)}
-                          >
-                            <Tag className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium">{key}:</span>
-                            <span className="text-sm text-muted-foreground">{value}</span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeCustomField(key)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
+                    <div key={key} className="flex items-center gap-2 p-3 bg-muted rounded-md">
+                      <Tag className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <Input
+                        value={key}
+                        onChange={(e) => updateCustomFieldKey(key, e.target.value)}
+                        onBlur={(e) => {
+                          if (!e.target.value.trim()) {
+                            // If key is empty, restore original
+                            e.target.value = key;
+                          }
+                        }}
+                        className="w-40"
+                        placeholder="Field name"
+                      />
+                      <span className="text-muted-foreground">:</span>
+                      <Input
+                        value={value}
+                        onChange={(e) => updateCustomFieldValue(key, e.target.value)}
+                        className="flex-1"
+                        placeholder="Field value"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCustomField(key)}
+                        className="text-destructive hover:text-destructive flex-shrink-0"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))}
                 </div>
