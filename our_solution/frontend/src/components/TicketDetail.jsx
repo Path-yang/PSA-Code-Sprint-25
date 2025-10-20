@@ -198,16 +198,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
   const handleClose = async () => {
     setShowCloseDialog(false);
-
-    // Optimistic update - update UI immediately
-    const optimisticTicket = {
-      ...ticket,
-      status: 'closed',
-      closed_at: new Date().toISOString()
-    };
-    setTicket(optimisticTicket);
-
-    setSaving(true);
+    
+    // Show loading screen immediately
+    setLoadingAction('closing');
+    setLoading(true);
     setError('');
 
     try {
@@ -252,17 +246,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowDeleteDialog(false);
-
-    // Optimistic update - update UI immediately
-    const optimisticTicket = {
-      ...ticket,
-      status: 'deleted',
-      deletion_reason: finalReason,
-      deleted_at: new Date().toISOString()
-    };
-    setTicket(optimisticTicket);
-
-    setSaving(true);
+    
+    // Show loading screen immediately
+    setLoadingAction('deleting');
+    setLoading(true);
     setError('');
 
     try {
@@ -300,19 +287,10 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     }
 
     setShowPermanentDeleteDialog(false);
-
-    // Optimistic navigation - go back immediately for instant feel
-    onBack();
-
-    // Update cache to remove ticket
-    const cachedTickets = sessionStorage.getItem('cachedTickets');
-    if (cachedTickets) {
-      const tickets = JSON.parse(cachedTickets);
-      const updatedTickets = tickets.filter(t => t.id !== ticketId);
-      sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
-    }
-
-    setSaving(true);
+    
+    // Show loading screen immediately
+    setLoadingAction('permanent-deleting');
+    setLoading(true);
     setError('');
 
     try {
