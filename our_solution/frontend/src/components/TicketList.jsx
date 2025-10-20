@@ -158,7 +158,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
   return (
     <TableRow
       key={ticket.id}
-      className="cursor-pointer border-b border-border even:bg-muted/10 hover:bg-muted/70 transition-colors duration-150"
+      className="cursor-pointer border-b border-border/50 even:bg-muted/15 hover:bg-muted/80 hover:shadow-sm transition-all duration-200"
       onClick={() => onSelectTicket(ticket.id, activeTab)}
     >
       <TableCell className="font-mono font-medium py-4">{ticketId}</TableCell>
@@ -233,16 +233,16 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
   };
 
   return (
-    <div className="border rounded-md">
+    <div className="border-2 border-border/60 rounded-lg shadow-sm bg-background/50 backdrop-blur-sm">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[140px]">Ticket ID</TableHead>
-            <TableHead className="w-[100px]">Status</TableHead>
-            <TableHead className="min-w-[120px]">Priority / Module</TableHead>
-            <TableHead className="w-[100px]">Channel</TableHead>
-            <TableHead className="w-[130px]">Duration</TableHead>
-            <TableHead className="w-[200px]">{getDateHeaderLabel()}</TableHead>
+          <TableRow className="border-b-2 border-border/60 bg-muted/30">
+            <TableHead className="w-[140px] font-semibold text-foreground">Ticket ID</TableHead>
+            <TableHead className="w-[100px] font-semibold text-foreground">Status</TableHead>
+            <TableHead className="min-w-[120px] font-semibold text-foreground">Priority / Module</TableHead>
+            <TableHead className="w-[100px] font-semibold text-foreground">Channel</TableHead>
+            <TableHead className="w-[130px] font-semibold text-foreground">Duration</TableHead>
+            <TableHead className="w-[200px] font-semibold text-foreground">{getDateHeaderLabel()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

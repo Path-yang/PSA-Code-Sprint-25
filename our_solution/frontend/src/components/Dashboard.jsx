@@ -571,8 +571,7 @@ function AnalyticsView() {
             // Status distribution for donut chart
             setStatusDistribution([
                 { name: 'Active', value: active, color: 'hsl(var(--primary))' },
-                { name: 'Closed', value: closed, color: 'hsl(var(--muted-foreground))' },
-                { name: 'Escalated', value: escalated, color: 'hsl(var(--destructive))' }
+                { name: 'Closed', value: closed, color: 'hsl(var(--muted-foreground))' }
             ]);
 
             // Priority breakdown
