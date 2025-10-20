@@ -95,6 +95,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [customFields, setCustomFields] = useState({});
   const [newFieldKey, setNewFieldKey] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');
+  const [editingFieldKey, setEditingFieldKey] = useState(null);
+  const [editingFieldValue, setEditingFieldValue] = useState('');
   const [activeTab, setActiveTab] = useState('alert-summary');
 
   const loadTicket = useCallback(async () => {
@@ -344,6 +346,24 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
     setCustomFields(updated);
   };
 
+  const startEditingField = (key, value) => {
+    setEditingFieldKey(key);
+    setEditingFieldValue(value);
+  };
+
+  const saveEditingField = () => {
+    if (editingFieldKey && editingFieldValue.trim()) {
+      setCustomFields({ ...customFields, [editingFieldKey]: editingFieldValue.trim() });
+      setEditingFieldKey(null);
+      setEditingFieldValue('');
+    }
+  };
+
+  const cancelEditingField = () => {
+    setEditingFieldKey(null);
+    setEditingFieldValue('');
+  };
+
   // IMPORTANT: useMemo hooks MUST be called before any conditional returns
   // to satisfy React's Rules of Hooks
   const displayData = useMemo(() =>
@@ -456,6 +476,33 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           <ArrowLeft className="w-4 h-4" />
           Back to List
         </Button>
+        
+        {/* Ticket Dates - Top Right within content */}
+        <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>Created: {formatDateTime(ticket.created_at)}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+              </div>
+              {ticket.update_reason && (
+                <div className="pl-6 text-xs italic text-muted-foreground/80">
+                  ({ticket.update_reason})
+                </div>
+              )}
+            </div>
+            {ticket.status === 'closed' && ticket.closed_at && (
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>Closed: {formatDateTime(ticket.closed_at)}</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -966,19 +1013,57 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                 <div className="space-y-2">
                   {Object.entries(customFields).map(([key, value]) => (
                     <div key={key} className="flex items-center justify-between p-3 bg-muted rounded-md">
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-sm text-muted-foreground">{value}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeCustomField(key)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
+                      {editingFieldKey === key ? (
+                        <>
+                          <div className="flex items-center gap-2 flex-1">
+                            <Tag className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">{key}:</span>
+                            <Input
+                              value={editingFieldValue}
+                              onChange={(e) => setEditingFieldValue(e.target.value)}
+                              className="flex-1"
+                              autoFocus
+                            />
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={saveEditingField}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={cancelEditingField}
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div 
+                            className="flex items-center gap-2 flex-1 cursor-pointer hover:bg-muted-foreground/10 rounded p-1 -m-1"
+                            onClick={() => startEditingField(key, value)}
+                          >
+                            <Tag className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">{key}:</span>
+                            <span className="text-sm text-muted-foreground">{value}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCustomField(key)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1071,34 +1156,6 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         )}
       </div>
 
-      {/* Ticket Dates - Top Right - Outside Container */}
-      {ticket && (
-        <div className="fixed top-6 right-6 bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg max-w-xs">
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>Created: {formatDateTime(ticket.created_at)}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
-              </div>
-              {ticket.update_reason && (
-                <div className="pl-6 text-xs italic text-muted-foreground/80">
-                  ({ticket.update_reason})
-                </div>
-              )}
-            </div>
-            {ticket.status === 'closed' && ticket.closed_at && (
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                <span>Closed: {formatDateTime(ticket.closed_at)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Close Ticket Confirmation Dialog */}
       <AlertDialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
