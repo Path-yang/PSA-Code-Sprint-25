@@ -123,7 +123,7 @@ export const SkeletonOne = () => {
 export const SkeletonThree = () => {
   return (
     <a
-      href="https://www.youtube.com/watch?v=mX03emoBGes"
+      href="https://youtu.be/DSXEpc_suSg"
       target="_blank"
       className="relative flex gap-10 h-full group/image"
     >
@@ -131,7 +131,7 @@ export const SkeletonThree = () => {
         <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
           <IconBrandYoutubeFilled className="h-20 w-20 absolute z-10 inset-0 text-red-500 m-auto " />
           <img
-            src="https://img.youtube.com/vi/mX03emoBGes/maxresdefault.jpg"
+            src="https://img.youtube.com/vi/DSXEpc_suSg/maxresdefault.jpg"
             alt="PSA Knowledge Base Demo"
             width={800}
             height={800}
