@@ -5,6 +5,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-psal2ops.com-blue?style=for-the-badge&logo=vercel)](https://psal2ops.com)
 [![PSA Code Sprint 2025](https://img.shields.io/badge/PSA%20Code%20Sprint-2025-orange?style=for-the-badge)](https://psacodesprint.sg)
+[![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=for-the-badge)](https://psal2ops.com)
 
 ---
 
