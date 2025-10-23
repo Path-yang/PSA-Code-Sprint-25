@@ -264,15 +264,28 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex h-screen bg-background">
+        <div className="flex h-screen bg-background overflow-hidden">
             <Toaster />
+
+            {/* Mobile Overlay */}
+            {!sidebarCollapsed && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                    onClick={() => setSidebarCollapsed(true)}
+                />
+            )}
 
             {/* Sidebar */}
             <motion.div
-                className={`glass-nav border-r-[3px] border-border/80 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'
-                    }`}
+                className={`glass-nav border-r-[3px] border-border/80 flex flex-col transition-all duration-300 fixed md:relative h-full z-40 ${
+                    sidebarCollapsed ? 'w-0 md:w-16' : 'w-64'
+                }`}
                 initial={false}
-                animate={{ width: sidebarCollapsed ? 64 : 256, transition: { duration: 0.3 } }}
+                animate={{ 
+                    width: sidebarCollapsed ? (window.innerWidth < 768 ? 0 : 64) : 256,
+                    x: sidebarCollapsed && window.innerWidth < 768 ? -256 : 0,
+                    transition: { duration: 0.3 } 
+                }}
             >
                 {/* Header */}
                 <div className={`border-b border-border ${sidebarCollapsed ? 'p-2' : 'p-6'}`}>
@@ -376,14 +389,23 @@ export default function Dashboard() {
             </motion.div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden w-full">
                 {/* Top Bar */}
-                <div className="glass-header px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                <div className="glass-header px-3 md:px-6 py-3 md:py-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 md:gap-3">
+                            {/* Mobile Menu Button */}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                                className="md:hidden p-2"
+                            >
+                                {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                            </Button>
                             <div>
-                                <div className="flex items-center gap-3">
-                                    <h2 className="text-xl font-semibold capitalize">
+                                <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                                    <h2 className="text-lg md:text-xl font-semibold capitalize">
                                         {activeView === 'home' ? 'Welcome' :
                                             activeView === 'ticket-detail' ?
                                                 (selectedTicket?.diagnosis_data?.parsed?.ticket_id
@@ -407,7 +429,7 @@ export default function Dashboard() {
                                         </Badge>
                                     )}
                                 </div>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">
                                     {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
                                     {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
                                     {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
@@ -432,7 +454,8 @@ export default function Dashboard() {
                                         ) : (
                                             <CheckCircle className="w-4 h-4" />
                                         )}
-                                        {isSavingTicket ? 'Creating your ticket...' : 'Save as Ticket'}
+                                        <span className="hidden sm:inline">{isSavingTicket ? 'Creating your ticket...' : 'Save as Ticket'}</span>
+                                        <span className="sm:hidden">{isSavingTicket ? 'Creating...' : 'Save'}</span>
                                     </div>
                                 </HoverBorderGradient>
                             )}

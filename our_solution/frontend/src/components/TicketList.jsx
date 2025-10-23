@@ -438,7 +438,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   }, [allTickets, activeTab, searchQuery, statusFilter, priorityFilter, channelFilter, dateFilter]);
 
   return (
-    <div className="p-6 space-y-6 relative">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative">
       {/* No overlay when just navigating back; full-screen loading is handled by 'loading' state in each tab */}
 
       {/* Analytics Filter Banner */}
@@ -474,7 +474,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className="flex gap-4"
+        className="flex flex-col sm:flex-row gap-2 md:gap-4"
       >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -545,14 +545,14 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
             </Select>
           </DropdownMenuContent>
         </DropdownMenu>
-        <ToggleGroup type="single" value={viewMode} onValueChange={setViewMode} className="border rounded-md">
-          <ToggleGroupItem value="card" aria-label="Card view" className="gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200">
+        <ToggleGroup type="single" value={viewMode} onValueChange={setViewMode} className="border rounded-md w-full sm:w-auto">
+          <ToggleGroupItem value="card" aria-label="Card view" className="gap-1 md:gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200 flex-1 sm:flex-none">
             <Grid3X3 className="w-4 h-4" />
-            Cards
+            <span className="hidden sm:inline">Cards</span>
           </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="List view" className="gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200">
+          <ToggleGroupItem value="list" aria-label="List view" className="gap-1 md:gap-2 hover:bg-gray-100 hover:text-black data-[state=on]:bg-white data-[state=on]:text-black transition-all duration-200 flex-1 sm:flex-none">
             <List className="w-4 h-4" />
-            List
+            <span className="hidden sm:inline">List</span>
           </ToggleGroupItem>
         </ToggleGroup>
       </motion.div>
@@ -638,11 +638,11 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                   )}
                 </div>
               ) : viewMode === 'list' ? (
-                <div>
+                <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
                   {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}
@@ -676,11 +676,11 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                   </p>
                 </div>
               ) : viewMode === 'list' ? (
-                <div>
+                <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
                   {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}
@@ -714,11 +714,11 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
                   </p>
                 </div>
               ) : viewMode === 'list' ? (
-                <div>
+                <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
                   {renderTicketsTable(filteredTickets, onSelectTicket, activeTab)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   {filteredTickets.map((ticket, index) => renderTicketCard(ticket, index, onSelectTicket, activeTab))}
                 </div>
               )}

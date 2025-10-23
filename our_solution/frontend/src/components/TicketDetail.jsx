@@ -501,25 +501,25 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={onBack} className="gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <Button variant="outline" onClick={onBack} className="gap-2 w-full sm:w-auto">
           <ArrowLeft className="w-4 h-4" />
           Back to List
         </Button>
 
         {/* Ticket Dates - Top Right within content */}
-        <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-3 shadow-lg">
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+        <div className="bg-background/80 backdrop-blur-sm border rounded-lg p-2 md:p-3 shadow-lg w-full sm:w-auto">
+          <div className="flex flex-col gap-2 text-xs md:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>Created: {formatDateTime(ticket.created_at)}</span>
+              <Calendar className="w-3 md:w-4 h-3 md:h-4" />
+              <span className="truncate">Created: {formatDateTime(ticket.created_at)}</span>
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Updated: {formatDateTime(ticket.updated_at)}</span>
+                <Clock className="w-3 md:w-4 h-3 md:h-4" />
+                <span className="truncate">Updated: {formatDateTime(ticket.updated_at)}</span>
               </div>
               {ticket.update_reason && (
                 <div className="pl-6 text-xs italic text-muted-foreground/80">
@@ -1177,8 +1177,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
       </Tabs>
 
       {/* Actions */}
-      <div className="flex justify-between items-center gap-3 pt-6 border-t">
-        <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 md:pt-6 border-t">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           {isEditing ? (
             <>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
@@ -1220,7 +1220,7 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
         </div>
 
         {!isEditing && (
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             {/* Close Ticket Button - Always visible for active tickets */}
             {ticket.status === 'active' && (
               <Button onClick={() => setShowCloseDialog(true)} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white border-2 border-green-700">

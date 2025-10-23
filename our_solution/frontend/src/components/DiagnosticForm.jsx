@@ -172,8 +172,8 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
 
 
     return (
-        <div className={`min-h-screen p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-start justify-start pt-24'}`}>
-            <div className={`w-full max-w-4xl mx-auto space-y-6 relative transition-all duration-500 ${showResults ? 'pt-6' : ''}`}>
+        <div className={`min-h-screen p-3 md:p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-start justify-start pt-12 md:pt-24'}`}>
+            <div className={`w-full max-w-4xl mx-auto space-y-4 md:space-y-6 relative transition-all duration-500 ${showResults ? 'pt-3 md:pt-6' : ''}`}>
 
                 {/* Greeting */}
                 <AnimatePresence>
@@ -183,12 +183,12 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -30, transition: { duration: 0.5 } }}
                             transition={{ duration: 0.6 }}
-                            className="text-center mb-8"
+                            className="text-center mb-4 md:mb-8"
                         >
-                            <h1 className="text-3xl font-bold text-foreground mb-2">
+                            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                                 {greeting}
                             </h1>
-                            <div className="text-lg text-muted-foreground">
+                            <div className="text-base md:text-lg text-muted-foreground">
                                 Ready to <FlipWords
                                     words={['diagnose', 'analyze', 'investigate', 'resolve']}
                                     duration={2000}
@@ -235,7 +235,8 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                         value={alertText}
                                         placeholder={placeholder}
                                         onChange={(event) => setAlertText(event.target.value)}
-                                        className="min-h-[200px] font-mono text-sm"
+                                        className="min-h-[150px] md:min-h-[200px] font-mono text-sm"
+                                        style={{ fontSize: '16px' }}
                                     />
                                 </div>
 
