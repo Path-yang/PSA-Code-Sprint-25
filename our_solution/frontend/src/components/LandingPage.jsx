@@ -67,7 +67,7 @@ export default function LandingPage({ onNavigate }) {
                         className="text-center"
                     >
                         {/* Glass Container */}
-                        <div className="backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl max-w-4xl mx-auto space-y-6">
+                        <div className="backdrop-blur-sm bg-transparent border border-white/20 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl max-w-4xl mx-auto space-y-6">
                             {/* Logo and Badge */}
                             <div className="flex flex-col items-center gap-4">
                                 <motion.div
