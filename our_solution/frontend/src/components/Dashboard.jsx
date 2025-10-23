@@ -323,14 +323,14 @@ export default function Dashboard() {
 
             {/* Sidebar */}
             <motion.div
-                className={`glass-nav border-r-[3px] border-border/80 flex flex-col transition-all duration-300 fixed md:relative h-full z-40 ${
+                className={`glass-nav border-r-[3px] border-border/80 flex flex-col transition-all duration-150 fixed md:relative h-full z-40 ${
                     sidebarCollapsed ? 'w-0 md:w-16' : 'w-64'
                 }`}
                 initial={false}
                 animate={{ 
                     width: sidebarCollapsed ? (window.innerWidth < 768 ? 0 : 64) : 256,
                     x: sidebarCollapsed && window.innerWidth < 768 ? -256 : 0,
-                    transition: { duration: 0.3 } 
+                    transition: { duration: 0.15 } 
                 }}
             >
                 {/* Header */}
@@ -353,7 +353,7 @@ export default function Dashboard() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
+                                transition={{ delay: sidebarCollapsed ? 0 : 0.15, duration: 0.15 }}
                                 className="flex flex-col items-center w-full"
                             >
                                 <div className="flex items-center gap-3">
@@ -390,7 +390,7 @@ export default function Dashboard() {
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -10 }}
-                                            transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.2 }}
+                                            transition={{ delay: sidebarCollapsed ? 0 : 0.15, duration: 0.15 }}
                                             className="flex flex-col items-start"
                                         >
                                             <span className={`text-sm font-medium ${isActive ? 'text-primary-foreground' : 'text-foreground'}`}>
@@ -425,7 +425,7 @@ export default function Dashboard() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                transition={{ delay: sidebarCollapsed ? 0 : 0.3, duration: 0.15 }}
+                                transition={{ delay: sidebarCollapsed ? 0 : 0.15, duration: 0.1 }}
                             >
                                 Collapse
                             </motion.span>
