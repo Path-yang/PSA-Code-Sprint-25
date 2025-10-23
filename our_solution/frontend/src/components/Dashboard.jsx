@@ -405,7 +405,7 @@ export default function Dashboard() {
                             </Button>
                             <div>
                                 <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                                    <h2 className="text-lg md:text-xl font-bold text-black dark:text-white capitalize">
+                                    <h2 className="text-lg md:text-xl font-bold capitalize" style={{ color: '#000000' }}>
                                         {activeView === 'home' ? 'Welcome' :
                                             activeView === 'ticket-detail' ?
                                                 (selectedTicket?.diagnosis_data?.parsed?.ticket_id
@@ -429,7 +429,7 @@ export default function Dashboard() {
                                         </Badge>
                                     )}
                                 </div>
-                                <p className="text-xs md:text-sm text-black dark:text-white font-semibold hidden sm:block">
+                                <p className="text-xs md:text-sm font-bold hidden sm:block" style={{ color: '#000000' }}>
                                     {activeView === 'home' && 'PSA L2 Diagnostic Assistant'}
                                     {activeView === 'diagnose' && 'Run diagnostics on alerts and generate resolution plans'}
                                     {activeView === 'tickets' && 'Manage and track diagnostic tickets'}
