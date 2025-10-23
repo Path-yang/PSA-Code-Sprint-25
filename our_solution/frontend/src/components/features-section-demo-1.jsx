@@ -1,6 +1,5 @@
 import React from "react";
 import { cn } from "../lib/utils";
-import createGlobe from "cobe";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { IconBrandYoutubeFilled } from "@tabler/icons-react";
@@ -177,8 +176,8 @@ export const SkeletonFour = () => {
     <div className="relative flex gap-10 h-full min-h-[500px]">
       <div className="w-full mx-auto bg-transparent dark:bg-transparent group h-full">
         <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
-          <div className="h-full w-full aspect-square overflow-hidden rounded-sm flex items-center justify-center p-4">
-            <Globe size={400} className="" />
+          <div className="h-full w-full overflow-hidden rounded-sm">
+            <Globe />
           </div>
         </div>
       </div>
@@ -186,58 +185,102 @@ export const SkeletonFour = () => {
   );
 };
 
-export const Globe = ({ className = "", size = 480 }) => {
-  const canvasRef = useRef();
+export const Globe = () => {
+  const chartRef = useRef(null);
 
   useEffect(() => {
-    let phi = 0;
+    // Check if amCharts is loaded
+    if (typeof window.am5 === "undefined") {
+      console.error("amCharts not loaded");
+      return;
+    }
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    // Create root element
+    const root = window.am5.Root.new(chartRef.current);
 
-    const pixelRatio = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    canvas.width = size * pixelRatio;
-    canvas.height = size * pixelRatio;
+    // Set themes
+    root.setThemes([
+      window.am5themes_Animated.new(root)
+    ]);
 
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: pixelRatio,
-      width: size * pixelRatio,
-      height: size * pixelRatio,
-      phi: 0,
-      theta: 0,
-      dark: 1,
-      diffuse: 1.2,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.3, 0.3, 0.3],
-      markerColor: [0.1, 0.8, 1],
-      glowColor: [1, 1, 1],
-      markers: [
-        // longitude latitude
-        { location: [1.3521, 103.8198], size: 0.08 }, // Singapore (PSA HQ)
-        { location: [51.5074, -0.1278], size: 0.05 }, // London
-        { location: [40.7128, -74.0060], size: 0.05 }, // New York
-        { location: [35.6762, 139.6503], size: 0.05 }, // Tokyo
-        { location: [-33.8688, 151.2093], size: 0.05 }, // Sydney
-      ],
-      onRender: (state) => {
-        // Called on every animation frame.
-        // `state` will be an empty object, return updated params.
-        state.phi = phi;
-        phi += 0.01;
-      },
+    // Create the map chart
+    const chart = root.container.children.push(
+      window.am5map.MapChart.new(root, {
+        panX: "rotateX",
+        panY: "rotateY",
+        projection: window.am5map.geoOrthographic(),
+        paddingBottom: 20,
+        paddingTop: 20,
+        paddingLeft: 20,
+        paddingRight: 20
+      })
+    );
+
+    // Create main polygon series for countries
+    const polygonSeries = chart.series.push(
+      window.am5map.MapPolygonSeries.new(root, {
+        geoJSON: window.am5geodata_worldLow
+      })
+    );
+
+    polygonSeries.mapPolygons.template.setAll({
+      tooltipText: "{name}",
+      toggleKey: "active",
+      interactive: true
     });
 
+    polygonSeries.mapPolygons.template.states.create("hover", {
+      fill: root.interfaceColors.get("primaryButtonHover")
+    });
+
+    // Create series for background fill
+    const backgroundSeries = chart.series.push(
+      window.am5map.MapPolygonSeries.new(root, {})
+    );
+    backgroundSeries.mapPolygons.template.setAll({
+      fill: root.interfaceColors.get("alternativeBackground"),
+      fillOpacity: 0.1,
+      strokeOpacity: 0
+    });
+    backgroundSeries.data.push({
+      geometry: window.am5map.getGeoRectangle(90, 180, -90, -180)
+    });
+
+    // Create graticule series
+    const graticuleSeries = chart.series.push(
+      window.am5map.GraticuleSeries.new(root, {})
+    );
+    graticuleSeries.mapLines.template.setAll({
+      strokeOpacity: 0.1,
+      stroke: root.interfaceColors.get("alternativeBackground")
+    });
+
+    // Rotate animation
+    chart.animate({
+      key: "rotationX",
+      from: 0,
+      to: 360,
+      duration: 30000,
+      loops: Infinity
+    });
+
+    // Make stuff animate on load
+    chart.appear(1000, 100);
+
+    // Cleanup
     return () => {
-      globe.destroy();
+      root.dispose();
     };
-  }, [size]);
+  }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{ width: "100%", height: "100%", aspectRatio: 1 }}
-      className={className}
+    <div
+      ref={chartRef}
+      style={{
+        width: "100%",
+        height: "500px",
+        maxWidth: "100%"
+      }}
     />
   );
 };
