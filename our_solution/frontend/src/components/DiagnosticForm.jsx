@@ -105,6 +105,28 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                 }
             };
 
+            // Edge case detection: Check if alert summary is empty (invalid/gibberish input)
+            const parsed = normalized.parsed || {};
+            const hasTicketId = parsed.ticket_id && parsed.ticket_id !== '—' && parsed.ticket_id.trim() !== '';
+            const hasModule = parsed.module && parsed.module !== '—' && parsed.module.trim() !== '';
+            const hasChannel = parsed.channel && parsed.channel !== '—' && parsed.channel.trim() !== '';
+            const hasEntity = parsed.entity_id && parsed.entity_id !== '—' && parsed.entity_id.trim() !== '';
+            
+            // Count how many fields are actually populated
+            const populatedFields = [hasTicketId, hasModule, hasChannel, hasEntity].filter(Boolean).length;
+            
+            // If less than 2 fields are populated, consider it invalid input
+            if (populatedFields < 2) {
+                throw new Error(
+                    'Unable to parse alert information. Please ensure your alert contains:\n' +
+                    '• A ticket ID or reference number\n' +
+                    '• Module information (Container, Vessel, EDI/API, etc.)\n' +
+                    '• Channel information (Email, SMS, Phone)\n' +
+                    '• A clear description of the issue\n\n' +
+                    'Example format: "RE: Email ALR-123456 | CMAU0000020 - Container issue..."'
+                );
+            }
+
             setDiagnosis(normalized);
             onDiagnosisChange?.(normalized);
             setShowResults(true);
@@ -216,11 +238,13 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="p-3 bg-destructive/10 border border-destructive/20 rounded-md"
+                                        className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
                                     >
-                                        <div className="flex items-center gap-2 text-destructive">
-                                            <AlertTriangle className="w-4 h-4" />
-                                            {error}
+                                        <div className="flex items-start gap-3">
+                                            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                                            <div className="text-destructive text-sm whitespace-pre-line flex-1">
+                                                {error}
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
