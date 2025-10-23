@@ -548,13 +548,13 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="alert-summary">Alert Summary</TabsTrigger>
-          <TabsTrigger value="root-cause">Root Cause Analysis</TabsTrigger>
-          <TabsTrigger value="resolution">Resolution Plan</TabsTrigger>
-          <TabsTrigger value="confidence">Confidence</TabsTrigger>
-          <TabsTrigger value="full-report">Full Report</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
+        <TabsList className="flex w-full overflow-x-auto space-x-2 py-1">
+          <TabsTrigger value="alert-summary" className="whitespace-nowrap flex-shrink-0">Alert Summary</TabsTrigger>
+          <TabsTrigger value="root-cause" className="whitespace-nowrap flex-shrink-0">Root Cause Analysis</TabsTrigger>
+          <TabsTrigger value="resolution" className="whitespace-nowrap flex-shrink-0">Resolution Plan</TabsTrigger>
+          <TabsTrigger value="confidence" className="whitespace-nowrap flex-shrink-0">Confidence</TabsTrigger>
+          <TabsTrigger value="full-report" className="whitespace-nowrap flex-shrink-0">Full Report</TabsTrigger>
+          <TabsTrigger value="notes" className="whitespace-nowrap flex-shrink-0">Notes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="alert-summary" className="space-y-6 mt-6">
