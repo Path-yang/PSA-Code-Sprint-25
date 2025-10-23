@@ -447,9 +447,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
         <img
           src="/pasir panjang port.jpeg"
           alt="Pasir Panjang Port - PSA Singapore"
-          className="w-full h-full object-cover opacity-30 dark:opacity-20"
+          className="w-full h-full object-cover opacity-15 dark:opacity-10"
         />
-        <div className="absolute inset-0 bg-white/30 dark:bg-black/30"></div>
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/40"></div>
       </div>
       
       {/* Content */}
