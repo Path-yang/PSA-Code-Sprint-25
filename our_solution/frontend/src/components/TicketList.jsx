@@ -85,14 +85,14 @@ const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
     >
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-semibold text-foreground drop-shadow-sm">{ticketId}</span>
+          <span className="font-mono text-base font-bold text-black dark:text-white drop-shadow-md">{ticketId}</span>
           <Badge
             variant={
               ticket.status === 'active' ? 'default' :
                 ticket.status === 'closed' ? 'secondary' :
                   'destructive'
             }
-            className="shadow-sm"
+            className="shadow-sm text-xs font-bold"
           >
             {ticket.status}
           </Badge>
@@ -103,47 +103,47 @@ const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
               priority === 'Medium' ? 'warning' :
                 'success'
           }
-          className="shadow-sm font-semibold">
+          className="shadow-sm font-bold text-xs">
             {priority}
           </Badge>
         </CardTitle>
-        <CardDescription className="text-xs line-clamp-2 font-medium text-foreground/80 drop-shadow-sm">
+        <CardDescription className="text-sm line-clamp-2 font-bold text-black dark:text-white drop-shadow-md">
           {module}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-xs text-foreground/70 font-medium">
-          <div className="flex items-center gap-1 drop-shadow-sm">
+        <div className="flex items-center justify-between text-xs text-black dark:text-white font-semibold">
+          <div className="flex items-center gap-1 drop-shadow-md">
             {getChannelIcon(parsedData.channel)}
             <span>{parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}</span>
           </div>
           <div className="flex flex-col items-end gap-1">
             {ticket.status === 'closed' && ticket.closed_at ? (
               <>
-                <div className="flex items-center gap-1 drop-shadow-sm">
+                <div className="flex items-center gap-1 drop-shadow-md">
                   <Calendar className="w-3 h-3" />
-                  <span className="text-xs">{formatDate(ticket.created_at)}</span>
+                  <span className="text-xs font-semibold">{formatDate(ticket.created_at)}</span>
                 </div>
-                <div className="flex items-center gap-1 drop-shadow-sm">
+                <div className="flex items-center gap-1 drop-shadow-md">
                   <CheckCircle className="w-3 h-3" />
-                  <span className="text-xs">{formatDate(ticket.closed_at)}</span>
+                  <span className="text-xs font-semibold">{formatDate(ticket.closed_at)}</span>
                 </div>
               </>
             ) : ticket.status === 'deleted' && ticket.deleted_at ? (
               <>
-                <div className="flex items-center gap-1 drop-shadow-sm">
+                <div className="flex items-center gap-1 drop-shadow-md">
                   <Calendar className="w-3 h-3" />
-                  <span className="text-xs">{formatDate(ticket.created_at)}</span>
+                  <span className="text-xs font-semibold">{formatDate(ticket.created_at)}</span>
                 </div>
-                <div className="flex items-center gap-1 drop-shadow-sm">
+                <div className="flex items-center gap-1 drop-shadow-md">
                   <Trash2 className="w-3 h-3" />
-                  <span className="text-xs">{formatDate(ticket.deleted_at)}</span>
+                  <span className="text-xs font-semibold">{formatDate(ticket.deleted_at)}</span>
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-1 drop-shadow-sm">
+              <div className="flex items-center gap-1 drop-shadow-md">
                 <Calendar className="w-3 h-3" />
-                <span className="text-xs">{formatDate(ticket.created_at)}</span>
+                <span className="text-xs font-semibold">{formatDate(ticket.created_at)}</span>
               </div>
             )}
           </div>
@@ -441,7 +441,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   }, [allTickets, activeTab, searchQuery, statusFilter, priorityFilter, channelFilter, dateFilter]);
 
   return (
-    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative overflow-hidden">
+    <div className="px-3 md:px-6 py-2 md:py-4 space-y-3 md:space-y-4 relative overflow-hidden">
       {/* Background Image */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
@@ -610,9 +610,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
           <TabsContent value="active" className="mt-6">
             <motion.div
               key="active"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              exit={{ y: -10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               {error && (
@@ -667,9 +667,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
           <TabsContent value="closed" className="mt-6">
             <motion.div
               key="closed"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              exit={{ y: -10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               {loading ? (
@@ -705,9 +705,9 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
           <TabsContent value="deleted" className="mt-6">
             <motion.div
               key="deleted"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              exit={{ y: -10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               {loading ? (
