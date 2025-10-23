@@ -279,7 +279,8 @@ export const Globe = () => {
       style={{
         width: "100%",
         height: "500px",
-        maxWidth: "100%"
+        maxWidth: "100%",
+        pointerEvents: "none"
       }}
     />
   );
