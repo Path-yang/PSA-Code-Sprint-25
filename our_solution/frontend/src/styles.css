@@ -261,17 +261,6 @@
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
-  
-  .glass-header h2,
-  .glass-header p {
-    color: #000000 !important;
-  }
-}
-
-/* Force header text to always be black - must be outside @layer for specificity */
-.glass-header h2,
-.glass-header p {
-  color: #000000 !important;
 }
 
 /* Dark mode glassmorphism adaptations */
