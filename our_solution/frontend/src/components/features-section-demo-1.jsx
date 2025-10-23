@@ -51,8 +51,8 @@ export function FeaturesSectionDemo() {
         </p>
       </div>
 
-      <div className="relative ">
-        <div className="grid grid-cols-1 lg:grid-cols-6 mt-12 xl:border rounded-md dark:border-neutral-800">
+      <div className="relative overflow-visible">
+        <div className="grid grid-cols-1 lg:grid-cols-6 mt-12 xl:border rounded-md dark:border-neutral-800 overflow-visible">
           {features.map((feature) => (
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
@@ -71,7 +71,7 @@ const FeatureCard = ({
   className,
 }) => {
   return (
-    <div className={cn(`p-4 sm:p-8 relative overflow-hidden`, className)}>
+    <div className={cn(`p-4 sm:p-8 relative`, className)}>
       {children}
     </div>
   );
@@ -174,8 +174,8 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="h-60 md:h-80 flex flex-col items-center relative bg-transparent dark:bg-transparent mt-10 overflow-hidden">
-      <Globe className="absolute -right-16 sm:-right-20 md:-right-10 -bottom-48 sm:-bottom-60 md:-bottom-72 scale-75 sm:scale-90 md:scale-100" />
+    <div className="h-60 md:h-80 flex flex-col items-center relative bg-transparent dark:bg-transparent mt-10 overflow-visible">
+      <Globe className="absolute -right-10 sm:-right-12 md:-right-8 lg:-right-10 -bottom-40 sm:-bottom-48 md:-bottom-56 lg:-bottom-60 scale-[0.85] sm:scale-95 md:scale-100 lg:scale-110" />
     </div>
   );
 };

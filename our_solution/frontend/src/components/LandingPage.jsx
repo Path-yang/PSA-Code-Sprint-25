@@ -130,8 +130,8 @@ export default function LandingPage({ onNavigate }) {
             </section>
 
             {/* Features Section - Aceternity Bento Grid */}
-            <section className="bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800">
-                <div className="container mx-auto px-6 py-12">
+            <section className="bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 overflow-visible">
+                <div className="container mx-auto px-6 py-12 overflow-visible">
                     <FeaturesSectionDemo />
                 </div>
             </section>
