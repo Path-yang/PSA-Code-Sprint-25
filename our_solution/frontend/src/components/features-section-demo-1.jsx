@@ -52,7 +52,7 @@ export function FeaturesSectionDemo() {
       </div>
 
       <div className="relative overflow-visible">
-        <div className="grid grid-cols-1 lg:grid-cols-6 mt-12 xl:border rounded-md dark:border-neutral-800 overflow-visible">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-6 lg:gap-0 mt-12 xl:border rounded-md dark:border-neutral-800 overflow-visible">
           {features.map((feature) => (
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
@@ -174,24 +174,31 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="h-60 md:h-80 flex flex-col items-center justify-center relative bg-transparent dark:bg-transparent mt-4 md:mt-10 overflow-visible">
-      <Globe className="absolute right-0 md:-right-8 lg:-right-10 bottom-0 md:-bottom-20 lg:-bottom-24 scale-[0.7] sm:scale-[0.8] md:scale-100 lg:scale-110" />
+    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end">
+      <div className="relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[440px] xl:max-w-[520px] aspect-square">
+        <Globe size={520} className="w-full h-full" />
+      </div>
     </div>
   );
 };
 
-export const Globe = ({ className }) => {
+export const Globe = ({ className = "", size = 480 }) => {
   const canvasRef = useRef();
 
   useEffect(() => {
     let phi = 0;
 
-    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const globe = createGlobe(canvasRef.current, {
-      devicePixelRatio: 2,
-      width: 600 * 2,
-      height: 600 * 2,
+    const pixelRatio = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    canvas.width = size * pixelRatio;
+    canvas.height = size * pixelRatio;
+
+    const globe = createGlobe(canvas, {
+      devicePixelRatio: pixelRatio,
+      width: size * pixelRatio,
+      height: size * pixelRatio,
       phi: 0,
       theta: 0,
       dark: 1,
@@ -220,12 +227,12 @@ export const Globe = ({ className }) => {
     return () => {
       globe.destroy();
     };
-  }, []);
+  }, [size]);
 
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: 600, height: 600, maxWidth: "100%", aspectRatio: 1 }}
+      style={{ width: "100%", height: "100%", aspectRatio: 1 }}
       className={className}
     />
   );
