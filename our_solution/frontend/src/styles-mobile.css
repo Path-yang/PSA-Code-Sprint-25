@@ -1,0 +1,116 @@
+/* Mobile Optimizations for PSA L2 Diagnostic Assistant */
+
+/* Base mobile adjustments */
+@media (max-width: 768px) {
+  /* Reduce padding on mobile */
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .py-4 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  
+  /* Smaller text on mobile */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+  
+  h3 {
+    font-size: 1.1rem !important;
+  }
+  
+  /* Make buttons more touch-friendly */
+  button {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Stack items vertically on mobile */
+  .flex-row {
+    flex-direction: column !important;
+  }
+  
+  /* Full width cards on mobile */
+  .max-w-4xl {
+    max-width: 100% !important;
+  }
+  
+  /* Responsive grid */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  /* Smaller gaps */
+  .gap-6 {
+    gap: 1rem !important;
+  }
+  
+  .gap-4 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Hide sidebar collapse button text on mobile */
+  .sidebar-collapse-text {
+    display: none !important;
+  }
+  
+  /* Responsive table */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Mobile-friendly inputs */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+  
+  /* Touch-friendly dropdowns */
+  .dropdown-trigger {
+    min-height: 48px !important;
+  }
+  
+  /* Responsive modal/dialog */
+  [role="dialog"] {
+    max-width: calc(100vw - 2rem) !important;
+    max-height: calc(100vh - 2rem) !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  /* Even smaller padding */
+  .p-6,
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  /* Reduce font sizes further */
+  body {
+    font-size: 14px !important;
+  }
+  
+  /* Stack all flex items */
+  .flex {
+    flex-direction: column !important;
+  }
+  
+  /* Full width buttons */
+  .w-auto button {
+    width: 100% !important;
+  }
+}
+
