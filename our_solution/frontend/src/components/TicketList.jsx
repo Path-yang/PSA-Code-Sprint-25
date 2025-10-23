@@ -577,31 +577,34 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <AnimatePresence mode="wait">
-          <div className="flex justify-center w-full">
+          <div className="flex justify-center w-full overflow-x-auto px-2 sm:px-0">
             <TabsList className="inline-flex w-auto rounded-full">
-              <TabsTrigger value="active" className="gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Active Tickets
+              <TabsTrigger value="active" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 whitespace-nowrap">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Active Tickets</span>
+                <span className="sm:hidden">Active</span>
                 {!loading && (
-                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  <Badge variant="secondary" className="ml-1 sm:ml-2 bg-white text-black border border-gray-200 text-xs px-1.5">
                     {allTickets.filter(t => t.status === 'active').length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="closed" className="gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Closed Tickets
+              <TabsTrigger value="closed" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 whitespace-nowrap">
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Closed Tickets</span>
+                <span className="sm:hidden">Closed</span>
                 {!loading && (
-                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  <Badge variant="secondary" className="ml-1 sm:ml-2 bg-white text-black border border-gray-200 text-xs px-1.5">
                     {allTickets.filter(t => t.status === 'closed').length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="deleted" className="gap-2">
-                <Trash2 className="w-4 h-4" />
-                Deleted Tickets
+              <TabsTrigger value="deleted" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 whitespace-nowrap">
+                <Trash2 className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Deleted Tickets</span>
+                <span className="sm:hidden">Deleted</span>
                 {!loading && (
-                  <Badge variant="secondary" className="ml-2 bg-white text-black border border-gray-200">
+                  <Badge variant="secondary" className="ml-1 sm:ml-2 bg-white text-black border border-gray-200 text-xs px-1.5">
                     {allTickets.filter(t => t.status === 'deleted').length}
                   </Badge>
                 )}
