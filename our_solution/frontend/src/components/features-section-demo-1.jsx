@@ -174,8 +174,8 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible">
-      <div className="relative w-full sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible">
+    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible" style={{ transform: 'translateZ(0)' }}>
+      <div className="relative w-full sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible" style={{ transform: 'translateZ(0)' }}>
         <Globe size={520} className="w-full h-full" />
       </div>
     </div>
