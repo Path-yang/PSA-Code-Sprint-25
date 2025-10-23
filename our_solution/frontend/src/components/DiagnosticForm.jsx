@@ -172,8 +172,19 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
 
 
     return (
-        <div className={`min-h-screen p-3 md:p-6 transition-all duration-700 ${showResults ? 'flex flex-col' : 'flex items-start justify-start pt-12 md:pt-24'}`}>
-            <div className={`w-full max-w-4xl mx-auto space-y-4 md:space-y-6 relative transition-all duration-500 ${showResults ? 'pt-3 md:pt-6' : ''}`}>
+        <div className={`min-h-screen p-3 md:p-6 transition-all duration-700 relative overflow-hidden ${showResults ? 'flex flex-col' : 'flex items-start justify-start pt-12 md:pt-24'}`}>
+            {/* Background Image */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <img
+                    src="/keppel port.jpg"
+                    alt="Keppel Port - PSA Singapore"
+                    className="w-full h-full object-cover opacity-30 dark:opacity-20"
+                />
+                <div className="absolute inset-0 bg-white/30 dark:bg-black/30"></div>
+            </div>
+            
+            {/* Content */}
+            <div className={`w-full max-w-4xl mx-auto space-y-4 md:space-y-6 relative z-10 transition-all duration-500 ${showResults ? 'pt-3 md:pt-6' : ''}`}>
 
                 {/* Greeting */}
                 <AnimatePresence>

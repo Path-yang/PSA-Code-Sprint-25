@@ -51,8 +51,8 @@ export default function LandingPage({ onNavigate }) {
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/PSA hero image.png"
-                        alt="PSA Facility"
+                        src="/tuas port.jpeg"
+                        alt="Tuas Port - PSA Singapore"
                         className="w-full h-full object-cover opacity-50"
                     />
                     {/* Dark Overlay */}

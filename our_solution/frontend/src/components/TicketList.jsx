@@ -445,8 +445,8 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
       {/* Background Image */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
-          src="/PSA hero image.png"
-          alt="PSA Facility Background"
+          src="/pasir panjang port.jpeg"
+          alt="Pasir Panjang Port - PSA Singapore"
           className="w-full h-full object-cover opacity-30 dark:opacity-20"
         />
         <div className="absolute inset-0 bg-white/30 dark:bg-black/30"></div>
