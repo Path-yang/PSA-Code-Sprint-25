@@ -57,7 +57,7 @@ export function FeaturesSectionDemo() {
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
               <FeatureDescription>{feature.description}</FeatureDescription>
-              <div className=" h-full w-full">{feature.skeleton}</div>
+              <div className="h-full w-full overflow-visible relative">{feature.skeleton}</div>
             </FeatureCard>
           ))}
         </div>
@@ -71,7 +71,7 @@ const FeatureCard = ({
   className,
 }) => {
   return (
-    <div className={cn(`p-4 sm:p-8 relative`, className)}>
+    <div className={cn(`p-4 sm:p-8 relative overflow-visible`, className)}>
       {children}
     </div>
   );
@@ -79,7 +79,7 @@ const FeatureCard = ({
 
 const FeatureTitle = ({ children }) => {
   return (
-    <p className=" max-w-5xl mx-auto text-left tracking-tight text-black dark:text-white text-xl md:text-2xl md:leading-snug">
+    <p className="max-w-5xl mx-auto text-left tracking-tight text-black dark:text-white text-xl md:text-2xl md:leading-snug relative z-10">
       {children}
     </p>
   );
@@ -91,7 +91,7 @@ const FeatureDescription = ({ children }) => {
       className={cn(
         "text-sm md:text-base  max-w-4xl text-left mx-auto",
         "text-neutral-500 text-center font-normal dark:text-neutral-300",
-        "text-left max-w-sm mx-0 md:text-sm my-2"
+        "text-left max-w-sm mx-0 md:text-sm my-2 relative z-10"
       )}
     >
       {children}
@@ -174,8 +174,8 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="h-60 md:h-80 flex flex-col items-center relative bg-transparent dark:bg-transparent mt-10 overflow-visible">
-      <Globe className="absolute -right-10 sm:-right-12 md:-right-8 lg:-right-10 -bottom-40 sm:-bottom-48 md:-bottom-56 lg:-bottom-60 scale-[0.85] sm:scale-95 md:scale-100 lg:scale-110" />
+    <div className="h-60 md:h-80 flex flex-col items-center justify-center relative bg-transparent dark:bg-transparent mt-4 md:mt-10 overflow-visible">
+      <Globe className="absolute right-0 md:-right-8 lg:-right-10 bottom-0 md:-bottom-20 lg:-bottom-24 scale-[0.7] sm:scale-[0.8] md:scale-100 lg:scale-110" />
     </div>
   );
 };
