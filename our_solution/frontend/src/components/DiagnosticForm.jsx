@@ -83,6 +83,17 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
             const result = await diagnoseAlert(alertText.trim());
             console.log('API Response:', result);
             if (result.error) {
+                // Check if it's a backend JSON parsing error (indicates invalid input)
+                if (result.error.includes('JSON') || result.error.includes('NoneType') || result.error.includes('str, bytes')) {
+                    throw new Error(
+                        'Unable to parse alert information. Please ensure your alert contains:\n' +
+                        '• A ticket ID or reference number\n' +
+                        '• Module information (Container, Vessel, EDI/API, etc.)\n' +
+                        '• Channel information (Email, SMS, Phone)\n' +
+                        '• A clear description of the issue\n\n' +
+                        'Example format: "RE: Email ALR-123456 | CMAU0000020 - Container issue..."'
+                    );
+                }
                 throw new Error(result.error);
             }
             
@@ -142,7 +153,17 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
             }, 300);
         } catch (err) {
             console.error('Diagnosis error:', err);
-            setError(err.message || 'Diagnostics failed');
+            // If error message contains technical jargon, show user-friendly message
+            let errorMessage = err.message || 'Diagnostics failed';
+            if (errorMessage.includes('JSON') || errorMessage.includes('NoneType') || errorMessage.includes('str, bytes')) {
+                errorMessage = 'Unable to parse alert information. Please ensure your alert contains:\n' +
+                    '• A ticket ID or reference number\n' +
+                    '• Module information (Container, Vessel, EDI/API, etc.)\n' +
+                    '• Channel information (Email, SMS, Phone)\n' +
+                    '• A clear description of the issue\n\n' +
+                    'Example format: "RE: Email ALR-123456 | CMAU0000020 - Container issue..."';
+            }
+            setError(errorMessage);
             setDiagnosis(null);
         } finally {
             setLoading(false);
