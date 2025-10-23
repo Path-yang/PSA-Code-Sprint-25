@@ -441,7 +441,19 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   }, [allTickets, activeTab, searchQuery, statusFilter, priorityFilter, channelFilter, dateFilter]);
 
   return (
-    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative bg-gradient-to-br from-gray-100 via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative overflow-hidden">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img
+          src="/PSA hero image.png"
+          alt="PSA Facility Background"
+          className="w-full h-full object-cover opacity-30 dark:opacity-20"
+        />
+        <div className="absolute inset-0 bg-white/30 dark:bg-black/30"></div>
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10">
       {/* No overlay when just navigating back; full-screen loading is handled by 'loading' state in each tab */}
 
       {/* Analytics Filter Banner */}
@@ -729,6 +741,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
           </TabsContent>
         </AnimatePresence>
       </Tabs>
+      </div>
     </div>
   );
 }
