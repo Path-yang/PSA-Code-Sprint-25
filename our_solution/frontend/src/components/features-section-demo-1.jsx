@@ -174,10 +174,10 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="relative flex gap-10 h-full">
+    <div className="relative flex gap-10 h-full min-h-[500px]">
       <div className="w-full mx-auto bg-transparent dark:bg-transparent group h-full">
         <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
-          <div className="h-full w-full aspect-square overflow-hidden rounded-sm flex items-center justify-center">
+          <div className="h-full w-full aspect-square overflow-hidden rounded-sm flex items-center justify-center p-4">
             <Globe size={400} className="" />
           </div>
         </div>
