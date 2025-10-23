@@ -132,13 +132,64 @@ export default function Dashboard() {
         if (!diagnosis || isSavingTicket) return;
 
         setIsSavingTicket(true);
+        
+        // Create optimistic ticket for immediate cache update
+        const optimisticTicket = {
+            id: Date.now(), // temporary ID
+            ticket_number: 'PENDING',
+            status: 'active',
+            diagnosis_data: diagnosis,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            update_reason: 'Ticket created',
+            notes: '',
+            custom_fields: {}
+        };
+        
         try {
+            // Optimistically add to cache
+            const cachedTicketsStr = sessionStorage.getItem('cachedTickets');
+            if (cachedTicketsStr) {
+                try {
+                    const tickets = JSON.parse(cachedTicketsStr);
+                    tickets.unshift(optimisticTicket);
+                    sessionStorage.setItem('cachedTickets', JSON.stringify(tickets));
+                    sessionStorage.setItem('cachedTicketsTimestamp', Date.now().toString());
+                } catch (e) {
+                    console.error('Cache parse error:', e);
+                }
+            }
+            
             // Get the alert text from the diagnosis or use a default
             const alertText = diagnosis.parsed?.alert_type || 'Diagnostic Alert';
-            await createTicket(alertText, diagnosis);
+            const newTicket = await createTicket(alertText, diagnosis);
+            
+            // Update cache with real ticket data
+            if (cachedTicketsStr) {
+                try {
+                    const tickets = JSON.parse(cachedTicketsStr);
+                    const updatedTickets = tickets.map(t => t.id === optimisticTicket.id ? newTicket : t);
+                    sessionStorage.setItem('cachedTickets', JSON.stringify(updatedTickets));
+                    sessionStorage.setItem('cachedTicketsTimestamp', Date.now().toString());
+                } catch (e) {
+                    console.error('Cache update error:', e);
+                }
+            }
+            
             setTicketCreated(true);
             toast.success('Ticket created successfully!');
         } catch (error) {
+            // Rollback optimistic update on error
+            const cachedTicketsStr = sessionStorage.getItem('cachedTickets');
+            if (cachedTicketsStr) {
+                try {
+                    const tickets = JSON.parse(cachedTicketsStr);
+                    const rolledBackTickets = tickets.filter(t => t.id !== optimisticTicket.id);
+                    sessionStorage.setItem('cachedTickets', JSON.stringify(rolledBackTickets));
+                } catch (e) {
+                    console.error('Cache rollback error:', e);
+                }
+            }
             toast.error('Failed to create ticket');
             console.error('Ticket creation error:', error);
         } finally {
@@ -486,7 +537,19 @@ function AnalyticsView() {
         setLoading(true);
         setError('');
         try {
-            const fetchedTickets = await listTickets();
+            // Try to use cached tickets first for instant loading
+            const cachedTickets = sessionStorage.getItem('cachedTickets');
+            let fetchedTickets;
+            
+            if (cachedTickets) {
+                // Use cache immediately
+                fetchedTickets = JSON.parse(cachedTickets);
+                setLoading(false); // Show data immediately
+            } else {
+                // No cache, fetch from API
+                fetchedTickets = await listTickets();
+            }
+            
             // Exclude deleted tickets from analytics
             let allTickets = fetchedTickets.filter(t => t.status !== 'deleted');
 

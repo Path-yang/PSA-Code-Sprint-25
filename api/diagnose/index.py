@@ -21,8 +21,8 @@ _system = None
 _init_error = None
 
 try:
-    from our_solution.backend.app.diagnostic_system import L2DiagnosticSystem
-    # Don't initialize yet - do it on first request
+    from our_solution.backend.app.diagnostic_system_optimized import L2DiagnosticSystemOptimized as L2DiagnosticSystem
+    # Don't initialize yet - do it on first request (using optimized version for faster performance)
 except Exception as e:
     _init_error = str(e)
     print(f"ERROR during import: {e}")

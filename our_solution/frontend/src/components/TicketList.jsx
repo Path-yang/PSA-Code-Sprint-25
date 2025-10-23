@@ -305,8 +305,8 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
     });
   }, []);
 
-  const loadAllTickets = useCallback(async (showLoadingSpinner = true) => {
-    if (showLoadingSpinner) {
+  const loadAllTickets = useCallback(async (showLoadingSpinner = true, silent = false) => {
+    if (showLoadingSpinner && !silent) {
       setLoading(true);
     }
     setError('');
@@ -316,10 +316,15 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
       setAllTickets(fetchedTickets);
       // Cache for next time
       sessionStorage.setItem('cachedTickets', JSON.stringify(fetchedTickets));
+      sessionStorage.setItem('cachedTicketsTimestamp', Date.now().toString());
     } catch (err) {
-      setError(err.message || 'Failed to load tickets');
+      if (!silent) {
+        setError(err.message || 'Failed to load tickets');
+      }
     } finally {
-      setLoading(false);
+      if (showLoadingSpinner) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -362,8 +367,12 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
     // Only refresh if refreshKey actually changed (not on initial mount)
     if (refreshKey > 0 && refreshKey !== prevRefreshKeyRef.current) {
       setIsRefreshing(true);
-      // Use full loading state (same as initial) for a consistent experience
-      loadAllTickets(true).finally(() => {
+      // Check cache age - if recent (< 5 seconds), do silent refresh
+      const cachedTimestamp = sessionStorage.getItem('cachedTicketsTimestamp');
+      const cacheAge = cachedTimestamp ? Date.now() - parseInt(cachedTimestamp) : Infinity;
+      const useSilentRefresh = cacheAge < 5000; // Cache is fresh, refresh silently
+      
+      loadAllTickets(!useSilentRefresh, useSilentRefresh).finally(() => {
         setIsRefreshing(false);
       });
       // Update ref to current value
