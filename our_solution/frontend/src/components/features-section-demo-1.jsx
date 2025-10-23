@@ -198,6 +198,11 @@ export const Globe = () => {
     // Create root element
     const root = window.am5.Root.new(chartRef.current);
 
+    // Remove amCharts logo
+    if (root._logo) {
+      root._logo.dispose();
+    }
+
     // Set themes
     root.setThemes([
       window.am5themes_Animated.new(root)
