@@ -36,7 +36,7 @@ export function FeaturesSectionDemo() {
       description:
         "24/7 diagnostic support across all PSA operations worldwide with intelligent routing and escalation management.",
       skeleton: <SkeletonFour />,
-      className: "col-span-1 lg:col-span-3 border-b lg:border-none overflow-visible",
+      className: "col-span-1 lg:col-span-3 border-b lg:border-none",
     },
   ];
   return (
@@ -51,13 +51,13 @@ export function FeaturesSectionDemo() {
         </p>
       </div>
 
-      <div className="relative overflow-visible">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-6 lg:gap-0 mt-12 xl:border rounded-md dark:border-neutral-800 overflow-visible">
+      <div className="relative">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-6 lg:gap-0 mt-12 xl:border rounded-md dark:border-neutral-800">
           {features.map((feature) => (
             <FeatureCard key={feature.title} className={feature.className}>
               <FeatureTitle>{feature.title}</FeatureTitle>
               <FeatureDescription>{feature.description}</FeatureDescription>
-              <div className="h-full w-full overflow-visible relative">{feature.skeleton}</div>
+              <div className="h-full w-full relative">{feature.skeleton}</div>
             </FeatureCard>
           ))}
         </div>
@@ -174,9 +174,13 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible -mx-8 sm:mx-0">
-      <div className="relative w-full sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible">
-        <Globe size={520} className="w-full h-full" />
+    <div className="relative flex gap-10 h-full">
+      <div className="w-full mx-auto bg-transparent dark:bg-transparent group h-full">
+        <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
+          <div className="h-full w-full aspect-square overflow-hidden rounded-sm flex items-center justify-center">
+            <Globe size={400} className="" />
+          </div>
+        </div>
       </div>
     </div>
   );
