@@ -211,13 +211,14 @@ export const Globe = () => {
     // Create the map chart
     const chart = root.container.children.push(
       window.am5map.MapChart.new(root, {
-        panX: "rotateX",
-        panY: "rotateY",
+        panX: "none",
+        panY: "none",
         projection: window.am5map.geoOrthographic(),
         paddingBottom: 20,
         paddingTop: 20,
         paddingLeft: 20,
-        paddingRight: 20
+        paddingRight: 20,
+        wheelable: false
       })
     );
 
@@ -229,13 +230,7 @@ export const Globe = () => {
     );
 
     polygonSeries.mapPolygons.template.setAll({
-      tooltipText: "{name}",
-      toggleKey: "active",
-      interactive: true
-    });
-
-    polygonSeries.mapPolygons.template.states.create("hover", {
-      fill: root.interfaceColors.get("primaryButtonHover")
+      interactive: false
     });
 
     // Create series for background fill
