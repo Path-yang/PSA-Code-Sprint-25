@@ -80,18 +80,19 @@ const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
 
   return (
     <Card
-      className="glass-card cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-primary/50 h-full"
+      className="glass-card cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 hover:border-primary/60 h-full group"
       onClick={() => onSelectTicket(ticket.id, activeTab)}
     >
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-medium">{ticketId}</span>
+          <span className="font-mono text-sm font-semibold text-foreground drop-shadow-sm">{ticketId}</span>
           <Badge
             variant={
               ticket.status === 'active' ? 'default' :
                 ticket.status === 'closed' ? 'secondary' :
                   'destructive'
             }
+            className="shadow-sm"
           >
             {ticket.status}
           </Badge>
@@ -101,45 +102,46 @@ const TicketCard = memo(({ ticket, onSelectTicket, activeTab }) => {
             priority === 'High' ? 'destructive' :
               priority === 'Medium' ? 'warning' :
                 'success'
-          }>
+          }
+          className="shadow-sm font-semibold">
             {priority}
           </Badge>
         </CardTitle>
-        <CardDescription className="text-xs line-clamp-2">
+        <CardDescription className="text-xs line-clamp-2 font-medium text-foreground/80 drop-shadow-sm">
           {module}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between text-xs text-foreground/70 font-medium">
+          <div className="flex items-center gap-1 drop-shadow-sm">
             {getChannelIcon(parsedData.channel)}
             <span>{parsedData.channel} • {formatDuration(ticket.created_at, ticket.closed_at)}</span>
           </div>
           <div className="flex flex-col items-end gap-1">
             {ticket.status === 'closed' && ticket.closed_at ? (
               <>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 drop-shadow-sm">
                   <Calendar className="w-3 h-3" />
                   <span className="text-xs">{formatDate(ticket.created_at)}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 drop-shadow-sm">
                   <CheckCircle className="w-3 h-3" />
                   <span className="text-xs">{formatDate(ticket.closed_at)}</span>
                 </div>
               </>
             ) : ticket.status === 'deleted' && ticket.deleted_at ? (
               <>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 drop-shadow-sm">
                   <Calendar className="w-3 h-3" />
                   <span className="text-xs">{formatDate(ticket.created_at)}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 drop-shadow-sm">
                   <Trash2 className="w-3 h-3" />
                   <span className="text-xs">{formatDate(ticket.deleted_at)}</span>
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 drop-shadow-sm">
                 <Calendar className="w-3 h-3" />
                 <span className="text-xs">{formatDate(ticket.created_at)}</span>
               </div>
@@ -164,10 +166,10 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
   return (
     <TableRow
       key={ticket.id}
-      className="cursor-pointer border-b border-border/50 even:bg-muted/15 hover:bg-muted/80 hover:shadow-sm transition-all duration-200"
+      className="cursor-pointer border-b border-border/30 even:bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm hover:shadow-md transition-all duration-300 group"
       onClick={() => onSelectTicket(ticket.id, activeTab)}
     >
-      <TableCell className="font-mono font-medium py-4">{ticketId}</TableCell>
+      <TableCell className="font-mono font-semibold py-4 text-foreground drop-shadow-sm">{ticketId}</TableCell>
       <TableCell className="py-4">
         <Badge
           variant={
@@ -175,7 +177,7 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
               ticket.status === 'closed' ? 'secondary' :
                 'destructive'
           }
-          className="gap-1"
+          className="gap-1 shadow-sm"
         >
           {ticket.status === 'active' ? (
             <AlertCircle className="w-3 h-3" />
@@ -193,25 +195,26 @@ function renderTicketTableRow(ticket, index, onSelectTicket, activeTab) {
             priority === 'High' ? 'destructive' :
               priority === 'Medium' ? 'warning' :
                 'success'
-          }>
+          }
+          className="shadow-sm font-semibold">
             {priority}
           </Badge>
-          <span className="text-sm text-muted-foreground line-clamp-1">{module}</span>
+          <span className="text-sm text-foreground/70 font-medium line-clamp-1 drop-shadow-sm">{module}</span>
         </div>
       </TableCell>
       <TableCell className="py-4">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 text-foreground/70 font-medium drop-shadow-sm">
           {getChannelIcon(parsedData.channel)}
           <span className="text-sm">{parsedData.channel || 'Unknown'}</span>
         </div>
       </TableCell>
       <TableCell className="py-4">
-        <div className="flex items-center gap-1">
-          <Clock className="w-3 h-3 text-muted-foreground" />
+        <div className="flex items-center gap-1 text-foreground/70 font-medium drop-shadow-sm">
+          <Clock className="w-3 h-3" />
           <span className="text-sm">{formatDuration(ticket.created_at, ticket.closed_at)}</span>
         </div>
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground py-4">
+      <TableCell className="text-sm text-foreground/70 font-medium py-4 drop-shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3" />
@@ -243,16 +246,16 @@ function renderTicketsTable(tickets, onSelectTicket, activeTab) {
   };
 
   return (
-    <div className="border-2 border-border/60 rounded-lg shadow-sm bg-background/50 backdrop-blur-sm">
+    <div className="glass-card rounded-lg shadow-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="border-b-2 border-border/60 bg-muted/30">
-            <TableHead className="w-[140px] font-semibold text-foreground">Ticket ID</TableHead>
-            <TableHead className="w-[100px] font-semibold text-foreground">Status</TableHead>
-            <TableHead className="min-w-[120px] font-semibold text-foreground">Priority / Module</TableHead>
-            <TableHead className="w-[100px] font-semibold text-foreground">Channel</TableHead>
-            <TableHead className="w-[130px] font-semibold text-foreground">Duration</TableHead>
-            <TableHead className="w-[200px] font-semibold text-foreground">{getDateHeaderLabel()}</TableHead>
+          <TableRow className="border-b-2 border-border/60 bg-foreground/5 backdrop-blur-sm">
+            <TableHead className="w-[140px] font-bold text-foreground drop-shadow-sm">Ticket ID</TableHead>
+            <TableHead className="w-[100px] font-bold text-foreground drop-shadow-sm">Status</TableHead>
+            <TableHead className="min-w-[120px] font-bold text-foreground drop-shadow-sm">Priority / Module</TableHead>
+            <TableHead className="w-[100px] font-bold text-foreground drop-shadow-sm">Channel</TableHead>
+            <TableHead className="w-[130px] font-bold text-foreground drop-shadow-sm">Duration</TableHead>
+            <TableHead className="w-[200px] font-bold text-foreground drop-shadow-sm">{getDateHeaderLabel()}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
