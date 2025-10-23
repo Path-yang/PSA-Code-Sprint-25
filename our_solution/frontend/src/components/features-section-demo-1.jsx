@@ -174,7 +174,7 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible">
+    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible -mx-8 sm:mx-0">
       <div className="relative w-full sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible">
         <Globe size={520} className="w-full h-full" />
       </div>
