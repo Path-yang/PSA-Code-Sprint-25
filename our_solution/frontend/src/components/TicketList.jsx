@@ -441,7 +441,7 @@ export default function TicketList({ onSelectTicket, onBackToDiagnose, refreshKe
   }, [allTickets, activeTab, searchQuery, statusFilter, priorityFilter, channelFilter, dateFilter]);
 
   return (
-    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 relative bg-gradient-to-br from-gray-100 via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* No overlay when just navigating back; full-screen loading is handled by 'loading' state in each tab */}
 
       {/* Analytics Filter Banner */}
