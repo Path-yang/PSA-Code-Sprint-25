@@ -456,7 +456,7 @@ export default function Dashboard() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden w-full">
                 {/* Top Bar */}
-                <div className="glass-header px-3 md:px-6 py-3 md:py-4" style={{ background: 'transparent' }}>
+                <div className="glass-header px-3 md:px-6 py-3 md:py-4 relative z-50" style={{ background: 'transparent' }}>
                     <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2 md:gap-3">
                             {/* Mobile Menu Button */}
