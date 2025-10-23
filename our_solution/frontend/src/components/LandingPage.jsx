@@ -137,20 +137,20 @@ export default function LandingPage({ onNavigate }) {
             </section>
 
             {/* Quick Actions Section */}
-            <section className="container mx-auto px-6 py-12">
+            <section className="container mx-auto px-6 py-8">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2 }}
-                    className="text-center mb-8"
+                    className="text-center mb-6"
                 >
-                    <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
+                    <h2 className="text-2xl font-bold mb-2">Quick Actions</h2>
                     <p className="text-muted-foreground">
                         Jump into the most common tasks and workflows
                     </p>
                 </motion.div>
 
-                <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <div className="grid md:grid-cols-3 gap-3 max-w-4xl mx-auto">
                     <motion.div
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -160,9 +160,9 @@ export default function LandingPage({ onNavigate }) {
                             className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 h-full flex flex-col"
                             onClick={() => onNavigate('diagnose')}
                         >
-                            <CardContent className="p-6 text-center flex-1 flex flex-col justify-center">
-                                <Zap className="w-8 h-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">Run Diagnostics</h3>
+                            <CardContent className="p-5 text-center flex-1 flex flex-col justify-center">
+                                <Zap className="w-8 h-8 mx-auto mb-2 text-primary" />
+                                <h3 className="font-semibold mb-1">Run Diagnostics</h3>
                                 <p className="text-sm text-muted-foreground">
                                     Analyze alerts and generate resolution plans
                                 </p>
@@ -179,9 +179,9 @@ export default function LandingPage({ onNavigate }) {
                             className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 h-full flex flex-col"
                             onClick={() => onNavigate('tickets')}
                         >
-                            <CardContent className="p-6 text-center flex-1 flex flex-col justify-center">
-                                <Ticket className="w-8 h-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">Manage Tickets</h3>
+                            <CardContent className="p-5 text-center flex-1 flex flex-col justify-center">
+                                <Ticket className="w-8 h-8 mx-auto mb-2 text-primary" />
+                                <h3 className="font-semibold mb-1">Manage Tickets</h3>
                                 <p className="text-sm text-muted-foreground">
                                     View and track diagnostic tickets
                                 </p>
@@ -198,9 +198,9 @@ export default function LandingPage({ onNavigate }) {
                             className="glass-card cursor-pointer hover:shadow-lg transition-all duration-300 h-full flex flex-col"
                             onClick={() => onNavigate('analytics')}
                         >
-                            <CardContent className="p-6 text-center flex-1 flex flex-col justify-center">
-                                <BarChart3 className="w-8 h-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">View Analytics</h3>
+                            <CardContent className="p-5 text-center flex-1 flex flex-col justify-center">
+                                <BarChart3 className="w-8 h-8 mx-auto mb-2 text-primary" />
+                                <h3 className="font-semibold mb-1">View Analytics</h3>
                                 <p className="text-sm text-muted-foreground">
                                     Insights and performance metrics
                                 </p>
