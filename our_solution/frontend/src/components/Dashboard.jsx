@@ -30,6 +30,7 @@ import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Toaster } from './ui/sonner';
 import { toast } from 'sonner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, Label } from 'recharts';
 import { listTickets, createTicket, getTicket } from '../api.js';
 import { TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
@@ -78,6 +79,7 @@ export default function Dashboard() {
     const [ticketRefreshKey, setTicketRefreshKey] = useState(0); // Trigger ticket list refresh
     const [previousTicketTab, setPreviousTicketTab] = useState('active'); // Remember which tab user was on
     const [ticketFilters, setTicketFilters] = useState(null); // Store filters from analytics
+    const [showTicketSuccessModal, setShowTicketSuccessModal] = useState(false); // Show success modal after ticket creation
 
     // Force light mode - always remove dark class
     useEffect(() => {
@@ -177,7 +179,7 @@ export default function Dashboard() {
             }
             
             setTicketCreated(true);
-            toast.success('Ticket created successfully!');
+            setShowTicketSuccessModal(true);
         } catch (error) {
             // Rollback optimistic update on error
             const cachedTicketsStr = sessionStorage.getItem('cachedTickets');
@@ -223,6 +225,18 @@ export default function Dashboard() {
         setSelectedTicketId(null);
     };
 
+    const handleStayOnDiagnose = () => {
+        setShowTicketSuccessModal(false);
+        // Keep the diagnosis visible, user can continue working
+    };
+
+    const handleGoToTickets = () => {
+        setShowTicketSuccessModal(false);
+        setTicketRefreshKey(prev => prev + 1); // Trigger refresh to show new ticket
+        setActiveView('tickets');
+        setPreviousTicketTab('active'); // Go to active tickets tab
+    };
+
     const renderContent = () => {
         switch (activeView) {
             case 'home':
@@ -266,6 +280,38 @@ export default function Dashboard() {
     return (
         <div className="flex h-screen bg-background overflow-hidden">
             <Toaster />
+            
+            {/* Ticket Creation Success Modal */}
+            <AlertDialog open={showTicketSuccessModal} onOpenChange={setShowTicketSuccessModal}>
+                <AlertDialogContent className="max-w-md">
+                    <AlertDialogHeader>
+                        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/20">
+                            <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-500" />
+                        </div>
+                        <AlertDialogTitle className="text-center text-2xl">Ticket Created Successfully!</AlertDialogTitle>
+                        <AlertDialogDescription className="text-center text-base pt-2">
+                            Your diagnostic ticket has been created and saved. What would you like to do next?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-col gap-2 mt-4">
+                        <Button
+                            onClick={handleGoToTickets}
+                            className="w-full bg-black hover:bg-black/90 text-white"
+                        >
+                            <Ticket className="w-4 h-4 mr-2" />
+                            View All Tickets
+                        </Button>
+                        <Button
+                            onClick={handleStayOnDiagnose}
+                            variant="outline"
+                            className="w-full"
+                        >
+                            <Zap className="w-4 h-4 mr-2" />
+                            Continue Diagnosing
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Mobile Overlay */}
             {!sidebarCollapsed && (
