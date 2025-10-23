@@ -178,9 +178,9 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                 <img
                     src="/keppel port.jpg"
                     alt="Keppel Port - PSA Singapore"
-                    className="w-full h-full object-cover opacity-15 dark:opacity-10"
+                    className="w-full h-full object-cover opacity-25 dark:opacity-15"
                 />
-                <div className="absolute inset-0 bg-white/40 dark:bg-black/40"></div>
+                <div className="absolute inset-0 bg-white/30 dark:bg-black/30"></div>
             </div>
             
             {/* Content */}
