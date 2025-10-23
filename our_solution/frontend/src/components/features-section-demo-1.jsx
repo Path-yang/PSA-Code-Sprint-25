@@ -36,7 +36,7 @@ export function FeaturesSectionDemo() {
       description:
         "24/7 diagnostic support across all PSA operations worldwide with intelligent routing and escalation management.",
       skeleton: <SkeletonFour />,
-      className: "col-span-1 lg:col-span-3 border-b lg:border-none",
+      className: "col-span-1 lg:col-span-3 border-b lg:border-none overflow-visible",
     },
   ];
   return (
@@ -71,7 +71,7 @@ const FeatureCard = ({
   className,
 }) => {
   return (
-    <div className={cn(`p-4 sm:p-8 relative overflow-visible`, className)}>
+    <div className={cn(`p-4 sm:p-8 relative overflow-hidden`, className)}>
       {children}
     </div>
   );
