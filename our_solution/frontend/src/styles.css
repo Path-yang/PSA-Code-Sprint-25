@@ -268,6 +268,12 @@
   }
 }
 
+/* Force header text to always be black - must be outside @layer for specificity */
+.glass-header h2,
+.glass-header p {
+  color: #000000 !important;
+}
+
 /* Dark mode glassmorphism adaptations */
 @layer utilities {
   .dark .glass-card {
