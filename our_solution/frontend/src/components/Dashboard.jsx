@@ -88,6 +88,25 @@ export default function Dashboard() {
         localStorage.removeItem('darkMode');
     }, []);
 
+    // Handle window resize to maintain sidebar visibility on desktop
+    useEffect(() => {
+        const handleResize = () => {
+            // On desktop (>= 768px), ensure sidebar is not collapsed
+            if (window.innerWidth >= 768 && sidebarCollapsed) {
+                setSidebarCollapsed(false);
+            }
+        };
+
+        // Add event listener
+        window.addEventListener('resize', handleResize);
+        
+        // Check on mount
+        handleResize();
+
+        // Cleanup
+        return () => window.removeEventListener('resize', handleResize);
+    }, [sidebarCollapsed]);
+
     // Listen for navigation events from analytics charts
     useEffect(() => {
         const handleNavigateTickets = (event) => {

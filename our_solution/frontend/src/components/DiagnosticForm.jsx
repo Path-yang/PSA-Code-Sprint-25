@@ -201,7 +201,7 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                                 {greeting}
                             </h1>
-                            <div className="text-base md:text-lg text-muted-foreground">
+                            <div className="text-base md:text-lg text-gray-700 dark:text-gray-300">
                                 Ready to <FlipWords
                                     words={['diagnose', 'analyze', 'investigate', 'resolve']}
                                     duration={2000}
@@ -233,7 +233,7 @@ export default function DiagnosticForm({ onTicketCreated, onDiagnosisChange, onT
                                         <FileText className="w-5 h-5" />
                                         Diagnostic Form
                                     </CardTitle>
-                                    <CardDescription>
+                                    <CardDescription className="text-gray-700 dark:text-gray-300">
                                         Paste your alert text below and let our AI analyze the issue
                                     </CardDescription>
                                 </div>
