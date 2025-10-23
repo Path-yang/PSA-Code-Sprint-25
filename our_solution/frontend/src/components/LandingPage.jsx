@@ -61,8 +61,8 @@ export default function LandingPage({ onNavigate }) {
 
                 <div className="container mx-auto px-6 py-20 relative z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ y: 20 }}
+                        animate={{ y: 0 }}
                         transition={{ duration: 0.6 }}
                         className="text-center"
                     >
@@ -99,7 +99,7 @@ export default function LandingPage({ onNavigate }) {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.8 }}
-                                    className="text-xl text-muted-foreground max-w-2xl mx-auto"
+                                    className="text-xl text-black dark:text-white font-bold max-w-2xl mx-auto drop-shadow-lg"
                                 >
                                     Transform your L2 support operations with AI-powered diagnostics,
                                     intelligent ticket management, and automated resolution workflows.
