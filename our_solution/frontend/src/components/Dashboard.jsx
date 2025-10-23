@@ -446,7 +446,8 @@ export default function Dashboard() {
                                     duration={1}
                                     clockwise={true}
                                     containerClassName="h-10 w-auto"
-                                    className={`bg-primary text-primary-foreground ${isSavingTicket ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    className={`text-white ${isSavingTicket ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    style={{ backgroundColor: '#000000' }}
                                 >
                                     <div className="flex items-center gap-2">
                                         {isSavingTicket ? (
