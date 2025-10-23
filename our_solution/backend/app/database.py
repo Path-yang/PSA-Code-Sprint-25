@@ -310,22 +310,29 @@ def list_tickets(status: Optional[str] = None, limit: int = 50, offset: int = 0)
 def update_ticket(ticket_id: int, updates: dict) -> Optional[dict]:
     """Update ticket fields."""
     with _db_lock:
-        allowed_fields = {'edited_diagnosis', 'notes', 'custom_fields'}
+        allowed_fields = {'edited_diagnosis', 'notes', 'custom_fields', 'update_reason'}
         fields_to_update = {k: v for k, v in updates.items() if k in allowed_fields}
+        
+        # Extract custom update_reason if provided
+        custom_update_reason = fields_to_update.pop('update_reason', None)
         
         if not fields_to_update:
             return get_ticket(ticket_id)
         
-        # Determine what was updated for update_reason
-        update_reasons = []
-        if 'notes' in fields_to_update:
-            update_reasons.append('Updated notes')
-        if 'custom_fields' in fields_to_update:
-            update_reasons.append('Updated custom fields')
-        if 'edited_diagnosis' in fields_to_update:
-            update_reasons.append('Edited diagnosis')
-        
-        fields_to_update['update_reason'] = ' & '.join(update_reasons) if update_reasons else 'Updated ticket'
+        # Use custom update_reason if provided, otherwise determine automatically
+        if custom_update_reason:
+            fields_to_update['update_reason'] = custom_update_reason
+        else:
+            # Determine what was updated for update_reason
+            update_reasons = []
+            if 'notes' in fields_to_update:
+                update_reasons.append('Updated notes')
+            if 'custom_fields' in fields_to_update:
+                update_reasons.append('Updated custom fields')
+            if 'edited_diagnosis' in fields_to_update:
+                update_reasons.append('Edited diagnosis')
+            
+            fields_to_update['update_reason'] = ' & '.join(update_reasons) if update_reasons else 'Updated ticket'
         
         # For Postgres, keep as dict; for SQLite, convert to JSON string
         if not USE_POSTGRES:

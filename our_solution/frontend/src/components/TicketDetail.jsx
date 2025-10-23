@@ -91,6 +91,12 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   const [editedRootCause, setEditedRootCause] = useState('');
   const [editedTechnicalDetails, setEditedTechnicalDetails] = useState('');
   const [editedResolutionSteps, setEditedResolutionSteps] = useState('');
+  const [editedTicketId, setEditedTicketId] = useState('');
+  const [editedModule, setEditedModule] = useState('');
+  const [editedEntityId, setEditedEntityId] = useState('');
+  const [editedChannel, setEditedChannel] = useState('');
+  const [editedPriority, setEditedPriority] = useState('');
+  const [editedReport, setEditedReport] = useState('');
   const [notes, setNotes] = useState('');
   const [customFields, setCustomFields] = useState({});
   const [newFieldKey, setNewFieldKey] = useState('');
@@ -113,6 +119,12 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           ? diagnosis.resolution.resolution_steps.join('\n')
           : ''
       );
+      setEditedTicketId(diagnosis?.parsed?.ticket_id || '');
+      setEditedModule(diagnosis?.parsed?.module || '');
+      setEditedEntityId(diagnosis?.parsed?.entity_id || '');
+      setEditedChannel(diagnosis?.parsed?.channel || '');
+      setEditedPriority(diagnosis?.parsed?.priority || '');
+      setEditedReport(diagnosis?.report || '');
       setNotes(fetchedTicket.notes || '');
       setCustomFields(fetchedTicket.custom_fields || {});
     } catch (err) {
@@ -144,22 +156,27 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
   }, [ticket]);
 
   const handleSave = async () => {
-    // When saving from Notes tab, only send notes and custom_fields
-    // When saving from Root Cause/Resolution tabs (isEditing), send edited_diagnosis
-
     const updatesToSend = {};
 
-    // Always include notes and custom_fields if saving from Notes tab
+    // Determine what's being saved based on active tab and editing mode
     if (activeTab === 'notes') {
       updatesToSend.notes = notes;
       updatesToSend.custom_fields = customFields;
-    }
-
-    // Only include edited diagnosis if we're in editing mode (Root Cause/Resolution edits)
-    if (isEditing) {
+      // Backend will auto-determine the update reason for notes/custom fields
+    } else if (isEditing) {
+      // We're editing diagnosis data
       const diagnosis = ticket.edited_diagnosis || ticket.diagnosis_data;
+      
       const editedDiagnosis = {
         ...diagnosis,
+        parsed: {
+          ...diagnosis.parsed,
+          ticket_id: editedTicketId,
+          module: editedModule,
+          entity_id: editedEntityId,
+          channel: editedChannel,
+          priority: editedPriority,
+        },
         rootCause: {
           ...diagnosis.rootCause,
           root_cause: editedRootCause,
@@ -169,8 +186,21 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
           ...diagnosis.resolution,
           resolution_steps: editedResolutionSteps.split('\n').filter(s => s.trim()),
         },
+        report: editedReport,
       };
+      
       updatesToSend.edited_diagnosis = editedDiagnosis;
+      
+      // Set specific update reason based on which tab is active
+      if (activeTab === 'alert-summary') {
+        updatesToSend.update_reason = 'Updated alert summary';
+      } else if (activeTab === 'root-cause') {
+        updatesToSend.update_reason = 'Updated root cause analysis';
+      } else if (activeTab === 'resolution') {
+        updatesToSend.update_reason = 'Updated resolution plan';
+      } else if (activeTab === 'full-report') {
+        updatesToSend.update_reason = 'Updated full report';
+      }
     }
 
     // Optimistic update - update UI immediately
@@ -542,57 +572,120 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="border rounded-md">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            {parsed.ticket_id && <TableHead>Ticket ID</TableHead>}
-                            {parsed.module && <TableHead>Module</TableHead>}
-                            {parsed.entity_id && <TableHead>Entity</TableHead>}
-                            {parsed.channel && <TableHead>Channel</TableHead>}
-                            {parsed.priority && <TableHead>Priority</TableHead>}
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow>
-                            {parsed.ticket_id && (
-                              <TableCell>
-                                <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
-                              </TableCell>
-                            )}
-                            {parsed.module && (
-                              <TableCell>
-                                <Badge variant="outline">{parsed.module}</Badge>
-                              </TableCell>
-                            )}
-                            {parsed.entity_id && (
-                              <TableCell>
-                                <Badge variant="outline">{parsed.entity_id}</Badge>
-                              </TableCell>
-                            )}
-                            {parsed.channel && (
-                              <TableCell>
-                                <Badge variant="outline" className="gap-1">
-                                  {getChannelIcon(parsed.channel)}
-                                  {parsed.channel}
-                                </Badge>
-                              </TableCell>
-                            )}
-                            {parsed.priority && (
-                              <TableCell>
-                                <Badge variant={
-                                  parsed.priority === 'High' ? 'destructive' :
-                                    parsed.priority === 'Medium' ? 'warning' :
-                                      'success'
-                                }>
-                                  {parsed.priority}
-                                </Badge>
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </div>
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="ticket-id">Ticket ID</Label>
+                            <Input
+                              id="ticket-id"
+                              value={editedTicketId}
+                              onChange={(e) => setEditedTicketId(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="module">Module</Label>
+                            <Select value={editedModule} onValueChange={setEditedModule}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select module" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Container">Container</SelectItem>
+                                <SelectItem value="Vessel">Vessel</SelectItem>
+                                <SelectItem value="EDI/API">EDI/API</SelectItem>
+                                <SelectItem value="Berth">Berth</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="entity-id">Entity ID</Label>
+                            <Input
+                              id="entity-id"
+                              value={editedEntityId}
+                              onChange={(e) => setEditedEntityId(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="channel">Channel</Label>
+                            <Select value={editedChannel} onValueChange={setEditedChannel}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select channel" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Email">Email</SelectItem>
+                                <SelectItem value="SMS">SMS</SelectItem>
+                                <SelectItem value="Phone">Phone</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="priority">Priority</Label>
+                            <Select value={editedPriority} onValueChange={setEditedPriority}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select priority" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="High">High</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Low">Low</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border rounded-md">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              {parsed.ticket_id && <TableHead>Ticket ID</TableHead>}
+                              {parsed.module && <TableHead>Module</TableHead>}
+                              {parsed.entity_id && <TableHead>Entity</TableHead>}
+                              {parsed.channel && <TableHead>Channel</TableHead>}
+                              {parsed.priority && <TableHead>Priority</TableHead>}
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              {parsed.ticket_id && (
+                                <TableCell>
+                                  <Badge variant="outline" className="font-mono">{parsed.ticket_id}</Badge>
+                                </TableCell>
+                              )}
+                              {parsed.module && (
+                                <TableCell>
+                                  <Badge variant="outline">{parsed.module}</Badge>
+                                </TableCell>
+                              )}
+                              {parsed.entity_id && (
+                                <TableCell>
+                                  <Badge variant="outline">{parsed.entity_id}</Badge>
+                                </TableCell>
+                              )}
+                              {parsed.channel && (
+                                <TableCell>
+                                  <Badge variant="outline" className="gap-1">
+                                    {getChannelIcon(parsed.channel)}
+                                    {parsed.channel}
+                                  </Badge>
+                                </TableCell>
+                              )}
+                              {parsed.priority && (
+                                <TableCell>
+                                  <Badge variant={
+                                    parsed.priority === 'High' ? 'destructive' :
+                                      parsed.priority === 'Medium' ? 'warning' :
+                                        'success'
+                                  }>
+                                    {parsed.priority}
+                                  </Badge>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -974,11 +1067,23 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {displayData.report || 'No report available'}
-                </ReactMarkdown>
-              </div>
+              {isEditing ? (
+                <div className="space-y-2">
+                  <Label htmlFor="full-report">Report (Markdown supported)</Label>
+                  <Textarea
+                    id="full-report"
+                    value={editedReport}
+                    onChange={(e) => setEditedReport(e.target.value)}
+                    className="min-h-[400px] font-mono text-sm"
+                  />
+                </div>
+              ) : (
+                <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {displayData.report || 'No report available'}
+                  </ReactMarkdown>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -1086,8 +1191,8 @@ export default function TicketDetail({ ticketId, ticket: propTicket, onBack, onT
             </>
           ) : (
             <>
-              {/* Edit Analysis Button - Only on Root Cause Tab */}
-              {ticket.status === 'active' && activeTab === 'root-cause' && (
+              {/* Edit Analysis Button - Available on all editable tabs except notes */}
+              {ticket.status === 'active' && ['alert-summary', 'root-cause', 'resolution', 'full-report'].includes(activeTab) && (
                 <Button onClick={() => setIsEditing(true)} className="gap-2">
                   <Edit className="w-4 h-4" />
                   Edit Analysis
