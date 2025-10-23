@@ -71,7 +71,7 @@ const FeatureCard = ({
   className,
 }) => {
   return (
-    <div className={cn(`p-4 sm:p-8 relative`, className)}>
+    <div className={cn(`p-4 sm:p-8 relative overflow-hidden`, className)}>
       {children}
     </div>
   );
@@ -174,8 +174,8 @@ export const SkeletonTwo = () => {
 
 export const SkeletonFour = () => {
   return (
-    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible px-0">
-      <div className="relative w-[90vw] max-w-[340px] sm:w-[340px] md:w-[400px] lg:w-[460px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible">
+    <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center lg:justify-end overflow-visible">
+      <div className="relative w-full sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[520px] aspect-square mx-auto lg:mx-0 overflow-visible">
         <Globe size={520} className="w-full h-full" />
       </div>
     </div>
