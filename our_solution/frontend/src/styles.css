@@ -298,9 +298,4 @@
     background: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   }
-  
-  .dark .glass-header h2,
-  .dark .glass-header p {
-    color: #000000 !important;
-  }
 }
